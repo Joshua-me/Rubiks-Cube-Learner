@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Twisty Lab — Puzzle Solver & Learning Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --charcoal: #1e1e24;
+      --slate-line: rgba(148, 163, 184, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; background: #f8fafc; color: #0f172a; }
+    .hidden { display: none !important; }
+    .glass-card { background: rgba(255,255,255,.92); border: 1px solid rgba(226,232,240,.75); box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 18px 55px rgba(15,23,42,.05); }
+    .tap-target { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    .view { animation: viewIn .28s ease both; }
+    @keyframes viewIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .scanner-stage { perspective: 1100px; }
+    .scanner-mesh { transform-style: preserve-3d; transition: transform .72s cubic-bezier(.2,.8,.2,1), filter .72s ease; }
+    .scanner-mesh.face-flip { transform: rotateY(180deg) scale(.985); filter: saturate(1.12); }
+    .face-grid { display: grid; gap: 4px; padding: 7px; background: #0f172a; border-radius: 18px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 12px 28px rgba(15,23,42,.12); }
+    .facelet { border: 1px solid rgba(15,23,42,.25); border-radius: 8px; min-width: 24px; min-height: 24px; aspect-ratio: 1/1; cursor: pointer; transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
+    .facelet:hover, .facelet:focus-visible { transform: scale(1.08); box-shadow: 0 0 0 3px rgba(79,70,229,.22); outline: none; }
+    .pyra-face { width: min(35vw, 190px); height: min(30vw, 164px); min-width: 138px; min-height: 120px; position: relative; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); background: #0f172a; border-radius: 14px; }
+    .pyra-cell { position: absolute; width: 28%; height: 28%; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); border: 1px solid rgba(15,23,42,.35); cursor: pointer; transition: transform .12s ease, filter .12s ease; }
+    .pyra-cell:nth-child(even) { clip-path: polygon(0 0, 100% 0, 50% 100%); }
+    .pyra-cell:hover { transform: scale(1.08); filter: brightness(1.05); }
+    .brush { width: 42px; height: 42px; border-radius: 9999px; border: 3px solid #fff; box-shadow: 0 0 0 1px rgba(15,23,42,.18), 0 7px 18px rgba(15,23,42,.12); transition: transform .16s ease, box-shadow .16s ease; }
+    .brush.active { transform: translateY(-4px) scale(1.08); box-shadow: 0 0 0 4px rgba(79,70,229,.22), 0 12px 22px rgba(15,23,42,.18); }
+    .notation-pill { transition: all .18s ease; }
+    .notation-pill.active { background: #4f46e5; color: #fff; transform: translateY(-2px); box-shadow: 0 12px 22px rgba(79,70,229,.24); }
+    .cube-scene { perspective: 850px; width: min(62vw, 260px); height: min(62vw, 260px); max-width: 260px; max-height: 260px; margin: 0 auto; display: grid; place-items: center; }
+    .cube3d { position: relative; width: 140px; height: 140px; transform-style: preserve-3d; transform: rotateX(-26deg) rotateY(36deg); transition: transform .46s cubic-bezier(.2,.8,.2,1); }
+    .cube3d.turning-R { transform: rotateX(-26deg) rotateY(126deg) rotateZ(5deg); }
+    .cube3d.turning-L { transform: rotateX(-26deg) rotateY(-54deg) rotateZ(-5deg); }
+    .cube3d.turning-U { transform: rotateX(-116deg) rotateY(36deg); }
+    .cube3d.turning-D { transform: rotateX(64deg) rotateY(36deg); }
+    .cube3d.turning-F { transform: rotateX(-26deg) rotateY(36deg) rotateZ(90deg); }
+    .cube3d.turning-B { transform: rotateX(-26deg) rotateY(216deg); }
+    .cube-face3d { position: absolute; width: 140px; height: 140px; display: grid; gap: 3px; padding: 5px; background: #0f172a; border-radius: 13px; backface-visibility: visible; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
+    .cube-face3d span { border-radius: 5px; border: 1px solid rgba(15,23,42,.22); }
+    .face-front { transform: translateZ(70px); }
+    .face-back { transform: rotateY(180deg) translateZ(70px); }
+    .face-right { transform: rotateY(90deg) translateZ(70px); }
+    .face-left { transform: rotateY(-90deg) translateZ(70px); }
+    .face-up { transform: rotateX(90deg) translateZ(70px); }
+    .face-down { transform: rotateX(-90deg) translateZ(70px); }
+    .toast { animation: toastIn .22s ease both; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .shape-svg { filter: drop-shadow(0 14px 22px rgba(15,23,42,.12)); }
+    @media (max-width: 640px) {
+      .face-grid { gap: 3px; padding: 5px; border-radius: 14px; }
+      .facelet { min-width: 18px; border-radius: 5px; }
+      .cube3d { width: 116px; height: 116px; }
+      .cube-face3d { width: 116px; height: 116px; }
+      .face-front { transform: translateZ(58px); } .face-back { transform: rotateY(180deg) translateZ(58px); } .face-right { transform: rotateY(90deg) translateZ(58px); } .face-left { transform: rotateY(-90deg) translateZ(58px); } .face-up { transform: rotateX(90deg) translateZ(58px); } .face-down { transform: rotateX(-90deg) translateZ(58px); }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+  <main class="mx-auto min-h-screen w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+    <header class="mb-6 flex flex-col gap-4 rounded-3xl border border-slate-200/60 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <button id="brandHome" class="tap-target text-left" aria-label="Return to dashboard">
+        <p class="text-xs font-bold uppercase tracking-[0.34em] text-indigo-600">Twisty Lab</p>
+        <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">Puzzle Solver & Learning Platform</h1>
+      </button>
+      <div id="crumbs" class="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600">Dashboard Hub</div>
+    </header>
+
+    <section id="dashboardView" class="view">
+      <div class="mb-8 grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
+        <div class="glass-card rounded-[2rem] p-6 sm:p-8">
+          <p class="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-indigo-600">Neo-minimal algorithm studio</p>
+          <h2 class="max-w-3xl text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">Paint, validate, solve, and study twisty puzzles in one self-contained interface.</h2>
+          <p class="mt-4 max-w-2xl text-base leading-7 text-slate-600">Choose a puzzle, scan its colors, animate the method, or isolate important pieces with focused study masks.</p>
+        </div>
+        <div class="glass-card rounded-[2rem] p-6">
+          <h3 class="text-lg font-black text-slate-900">System checks</h3>
+          <div class="mt-4 space-y-3 text-sm text-slate-600">
+            <div class="flex items-center gap-3"><span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>Strict color count validation</div>
+            <div class="flex items-center gap-3"><span class="h-2.5 w-2.5 rounded-full bg-indigo-500"></span>CSS 3D playback animation</div>
+            <div class="flex items-center gap-3"><span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>4x4 / 5x5 parity subroutines</div>
+          </div>
+        </div>
+      </div>
+      <div id="puzzleCards" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"></div>
+    </section>
+
+    <section id="modeView" class="view hidden">
+      <button data-route="dashboard" class="tap-target mb-5 flex w-full items-center justify-between rounded-3xl border border-slate-200/60 bg-white px-5 py-4 text-left shadow-sm">
+        <span><span class="font-black text-slate-900">← Back to Hub</span><span class="ml-2 text-sm text-slate-500">choose another puzzle</span></span>
+        <span id="modePuzzleBadge" class="rounded-full bg-indigo-50 px-3 py-1 text-sm font-bold text-indigo-600"></span>
+      </button>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <button data-mode="solve" class="tap-target group rounded-[2rem] border border-slate-200/60 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+          <div class="mb-8 flex h-16 w-16 items-center justify-center rounded-3xl bg-indigo-600 text-3xl text-white shadow-lg shadow-indigo-600/20">⌁</div>
+          <h2 class="text-3xl font-black tracking-tight text-slate-900">Solve My Puzzle</h2>
+          <p class="mt-3 text-slate-600">Paint every visible sticker or triangular segment, pass exact color-count validation, and run an animated algorithm playback.</p>
+        </button>
+        <button data-mode="learn" class="tap-target group rounded-[2rem] border border-slate-200/60 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+          <div class="mb-8 flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-900 text-3xl text-white shadow-lg shadow-slate-900/20">◐</div>
+          <h2 class="text-3xl font-black tracking-tight text-slate-900">Learn Techniques</h2>
+          <p class="mt-3 text-slate-600">Enter guided practice with your own colors or independent study with charcoal masking for only the relevant pieces.</p>
+        </button>
+      </div>
+    </section>
+
+    <section id="learnView" class="view hidden">
+      <button data-route="mode" class="tap-target mb-5 rounded-2xl border border-slate-200/60 bg-white px-4 py-3 font-bold text-slate-700 shadow-sm">← Back to Mode Selection</button>
+      <div class="grid gap-5 lg:grid-cols-2">
+        <button data-learn="guided" class="tap-target rounded-[2rem] border border-slate-200/60 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+          <p class="text-sm font-bold uppercase tracking-[0.28em] text-indigo-600">Track A</p>
+          <h2 class="mt-3 text-3xl font-black text-slate-900">Guided Practice</h2>
+          <p class="mt-3 text-slate-600">Paint your puzzle first, then get method playback plus a dynamic hint box with context-sensitive coaching.</p>
+        </button>
+        <button data-learn="independent" class="tap-target rounded-[2rem] border border-slate-200/60 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+          <p class="text-sm font-bold uppercase tracking-[0.28em] text-slate-500">Track B</p>
+          <h2 class="mt-3 text-3xl font-black text-slate-900">Independent Study</h2>
+          <p class="mt-3 text-slate-600">Skip scanning and inspect pre-set mechanical cases with all non-focus pieces masked in matte charcoal black.</p>
+        </button>
+      </div>
+    </section>
+
+    <section id="scannerView" class="view hidden">
+      <div class="mb-5 flex flex-col gap-3 rounded-3xl border border-slate-200/60 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+        <div>
+          <button data-route="mode" class="tap-target text-sm font-bold text-indigo-600">← Back</button>
+          <h2 id="scannerTitle" class="mt-1 text-2xl font-black text-slate-900">Interactive Scanner</h2>
+          <p id="validationText" class="text-sm text-slate-500">Paint each facelet using the palette below.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="autoFillBtn" class="tap-target rounded-2xl bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700">Auto-fill solved colors</button>
+          <button id="resetPaintBtn" class="tap-target rounded-2xl bg-white px-4 py-2 text-sm font-bold text-slate-700 ring-1 ring-slate-200">Reset</button>
+          <button id="solveBtn" class="tap-target hidden rounded-2xl bg-indigo-600 px-5 py-2 text-sm font-black text-white shadow-lg shadow-indigo-600/20">SOLVE</button>
+        </div>
+      </div>
+      <div class="scanner-stage rounded-[2rem] border border-slate-200/60 bg-white p-4 shadow-sm">
+        <div id="scannerMesh" class="scanner-mesh min-h-[390px] overflow-auto rounded-[1.5rem] bg-slate-50 p-4"></div>
+      </div>
+      <div class="sticky bottom-3 z-20 mt-5 rounded-[2rem] border border-slate-200/70 bg-white/95 p-4 shadow-xl backdrop-blur">
+        <div class="mb-3 flex items-center justify-between gap-3"><h3 class="font-black text-slate-900">Color Palette</h3><span id="brushLabel" class="font-mono text-sm text-slate-600">#ffffff</span></div>
+        <div id="palette" class="flex flex-wrap gap-3"></div>
+      </div>
+    </section>
+
+    <section id="playbackView" class="view hidden">
+      <div class="mb-5 flex flex-col gap-3 rounded-3xl border border-slate-200/60 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+        <div>
+          <button data-route="mode" class="tap-target text-sm font-bold text-indigo-600">← Exit playback</button>
+          <h2 id="playbackTitle" class="mt-1 text-2xl font-black text-slate-900">Performance Playback Viewer</h2>
+        </div>
+        <div id="playbackModeBadge" class="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600">Solve Mode</div>
+      </div>
+      <div class="grid gap-5 lg:grid-cols-[.9fr_1.1fr]">
+        <div class="glass-card rounded-[2rem] p-5">
+          <div id="visualFrame" class="mb-4 min-h-[320px] rounded-[1.5rem] bg-gradient-to-br from-slate-50 to-white p-4"></div>
+          <div id="hintBox" class="hidden rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-sm leading-6 text-indigo-950"></div>
+        </div>
+        <div class="glass-card rounded-[2rem] p-5">
+          <p class="text-xs font-bold uppercase tracking-[0.28em] text-indigo-600">Current algorithm step</p>
+          <h3 id="stepName" class="mt-2 text-3xl font-black tracking-tight text-slate-900"></h3>
+          <p id="stepInstructions" class="mt-3 text-base leading-7 text-slate-600"></p>
+          <div class="mt-5 rounded-3xl bg-slate-50 p-4">
+            <p class="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Formula</p>
+            <div id="formulaDisplay" class="flex flex-wrap gap-2 font-mono text-lg text-slate-800"></div>
+          </div>
+          <div id="parityPanel" class="mt-5 hidden rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"></div>
+          <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <button id="backMove" class="tap-target rounded-2xl bg-white px-3 py-3 font-black text-slate-700 ring-1 ring-slate-200">◀ Back One Move</button>
+            <button id="pauseMove" class="tap-target rounded-2xl bg-slate-900 px-3 py-3 font-black text-white">⏸ Pause Auto-Play</button>
+            <button id="playMove" class="tap-target rounded-2xl bg-indigo-600 px-3 py-3 font-black text-white">▶ Play/Auto-Animate</button>
+            <button id="nextMove" class="tap-target rounded-2xl bg-white px-3 py-3 font-black text-slate-700 ring-1 ring-slate-200">▶▶ Next Move</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toastLayer" class="fixed inset-x-0 bottom-5 z-50 mx-auto flex max-w-xl flex-col gap-3 px-4 pointer-events-none"></div>
+
+  <script>
+    const PuzzleValidators = {
+      '3x3': (state) => {
+        const counts = { '#ffffff':0, '#ffff00':0, '#00ff00':0, '#0000ff':0, '#ff0000':0, '#ffaa00':0 };
+        state.forEach(color => { if(counts[color] !== undefined) counts[color]++; });
+        return Object.values(counts).every(count => count === 9);
+      },
+      '4x4': (state) => {
+        const counts = { '#ffffff':0, '#ffff00':0, '#00ff00':0, '#0000ff':0, '#ff0000':0, '#ffaa00':0 };
+        state.forEach(color => { if(counts[color] !== undefined) counts[color]++; });
+        return Object.values(counts).every(count => count === 16);
+      },
+      '5x5': (state) => {
+        const counts = { '#ffffff':0, '#ffff00':0, '#00ff00':0, '#0000ff':0, '#ff0000':0, '#ffaa00':0 };
+        state.forEach(color => { if(counts[color] !== undefined) counts[color]++; });
+        return Object.values(counts).every(count => count === 25);
+      },
+      'pyraminx': (state) => {
+        const counts = { '#ffffff':0, '#ffff00':0, '#00ff00':0, '#0000ff':0 };
+        state.forEach(color => { if(counts[color] !== undefined) counts[color]++; });
+        return Object.values(counts).every(count => count === 9);
+      }
+    };
+
+    const Godfather3x3Solver = [
+      {
+        stepName: "White Cross Orientation",
+        instructions: "Align the 4 white edge pieces with the white center and their matching side centers.",
+        moves: ["F", "R'", "D", "R", "F2"]
+      },
+      {
+        stepName: "First Layer Corners (Sexy Move Insertion)",
+        instructions: "Locate a white corner piece, place it directly above its target slot, and execute the algorithm until it slots in correctly.",
+        moves: ["R", "U", "R'", "U'"]
+      },
+      {
+        stepName: "Middle Layer Edges (Right-Slot Matching)",
+        instructions: "Align the edge piece with its matching center. If it needs to drop down to the right slot, run this loop.",
+        moves: ["U", "R", "U'", "R'", "U'", "F'", "U", "F"]
+      },
+      {
+        stepName: "Middle Layer Edges (Left-Slot Matching)",
+        instructions: "If the aligned edge piece needs to drop down into the left slot, run this inversion loop.",
+        moves: ["U'", "L'", "U", "L", "U", "F", "U'", "F'"]
+      },
+      {
+        stepName: "Top Yellow Cross (L-Shape Variant)",
+        instructions: "Orient the top yellow pieces into a solid cross shape using wide front face movements.",
+        moves: ["F", "R", "U", "R'", "U'", "F'"]
+      },
+      {
+        stepName: "Permute Yellow Corners (The Sune Step)",
+        instructions: "Turn the entire top face yellow by using the Sune algorithm to twist the remaining corners upward.",
+        moves: ["R", "U", "R'", "U", "R", "U2", "R'"]
+      },
+      {
+        stepName: "Position Top Corners (Aa-Permutation)",
+        instructions: "Look for 'headlights' (two matching corners on one side), face them backward, and shift all corners into position.",
+        moves: ["R'", "F", "R'", "B2", "R", "F'", "R'", "B2", "R2"]
+      },
+      {
+        stepName: "Position Top Edges (Ua-Permutation Clockwise)",
+        instructions: "Swap the remaining top edge pieces clockwise to finish solving your 3x3 cube completely.",
+        moves: ["R", "U'", "R", "U", "R", "U", "R", "U'", "R'", "U'", "R2"]
+      }
+    ];
+
+    const BigCubeParities = {
+      OLL_Parity_4x4: {
+        description: "Flipped Edge Block Parity (Fixes an odd number of oriented edge pairs on the final layer).",
+        moves: ["Rw2", "B2", "U2", "Lw", "U2", "Rw'", "U2", "Rw", "U2", "F2", "Rw", "F2", "Lw'", "B2", "Rw2"]
+      },
+      PLL_Parity_4x4: {
+        description: "Two-Edge Swap Parity (Fixes two opposite or adjacent edges that are swapped at the very end).",
+        moves: ["Rw2", "U2", "Rw2", "Uw2", "Rw2", "Uw2"]
+      },
+      L2E_Parity_5x5: {
+        description: "Last Two Edges Slice (Corrects the final flipped mid-edge segment relative to its outer wing pairs).",
+        moves: ["Rw2", "B2", "U2", "Lw", "U2", "Rw'", "U2", "Rw", "U2", "F2", "Rw", "F2", "Lw'", "B2", "Rw2"]
+      }
+    };
+
+    const IndependentLearningLibrary = {
+      '3x3': [
+        {
+          caseName: "White Cross Foundation",
+          focusIndices: [4, 13, 22, 31, 40, 49, 7, 16, 25, 34], 
+          textGuide: "In this mode, all distracting pieces are blacked out. Focus entirely on pushing the 4 White Edges next to the Yellow Center first to form a daisy before flipping them."
+        },
+        {
+          caseName: "F2L Corner-Edge Matching",
+          focusIndices: [2, 11, 20, 8, 17], 
+          textGuide: "Watch how the corner piece pair matches up on the top face. We ignore all other faces to see the insertion channel clearly."
+        }
+      ]
+    };
+
+    const COLORS = {
+      cube: ['#ffffff', '#ffff00', '#00ff00', '#0000ff', '#ff0000', '#ffaa00'],
+      pyraminx: ['#ffffff', '#ffff00', '#00ff00', '#0000ff'],
+      blank: '#e2e8f0',
+      mask: '#1e1e24'
+    };
+    const FACE_NAMES = ['Up', 'Left', 'Front', 'Right', 'Back', 'Down'];
+    const PYRA_FACE_NAMES = ['Base', 'Left Wing', 'Right Wing', 'Rear Wing'];
+    const PUZZLES = {
+      '3x3': { label: '3x3 Cube', kind: 'cube', size: 3, faces: 6, colors: COLORS.cube, subtitle: 'Classic layered method' },
+      'pyraminx': { label: 'Pyraminx', kind: 'pyraminx', size: 3, faces: 4, colors: COLORS.pyraminx, subtitle: 'Four triangular faces' },
+      '4x4': { label: '4x4 Master', kind: 'cube', size: 4, faces: 6, colors: COLORS.cube, subtitle: 'Reduction + parity' },
+      '5x5': { label: '5x5 Professor', kind: 'cube', size: 5, faces: 6, colors: COLORS.cube, subtitle: 'Centers, edges, parity' }
+    };
+    const AppState = {
+      activeScreen: 'dashboard', puzzleType: '3x3', trainingProfile: null, activeStepIndex: 0, activeMoveIndex: 0,
+      selectedPaintBrush: '#ffffff', activeFace: 0, autoTimer: null, independentCaseIndex: 0,
+      colorDataMap: {
+        '3x3': Array(54).fill('#e2e8f0'), '4x4': Array(96).fill('#e2e8f0'), '5x5': Array(150).fill('#e2e8f0'), 'pyraminx': Array(36).fill('#e2e8f0')
+      }
+    };
+    let CurrentAlgorithm = Godfather3x3Solver;
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+    function setView(viewName) {
+      ['dashboardView', 'modeView', 'learnView', 'scannerView', 'playbackView'].forEach(id => $('#' + id).classList.add('hidden'));
+      $('#' + viewName + 'View').classList.remove('hidden');
+      AppState.activeScreen = viewName;
+      const labels = { dashboard: 'Dashboard Hub', mode: PUZZLES[AppState.puzzleType].label + ' / Mode Selection', learn: 'Learning Tracks', scanner: 'Interactive Scanner', playback: 'Performance Playback' };
+      $('#crumbs').textContent = labels[viewName] || 'Twisty Lab';
+      stopAutoPlay();
+    }
+
+    function renderPuzzleCards() {
+      $('#puzzleCards').innerHTML = Object.entries(PUZZLES).map(([key, puzzle]) => `
+        <button class="tap-target group rounded-[2rem] border border-slate-200/60 bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl" data-puzzle="${key}">
+          <div class="mb-5 flex h-44 items-center justify-center rounded-[1.5rem] bg-slate-50">${renderPuzzleIcon(key)}</div>
+          <div class="flex items-start justify-between gap-3">
+            <div><h3 class="text-xl font-black text-slate-900">${puzzle.label}</h3><p class="mt-1 text-sm text-slate-500">${puzzle.subtitle}</p></div>
+            <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-600">Open</span>
+          </div>
+        </button>`).join('');
+      $$('[data-puzzle]').forEach(btn => btn.addEventListener('click', () => { AppState.puzzleType = btn.dataset.puzzle; $('#modePuzzleBadge').textContent = PUZZLES[AppState.puzzleType].label; setView('mode'); }));
+    }
+
+    function renderPuzzleIcon(key) {
+      if (key === 'pyraminx') {
+        return `<svg class="shape-svg" width="170" height="145" viewBox="0 0 170 145" aria-hidden="true"><polygon points="85,8 158,132 12,132" fill="#f8fafc" stroke="#0f172a" stroke-width="4"/><polygon points="85,8 85,132 12,132" fill="#00ff00" opacity=".88"/><polygon points="85,8 158,132 85,132" fill="#0000ff" opacity=".82"/><polygon points="48,70 122,70 85,132" fill="#ffff00" opacity=".88"/><path d="M85 8 85 132M48 70h74M30 101h110" stroke="#0f172a" stroke-width="3" opacity=".9"/></svg>`;
+      }
+      const n = PUZZLES[key].size;
+      const lines = Array.from({length:n+1}, (_,i)=>`<path d="M${35+i*85/n} 38 L${118+i*85/n} 18 L${118+i*85/n} 101 L${35+i*85/n} 122Z" stroke="#0f172a" stroke-width="1.5" opacity=".25"/>`).join('');
+      return `<svg class="shape-svg" width="178" height="150" viewBox="0 0 178 150" aria-hidden="true"><polygon points="35,38 93,18 143,38 86,60" fill="#ffffff" stroke="#0f172a" stroke-width="3"/><polygon points="35,38 86,60 86,124 35,101" fill="#00ff00" stroke="#0f172a" stroke-width="3"/><polygon points="86,60 143,38 143,101 86,124" fill="#ff0000" stroke="#0f172a" stroke-width="3"/>${lines}<text x="89" y="143" text-anchor="middle" font-size="14" font-weight="900" fill="#475569">${n} × ${n}</text></svg>`;
+    }
+
+    function buildPalette() {
+      const colors = PUZZLES[AppState.puzzleType].colors;
+      AppState.selectedPaintBrush = colors[0];
+      $('#palette').innerHTML = colors.map(color => `<button class="tap-target brush ${color === AppState.selectedPaintBrush ? 'active' : ''}" data-brush="${color}" style="background:${color}" aria-label="Paint ${color}"></button>`).join('');
+      $('#brushLabel').textContent = AppState.selectedPaintBrush;
+      $$('[data-brush]').forEach(btn => btn.addEventListener('click', () => {
+        AppState.selectedPaintBrush = btn.dataset.brush;
+        $('#brushLabel').textContent = AppState.selectedPaintBrush;
+        $$('.brush').forEach(b => b.classList.toggle('active', b.dataset.brush === AppState.selectedPaintBrush));
+      }));
+    }
+
+    function openScanner(profile = null) {
+      AppState.trainingProfile = profile;
+      AppState.activeFace = 0;
+      $('#scannerTitle').textContent = profile === 'guided' ? 'Guided Practice Scanner' : `${PUZZLES[AppState.puzzleType].label} Interactive Scanner`;
+      buildPalette(); renderScanner(); validateAndUpdate(); setView('scanner');
+    }
+
+    function renderScanner() {
+      const puzzle = PUZZLES[AppState.puzzleType];
+      $('#scannerMesh').innerHTML = puzzle.kind === 'cube' ? renderCubeNet(puzzle.size, AppState.colorDataMap[AppState.puzzleType]) : renderPyraminxNet(AppState.colorDataMap.pyraminx);
+      $$('.paintable').forEach(cell => cell.addEventListener('click', () => paintIndex(Number(cell.dataset.index))));
+    }
+
+    function renderCubeNet(size, state, options = {}) {
+      const faceSize = size * size;
+      const cellSize = size === 5 ? 'clamp(19px, 5.4vw, 36px)' : size === 4 ? 'clamp(22px, 6vw, 42px)' : 'clamp(28px, 7.2vw, 52px)';
+      const face = (faceIndex) => {
+        const start = faceIndex * faceSize;
+        const cells = Array.from({length: faceSize}, (_, i) => {
+          const idx = start + i;
+          const color = options.mask && !options.focusSet.has(idx) ? COLORS.mask : state[idx];
+          return `<button class="paintable facelet" data-index="${idx}" style="background:${color}; width:${cellSize}" title="${FACE_NAMES[faceIndex]} ${i + 1}"></button>`;
+        }).join('');
+        return `<div class="flex flex-col items-center gap-2"><span class="text-xs font-black uppercase tracking-widest text-slate-500">${FACE_NAMES[faceIndex]}</span><div class="face-grid" style="grid-template-columns:repeat(${size}, ${cellSize})">${cells}</div></div>`;
+      };
+      return `<div class="mx-auto grid min-w-max grid-cols-4 gap-3 p-2" style="grid-template-areas:'. up . .' 'left front right back' '. down . .';"><div style="grid-area:up">${face(0)}</div><div style="grid-area:left">${face(1)}</div><div style="grid-area:front">${face(2)}</div><div style="grid-area:right">${face(3)}</div><div style="grid-area:back">${face(4)}</div><div style="grid-area:down">${face(5)}</div></div>`;
+    }
+
+    function renderPyraminxNet(state) {
+      const positions = [[36,4],[24,34],[48,34],[12,64],[36,64],[60,64],[0,94],[24,94],[48,94]];
+      const face = (faceIndex) => {
+        const start = faceIndex * 9;
+        return `<div class="flex flex-col items-center gap-2"><span class="text-xs font-black uppercase tracking-widest text-slate-500">${PYRA_FACE_NAMES[faceIndex]}</span><div class="pyra-face">${positions.map((pos, i) => `<button class="paintable pyra-cell" data-index="${start+i}" style="left:${pos[0]}%; top:${pos[1]}%; background:${state[start+i]}" title="${PYRA_FACE_NAMES[faceIndex]} ${i+1}"></button>`).join('')}</div></div>`;
+      };
+      return `<div class="grid min-w-max grid-cols-2 gap-4 p-2 md:grid-cols-4">${[0,1,2,3].map(face).join('')}</div>`;
+    }
+
+    function paintIndex(index) {
+      AppState.colorDataMap[AppState.puzzleType][index] = AppState.selectedPaintBrush;
+      const puzzle = PUZZLES[AppState.puzzleType];
+      const perFace = puzzle.kind === 'cube' ? puzzle.size * puzzle.size : 9;
+      const paintedFace = Math.floor(index / perFace);
+      renderScanner();
+      if (faceComplete(paintedFace, perFace)) animateFaceRotation(paintedFace + 1);
+      validateAndUpdate();
+    }
+
+    function faceComplete(faceIndex, perFace) {
+      const segment = AppState.colorDataMap[AppState.puzzleType].slice(faceIndex * perFace, faceIndex * perFace + perFace);
+      return segment.every(color => color !== COLORS.blank);
+    }
+
+    function animateFaceRotation(nextFace) {
+      const mesh = $('#scannerMesh');
+      mesh.classList.add('face-flip');
+      setTimeout(() => mesh.classList.remove('face-flip'), 760);
+      AppState.activeFace = nextFace;
+      showToast(`Face ${Math.min(nextFace, PUZZLES[AppState.puzzleType].faces)} completed. Rotate the physical puzzle and continue painting the next face.`, 'info', 1800);
+    }
+
+    function validateAndUpdate() {
+      const state = AppState.colorDataMap[AppState.puzzleType];
+      const valid = PuzzleValidators[AppState.puzzleType](state);
+      $('#solveBtn').classList.toggle('hidden', !valid);
+      $('#validationText').textContent = valid ? 'Validation passed. SOLVE is unlocked.' : buildValidationHint(state, false);
+      return valid;
+    }
+
+    function buildValidationHint(state, verbose = true) {
+      const allowed = PUZZLES[AppState.puzzleType].colors;
+      const target = AppState.puzzleType === '3x3' || AppState.puzzleType === 'pyraminx' ? 9 : AppState.puzzleType === '4x4' ? 16 : 25;
+      const counts = Object.fromEntries(allowed.map(c => [c, 0]));
+      let blank = 0;
+      state.forEach(color => { if (counts[color] !== undefined) counts[color]++; else blank++; });
+      const over = allowed.find(c => counts[c] > target);
+      const under = allowed.find(c => counts[c] < target);
+      if (over) return `Validation Warning: Found ${counts[over]} ${colorName(over)} facelets. A standard ${PUZZLES[AppState.puzzleType].label} can only contain ${target}. Please inspect your Left and Back face entries.`;
+      if (blank) return `${blank} segment${blank === 1 ? '' : 's'} still unpainted. Complete every face before solving.`;
+      if (under) return verbose ? `Validation Warning: Found only ${counts[under]} ${colorName(under)} facelets; ${target} are required. Recheck faces with similar colors.` : `Needs exact color counts: ${colorName(under)} is ${counts[under]}/${target}.`;
+      return 'Validation Warning: Counts are inconsistent. Recheck every face for accidental duplicate colors.';
+    }
+
+    function colorName(hex) {
+      return ({'#ffffff':'white','#ffff00':'yellow','#00ff00':'green','#0000ff':'blue','#ff0000':'red','#ffaa00':'orange'})[hex] || hex;
+    }
+
+    function autoFillSolved() {
+      const colors = PUZZLES[AppState.puzzleType].colors;
+      const perFace = AppState.puzzleType === '3x3' || AppState.puzzleType === 'pyraminx' ? 9 : AppState.puzzleType === '4x4' ? 16 : 25;
+      AppState.colorDataMap[AppState.puzzleType] = colors.flatMap(color => Array(perFace).fill(color));
+      renderScanner(); validateAndUpdate(); showToast('Solved color layout filled. You can edit any segment before playback.', 'success');
+    }
+
+    function resetPaint() {
+      AppState.colorDataMap[AppState.puzzleType] = Array(PUZZLES[AppState.puzzleType].faces * (PUZZLES[AppState.puzzleType].kind === 'cube' ? PUZZLES[AppState.puzzleType].size ** 2 : 9)).fill(COLORS.blank);
+      renderScanner(); validateAndUpdate();
+    }
+
+    function prepareAlgorithm() {
+      if (AppState.puzzleType === '3x3') return Godfather3x3Solver;
+      if (AppState.puzzleType === '4x4') return [...Godfather3x3Solver, { stepName: '4x4 OLL Parity Subroutine', instructions: BigCubeParities.OLL_Parity_4x4.description, moves: BigCubeParities.OLL_Parity_4x4.moves }, { stepName: '4x4 PLL Parity Subroutine', instructions: BigCubeParities.PLL_Parity_4x4.description, moves: BigCubeParities.PLL_Parity_4x4.moves }];
+      if (AppState.puzzleType === '5x5') return [...Godfather3x3Solver, { stepName: '5x5 Last Two Edges Parity', instructions: BigCubeParities.L2E_Parity_5x5.description, moves: BigCubeParities.L2E_Parity_5x5.moves }];
+      return [
+        { stepName: 'Pyraminx Tip Orientation', instructions: 'Twist the four independent tips until they match their adjacent centers.', moves: ['u', 'l', 'r', 'b'] },
+        { stepName: 'Pyraminx First Layer Edges', instructions: 'Insert the three lower-layer edge pieces around the selected base face.', moves: ['R', "U'", "R'", 'L', 'U', "L'"] },
+        { stepName: 'Pyraminx Last Layer Cycle', instructions: 'Cycle the top edges until every triangular face is complete.', moves: ['R', "L'", "R'", 'L', "U'", 'L', 'U', "L'"] }
+      ];
+    }
+
+    function startPlayback(profile = AppState.trainingProfile) {
+      if (profile !== 'independent' && !validateAndUpdate()) { showToast(buildValidationHint(AppState.colorDataMap[AppState.puzzleType]), 'error', 5200); return; }
+      AppState.trainingProfile = profile;
+      AppState.activeStepIndex = 0; AppState.activeMoveIndex = 0;
+      CurrentAlgorithm = prepareAlgorithm();
+      $('#playbackModeBadge').textContent = profile === 'guided' ? 'Guided Practice' : profile === 'independent' ? 'Independent Study' : 'Solve Mode';
+      $('#hintBox').classList.toggle('hidden', profile !== 'guided' && profile !== 'independent');
+      renderVisualFrame(); renderUIStatusDisplay(); setView('playback');
+    }
+
+    function renderVisualFrame() {
+      if (AppState.trainingProfile === 'independent') { renderIndependentStudy(); return; }
+      const puzzle = PUZZLES[AppState.puzzleType];
+      $('#visualFrame').innerHTML = puzzle.kind === 'cube' ? renderCube3D(puzzle.size, AppState.colorDataMap[AppState.puzzleType]) : renderPyraminxNet(AppState.colorDataMap.pyraminx).replaceAll('paintable ', '');
+    }
+
+    function renderCube3D(size, state) {
+      const faceSize = size * size;
+      const classes = ['face-up', 'face-left', 'face-front', 'face-right', 'face-back', 'face-down'];
+      const face = (faceIndex) => `<div class="cube-face3d ${classes[faceIndex]}" style="grid-template-columns:repeat(${size},1fr)">${Array.from({length: faceSize}, (_, i) => `<span style="background:${state[faceIndex * faceSize + i]}"></span>`).join('')}</div>`;
+      return `<div class="flex h-full min-h-[300px] items-center justify-center"><div class="cube-scene"><div id="cube3d" class="cube3d">${[0,1,2,3,4,5].map(face).join('')}</div></div></div>`;
+    }
+
+    function renderIndependentStudy() {
+      const cases = IndependentLearningLibrary['3x3'];
+      const activeCase = cases[AppState.independentCaseIndex % cases.length];
+      const focusSet = new Set(activeCase.focusIndices);
+      const solved = COLORS.cube.flatMap(color => Array(9).fill(color));
+      $('#visualFrame').innerHTML = `<div class="mb-4 flex flex-wrap items-center justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Independent Case</p><h3 class="text-xl font-black text-slate-900">${activeCase.caseName}</h3></div><button id="nextCase" class="tap-target rounded-2xl bg-slate-900 px-4 py-2 text-sm font-black text-white">Next Case</button></div>${renderCubeNet(3, solved, {mask:true, focusSet})}`;
+      $('#hintBox').innerHTML = `<strong>Study Guide:</strong> ${activeCase.textGuide}<br><span class="font-mono text-xs">Mask color: ${COLORS.mask}</span>`;
+      $('#nextCase').addEventListener('click', () => { AppState.independentCaseIndex++; renderIndependentStudy(); });
+    }
+
+    function advancePlaybackState(direction) {
+      if (!CurrentAlgorithm.length) return;
+      if (direction === 'NEXT') {
+        AppState.activeMoveIndex++;
+        if (AppState.activeMoveIndex >= CurrentAlgorithm[AppState.activeStepIndex].moves.length) {
+          AppState.activeMoveIndex = 0;
+          AppState.activeStepIndex++;
+        }
+      } else if (direction === 'BACK') {
+        AppState.activeMoveIndex--;
+        if (AppState.activeMoveIndex < 0) {
+          AppState.activeStepIndex--;
+          if (AppState.activeStepIndex >= 0) {
+            AppState.activeMoveIndex = CurrentAlgorithm[AppState.activeStepIndex].moves.length - 1;
+          }
+        }
+      }
+      if (AppState.activeStepIndex < 0) { AppState.activeStepIndex = 0; AppState.activeMoveIndex = 0; }
+      if (AppState.activeStepIndex >= CurrentAlgorithm.length) { AppState.activeStepIndex = CurrentAlgorithm.length - 1; AppState.activeMoveIndex = CurrentAlgorithm[AppState.activeStepIndex].moves.length - 1; stopAutoPlay(); showToast('Algorithm complete. Puzzle solved or practice sequence finished.', 'success'); }
+      triggerVisualPuzzleTurnAnimation(CurrentAlgorithm[AppState.activeStepIndex].moves[AppState.activeMoveIndex]);
+      renderUIStatusDisplay();
+    }
+
+    function triggerVisualPuzzleTurnAnimation(move) {
+      const cube = $('#cube3d');
+      if (!cube || !move) return;
+      cube.classList.remove('turning-R','turning-L','turning-U','turning-D','turning-F','turning-B');
+      const primary = move.replace(/[w'2]/g, '').charAt(0).toUpperCase();
+      void cube.offsetWidth;
+      cube.classList.add(`turning-${['R','L','U','D','F','B'].includes(primary) ? primary : 'U'}`);
+      setTimeout(() => cube.classList.remove('turning-R','turning-L','turning-U','turning-D','turning-F','turning-B'), 430);
+    }
+
+    function renderUIStatusDisplay() {
+      const step = CurrentAlgorithm[AppState.activeStepIndex];
+      if (!step) return;
+      $('#stepName').textContent = step.stepName;
+      $('#stepInstructions').textContent = step.instructions;
+      $('#formulaDisplay').innerHTML = step.moves.map((move, i) => `<span class="notation-pill ${i === AppState.activeMoveIndex ? 'active' : ''} rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">${move}</span>`).join('');
+      if (AppState.trainingProfile === 'guided') {
+        $('#hintBox').innerHTML = `<strong>Hint Box:</strong> ${guidedHint(step, step.moves[AppState.activeMoveIndex])}`;
+      }
+      const parityStep = /Parity|Edges Slice/.test(step.stepName);
+      $('#parityPanel').classList.toggle('hidden', !parityStep);
+      $('#parityPanel').innerHTML = parityStep ? `<strong>Parity handler active:</strong> Use slow, deliberate wide turns. Current slice is <span class="font-mono font-black">${step.moves[AppState.activeMoveIndex]}</span>.` : '';
+    }
+
+    function guidedHint(step, move) {
+      if (/White Cross/.test(step.stepName)) return `Track the white edge and verify its side color before the active move ${move}. Cross pieces should match two centers at once.`;
+      if (/Corner|F2L/.test(step.stepName)) return `Keep the pair in the top layer and preserve solved pieces while executing ${move}. Pause after every insertion to inspect the slot.`;
+      if (/Middle Layer/.test(step.stepName)) return `The target edge should have no yellow stickers. The highlighted ${move} starts or continues a safe extraction-and-insert cycle.`;
+      if (/Parity/.test(step.stepName)) return `This is a big-cube-only correction. Hold orientation steady and count wide turns carefully during ${move}.`;
+      return `Say the notation aloud as you turn: ${move}. Watch the highlighted slice and keep the puzzle orientation fixed.`;
+    }
+
+    function toggleAutoPlay() {
+      if (AppState.autoTimer) { stopAutoPlay(); return; }
+      AppState.autoTimer = setInterval(() => advancePlaybackState('NEXT'), 1050);
+      showToast('Auto-play started.', 'info', 1400);
+    }
+    function stopAutoPlay() { if (AppState.autoTimer) { clearInterval(AppState.autoTimer); AppState.autoTimer = null; } }
+
+    function showToast(message, type = 'info', duration = 3600) {
+      const color = type === 'error' ? 'border-red-200 bg-red-50 text-red-950' : type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-950' : 'border-indigo-200 bg-indigo-50 text-indigo-950';
+      const toast = document.createElement('div');
+      toast.className = `toast pointer-events-auto rounded-2xl border ${color} px-4 py-3 text-sm font-semibold shadow-xl`;
+      toast.textContent = message;
+      $('#toastLayer').appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(8px)'; setTimeout(() => toast.remove(), 240); }, duration);
+    }
+
+    function wireEvents() {
+      $('#brandHome').addEventListener('click', () => setView('dashboard'));
+      $$('[data-route="dashboard"]').forEach(b => b.addEventListener('click', () => setView('dashboard')));
+      $$('[data-route="mode"]').forEach(b => b.addEventListener('click', () => setView('mode')));
+      $$('[data-mode="solve"]').forEach(b => b.addEventListener('click', () => openScanner(null)));
+      $$('[data-mode="learn"]').forEach(b => b.addEventListener('click', () => setView('learn')));
+      $$('[data-learn="guided"]').forEach(b => b.addEventListener('click', () => openScanner('guided')));
+      $$('[data-learn="independent"]').forEach(b => b.addEventListener('click', () => { AppState.puzzleType = '3x3'; startPlayback('independent'); }));
+      $('#autoFillBtn').addEventListener('click', autoFillSolved);
+      $('#resetPaintBtn').addEventListener('click', resetPaint);
+      $('#solveBtn').addEventListener('click', () => startPlayback(AppState.trainingProfile));
+      $('#nextMove').addEventListener('click', () => advancePlaybackState('NEXT'));
+      $('#backMove').addEventListener('click', () => advancePlaybackState('BACK'));
+      $('#playMove').addEventListener('click', toggleAutoPlay);
+      $('#pauseMove').addEventListener('click', () => { stopAutoPlay(); showToast('Auto-play paused.', 'info', 1200); });
+      document.addEventListener('keydown', (e) => {
+        if (AppState.activeScreen !== 'playback') return;
+        if (e.key === 'ArrowRight') advancePlaybackState('NEXT');
+        if (e.key === 'ArrowLeft') advancePlaybackState('BACK');
+        if (e.key === ' ') { e.preventDefault(); toggleAutoPlay(); }
+      });
+    }
+
+    renderPuzzleCards();
+    wireEvents();
+  </script>
+</body>
+</html>
