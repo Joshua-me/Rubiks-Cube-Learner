@@ -31,31 +31,31 @@
     .brush.active { transform: translateY(-4px) scale(1.08); box-shadow: 0 0 0 4px rgba(79,70,229,.22), 0 12px 22px rgba(15,23,42,.18); }
     .notation-pill { transition: all .18s ease; }
     .notation-pill.active { background: #4f46e5; color: #fff; transform: translateY(-2px); box-shadow: 0 12px 22px rgba(79,70,229,.24); }
-    .cube-scene { perspective: 850px; width: min(62vw, 260px); height: min(62vw, 260px); max-width: 260px; max-height: 260px; margin: 0 auto; display: grid; place-items: center; }
-    .cube3d { position: relative; width: 140px; height: 140px; transform-style: preserve-3d; transform: rotateX(-26deg) rotateY(36deg); transition: transform .46s cubic-bezier(.2,.8,.2,1); }
-    .cube3d.turning-R { transform: rotateX(-26deg) rotateY(126deg) rotateZ(5deg); }
-    .cube3d.turning-L { transform: rotateX(-26deg) rotateY(-54deg) rotateZ(-5deg); }
-    .cube3d.turning-U { transform: rotateX(-116deg) rotateY(36deg); }
-    .cube3d.turning-D { transform: rotateX(64deg) rotateY(36deg); }
-    .cube3d.turning-F { transform: rotateX(-26deg) rotateY(36deg) rotateZ(90deg); }
-    .cube3d.turning-B { transform: rotateX(-26deg) rotateY(216deg); }
-    .cube-face3d { position: absolute; width: 140px; height: 140px; display: grid; gap: 3px; padding: 5px; background: #0f172a; border-radius: 13px; backface-visibility: visible; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14); }
-    .cube-face3d span { border-radius: 5px; border: 1px solid rgba(15,23,42,.22); }
-    .face-front { transform: translateZ(70px); }
-    .face-back { transform: rotateY(180deg) translateZ(70px); }
-    .face-right { transform: rotateY(90deg) translateZ(70px); }
-    .face-left { transform: rotateY(-90deg) translateZ(70px); }
-    .face-up { transform: rotateX(90deg) translateZ(70px); }
-    .face-down { transform: rotateX(-90deg) translateZ(70px); }
+    .cube-scene { perspective: 950px; width: min(72vw, 330px); height: min(72vw, 330px); max-width: 330px; max-height: 330px; margin: 0 auto; display: grid; place-items: center; }
+    .cube3d { --cubie: 40px; --gap: 1.5px; position: relative; width: calc(var(--cubie) * var(--cube-size)); height: calc(var(--cubie) * var(--cube-size)); transform-style: preserve-3d; transform: rotateX(-28deg) rotateY(38deg); transition: transform .46s cubic-bezier(.2,.8,.2,1); }
+    .cubie { --base: translate3d(0,0,0); position: absolute; left: calc(50% - var(--cubie) / 2); top: calc(50% - var(--cubie) / 2); width: var(--cubie); height: var(--cubie); transform-style: preserve-3d; transform: var(--base); transition: transform .5s cubic-bezier(.18,.85,.28,1.18); }
+    .cubie.turn-x-cw { transform: var(--base) rotateX(92deg); }
+    .cubie.turn-x-ccw { transform: var(--base) rotateX(-92deg); }
+    .cubie.turn-y-cw { transform: var(--base) rotateY(92deg); }
+    .cubie.turn-y-ccw { transform: var(--base) rotateY(-92deg); }
+    .cubie.turn-z-cw { transform: var(--base) rotateZ(92deg); }
+    .cubie.turn-z-ccw { transform: var(--base) rotateZ(-92deg); }
+    .sticker3d { position: absolute; inset: var(--gap); border-radius: 6px; border: 1px solid rgba(15,23,42,.3); background: #0f172a; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); backface-visibility: visible; }
+    .sticker-U { transform: rotateX(90deg) translateZ(calc(var(--cubie) / 2)); }
+    .sticker-D { transform: rotateX(-90deg) translateZ(calc(var(--cubie) / 2)); }
+    .sticker-F { transform: translateZ(calc(var(--cubie) / 2)); }
+    .sticker-B { transform: rotateY(180deg) translateZ(calc(var(--cubie) / 2)); }
+    .sticker-R { transform: rotateY(90deg) translateZ(calc(var(--cubie) / 2)); }
+    .sticker-L { transform: rotateY(-90deg) translateZ(calc(var(--cubie) / 2)); }
+    .cube-shadow { width: min(54vw, 250px); height: 34px; margin: -18px auto 0; border-radius: 9999px; background: radial-gradient(ellipse, rgba(15,23,42,.18), rgba(15,23,42,0) 68%); }
     .toast { animation: toastIn .22s ease both; }
     @keyframes toastIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .shape-svg { filter: drop-shadow(0 14px 22px rgba(15,23,42,.12)); }
     @media (max-width: 640px) {
       .face-grid { gap: 3px; padding: 5px; border-radius: 14px; }
       .facelet { min-width: 18px; border-radius: 5px; }
-      .cube3d { width: 116px; height: 116px; }
-      .cube-face3d { width: 116px; height: 116px; }
-      .face-front { transform: translateZ(58px); } .face-back { transform: rotateY(180deg) translateZ(58px); } .face-right { transform: rotateY(90deg) translateZ(58px); } .face-left { transform: rotateY(-90deg) translateZ(58px); } .face-up { transform: rotateX(90deg) translateZ(58px); } .face-down { transform: rotateX(-90deg) translateZ(58px); }
+      .cube3d { --cubie: 31px; }
+      .sticker3d { border-radius: 4px; }
     }
   </style>
 </head>
@@ -244,6 +244,49 @@
       {
         stepName: "Position Top Edges (Ua-Permutation Clockwise)",
         instructions: "Swap the remaining top edge pieces clockwise to finish solving your 3x3 cube completely.",
+        moves: ["R", "U'", "R", "U", "R", "U", "R", "U'", "R'", "U'", "R2"]
+      }
+    ];
+
+    const CubeHead2026Solver = [
+      {
+        stepName: "CubeHead 2026 — Daisy + White Cross",
+        instructions: "Build a daisy around the yellow center, line each petal with its side center, then flip the white edges down to create a clean white cross.",
+        moves: ["F2", "R2", "B2", "L2"]
+      },
+      {
+        stepName: "CubeHead 2026 — White Corners (Righty / Lefty)",
+        instructions: "Place each white corner above its target and use the beginner righty or lefty trigger until the corner drops into the first layer.",
+        moves: ["R", "U", "R'", "U'", "L'", "U'", "L", "U"]
+      },
+      {
+        stepName: "CubeHead 2026 — Second Layer Edge to the Right",
+        instructions: "Find a top-layer edge with no yellow, match its front color to the center, and insert it to the right without breaking the solved first layer.",
+        moves: ["U", "R", "U'", "R'", "U'", "F'", "U", "F"]
+      },
+      {
+        stepName: "CubeHead 2026 — Second Layer Edge to the Left",
+        instructions: "If the matched edge belongs on the left side, use the mirrored insertion so the first two layers finish cleanly.",
+        moves: ["U'", "L'", "U", "L", "U", "F", "U'", "F'"]
+      },
+      {
+        stepName: "CubeHead 2026 — Yellow Cross",
+        instructions: "Hold the yellow dot, L-shape, or line in the taught orientation and run the front-trigger algorithm until the yellow cross appears.",
+        moves: ["F", "R", "U", "R'", "U'", "F'"]
+      },
+      {
+        stepName: "CubeHead 2026 — Make the Yellow Face (Sune)",
+        instructions: "Use Sune with the correct yellow corner in front-right until all four yellow corners face upward.",
+        moves: ["R", "U", "R'", "U", "R", "U2", "R'"]
+      },
+      {
+        stepName: "CubeHead 2026 — Position Yellow Corners (Niklas)",
+        instructions: "Find the solved corner pair/headlights, hold them correctly, and use Niklas to move the last-layer corners into their home positions.",
+        moves: ["U", "R", "U'", "L'", "U", "R'", "U'", "L"]
+      },
+      {
+        stepName: "CubeHead 2026 — Position Yellow Edges (Ua Cycle)",
+        instructions: "Keep the solved side at the back when possible and cycle the final top edges until every side color matches its center.",
         moves: ["R", "U'", "R", "U", "R", "U", "R", "U'", "R'", "U'", "R2"]
       }
     ];
@@ -447,9 +490,9 @@
     }
 
     function prepareAlgorithm() {
-      if (AppState.puzzleType === '3x3') return Godfather3x3Solver;
-      if (AppState.puzzleType === '4x4') return [...Godfather3x3Solver, { stepName: '4x4 OLL Parity Subroutine', instructions: BigCubeParities.OLL_Parity_4x4.description, moves: BigCubeParities.OLL_Parity_4x4.moves }, { stepName: '4x4 PLL Parity Subroutine', instructions: BigCubeParities.PLL_Parity_4x4.description, moves: BigCubeParities.PLL_Parity_4x4.moves }];
-      if (AppState.puzzleType === '5x5') return [...Godfather3x3Solver, { stepName: '5x5 Last Two Edges Parity', instructions: BigCubeParities.L2E_Parity_5x5.description, moves: BigCubeParities.L2E_Parity_5x5.moves }];
+      if (AppState.puzzleType === '3x3') return CubeHead2026Solver;
+      if (AppState.puzzleType === '4x4') return [...CubeHead2026Solver, { stepName: '4x4 OLL Parity Subroutine', instructions: BigCubeParities.OLL_Parity_4x4.description, moves: BigCubeParities.OLL_Parity_4x4.moves }, { stepName: '4x4 PLL Parity Subroutine', instructions: BigCubeParities.PLL_Parity_4x4.description, moves: BigCubeParities.PLL_Parity_4x4.moves }];
+      if (AppState.puzzleType === '5x5') return [...CubeHead2026Solver, { stepName: '5x5 Last Two Edges Parity', instructions: BigCubeParities.L2E_Parity_5x5.description, moves: BigCubeParities.L2E_Parity_5x5.moves }];
       return [
         { stepName: 'Pyraminx Tip Orientation', instructions: 'Twist the four independent tips until they match their adjacent centers.', moves: ['u', 'l', 'r', 'b'] },
         { stepName: 'Pyraminx First Layer Edges', instructions: 'Insert the three lower-layer edge pieces around the selected base face.', moves: ['R', "U'", "R'", 'L', 'U', "L'"] },
@@ -475,10 +518,30 @@
     }
 
     function renderCube3D(size, state) {
-      const faceSize = size * size;
-      const classes = ['face-up', 'face-left', 'face-front', 'face-right', 'face-back', 'face-down'];
-      const face = (faceIndex) => `<div class="cube-face3d ${classes[faceIndex]}" style="grid-template-columns:repeat(${size},1fr)">${Array.from({length: faceSize}, (_, i) => `<span style="background:${state[faceIndex * faceSize + i]}"></span>`).join('')}</div>`;
-      return `<div class="flex h-full min-h-[300px] items-center justify-center"><div class="cube-scene"><div id="cube3d" class="cube3d">${[0,1,2,3,4,5].map(face).join('')}</div></div></div>`;
+      const cubie = size >= 5 ? 28 : size === 4 ? 33 : 40;
+      const half = (size - 1) / 2;
+      const idx = (face, row, col) => face * size * size + row * size + col;
+      const sticker = (face, color) => `<span class="sticker3d sticker-${face}" style="background:${color || '#111827'}"></span>`;
+      const cubies = [];
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          for (let z = 0; z < size; z++) {
+            if (x > 0 && x < size - 1 && y > 0 && y < size - 1 && z > 0 && z < size - 1) continue;
+            const faces = [];
+            if (y === 0) faces.push(sticker('U', state[idx(0, z, x)]));
+            if (x === 0) faces.push(sticker('L', state[idx(1, y, z)]));
+            if (z === size - 1) faces.push(sticker('F', state[idx(2, y, x)]));
+            if (x === size - 1) faces.push(sticker('R', state[idx(3, y, size - 1 - z)]));
+            if (z === 0) faces.push(sticker('B', state[idx(4, y, size - 1 - x)]));
+            if (y === size - 1) faces.push(sticker('D', state[idx(5, size - 1 - z, x)]));
+            const tx = (x - half) * cubie;
+            const ty = (y - half) * cubie;
+            const tz = (z - half) * cubie;
+            cubies.push(`<div class="cubie" data-x="${x}" data-y="${y}" data-z="${z}" style="--base:translate3d(${tx}px, ${ty}px, ${tz}px);">${faces.join('')}</div>`);
+          }
+        }
+      }
+      return `<div class="flex h-full min-h-[300px] flex-col items-center justify-center"><div class="cube-scene"><div id="cube3d" class="cube3d" data-size="${size}" style="--cube-size:${size}; --cubie:${cubie}px">${cubies.join('')}</div></div><div class="cube-shadow"></div></div>`;
     }
 
     function renderIndependentStudy() {
@@ -614,11 +677,22 @@
     function triggerVisualPuzzleTurnAnimation(move) {
       const cube = $('#cube3d');
       if (!cube || !move) return;
-      cube.classList.remove('turning-R','turning-L','turning-U','turning-D','turning-F','turning-B');
-      const primary = move.replace(/[w'2]/g, '').charAt(0).toUpperCase();
-      void cube.offsetWidth;
-      cube.classList.add(`turning-${['R','L','U','D','F','B'].includes(primary) ? primary : 'U'}`);
-      setTimeout(() => cube.classList.remove('turning-R','turning-L','turning-U','turning-D','turning-F','turning-B'), 430);
+      const size = Number(cube.dataset.size || PUZZLES[AppState.puzzleType].size || 3);
+      const base = move.charAt(0).toUpperCase();
+      const wide = move.includes('w');
+      const clockwise = !move.includes("'");
+      const axisMap = { R: 'x', L: 'x', U: 'y', D: 'y', F: 'z', B: 'z' };
+      const axis = axisMap[base] || 'y';
+      const outer = { R: size - 1, L: 0, U: 0, D: size - 1, F: size - 1, B: 0 }[base];
+      const inner = { R: size - 2, L: 1, U: 1, D: size - 2, F: size - 2, B: 1 }[base];
+      const layers = wide && size > 3 ? [outer, inner] : [outer];
+      const naturalClockwise = ['R', 'U', 'F'].includes(base) ? clockwise : !clockwise;
+      const spinClass = `turn-${axis}-${naturalClockwise ? 'cw' : 'ccw'}`;
+      $$('.cubie').forEach(cubie => {
+        cubie.classList.remove('turn-x-cw','turn-x-ccw','turn-y-cw','turn-y-ccw','turn-z-cw','turn-z-ccw');
+        if (layers.includes(Number(cubie.dataset[axis]))) cubie.classList.add(spinClass);
+      });
+      setTimeout(() => $$('.cubie').forEach(cubie => cubie.classList.remove('turn-x-cw','turn-x-ccw','turn-y-cw','turn-y-ccw','turn-z-cw','turn-z-ccw')), 520);
     }
 
     function renderUIStatusDisplay() {
@@ -636,7 +710,7 @@
     }
 
     function guidedHint(step, move) {
-      if (/White Cross/.test(step.stepName)) return `Track the white edge and verify its side color before the active move ${move}. Cross pieces should match two centers at once.`;
+      if (/White Cross/.test(step.stepName)) return `CubeHead-style daisy check: track the white edge, line its side color with the center, then use ${move} without losing orientation.`;
       if (/Corner|F2L/.test(step.stepName)) return `Keep the pair in the top layer and preserve solved pieces while executing ${move}. Pause after every insertion to inspect the slot.`;
       if (/Middle Layer/.test(step.stepName)) return `The target edge should have no yellow stickers. The highlighted ${move} starts or continues a safe extraction-and-insert cycle.`;
       if (/Parity/.test(step.stepName)) return `This is a big-cube-only correction. Hold orientation steady and count wide turns carefully during ${move}.`;
