@@ -132,6 +132,7 @@
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button id="autoFillBtn" class="tap-target rounded-2xl bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700">Auto-fill solved colors</button>
+          <button id="validateBtn" class="tap-target rounded-2xl bg-white px-4 py-2 text-sm font-bold text-indigo-700 ring-1 ring-indigo-100">Validate counts</button>
           <button id="resetPaintBtn" class="tap-target rounded-2xl bg-white px-4 py-2 text-sm font-bold text-slate-700 ring-1 ring-slate-200">Reset</button>
           <button id="solveBtn" class="tap-target hidden rounded-2xl bg-indigo-600 px-5 py-2 text-sm font-black text-white shadow-lg shadow-indigo-600/20">SOLVE</button>
         </div>
@@ -294,6 +295,7 @@
     const AppState = {
       activeScreen: 'dashboard', puzzleType: '3x3', trainingProfile: null, activeStepIndex: 0, activeMoveIndex: 0,
       selectedPaintBrush: '#ffffff', activeFace: 0, autoTimer: null, independentCaseIndex: 0,
+      playbackState: [], playbackHistory: [], lastAppliedKey: null,
       colorDataMap: {
         '3x3': Array(54).fill('#e2e8f0'), '4x4': Array(96).fill('#e2e8f0'), '5x5': Array(150).fill('#e2e8f0'), 'pyraminx': Array(36).fill('#e2e8f0')
       }
@@ -361,12 +363,13 @@
     function renderCubeNet(size, state, options = {}) {
       const faceSize = size * size;
       const cellSize = size === 5 ? 'clamp(19px, 5.4vw, 36px)' : size === 4 ? 'clamp(22px, 6vw, 42px)' : 'clamp(28px, 7.2vw, 52px)';
+      const buttonClass = options.readOnly ? 'facelet' : 'paintable facelet';
       const face = (faceIndex) => {
         const start = faceIndex * faceSize;
         const cells = Array.from({length: faceSize}, (_, i) => {
           const idx = start + i;
           const color = options.mask && !options.focusSet.has(idx) ? COLORS.mask : state[idx];
-          return `<button class="paintable facelet" data-index="${idx}" style="background:${color}; width:${cellSize}" title="${FACE_NAMES[faceIndex]} ${i + 1}"></button>`;
+          return `<button class="${buttonClass}" data-index="${idx}" style="background:${color}; width:${cellSize}" title="${FACE_NAMES[faceIndex]} ${i + 1}"></button>`;
         }).join('');
         return `<div class="flex flex-col items-center gap-2"><span class="text-xs font-black uppercase tracking-widest text-slate-500">${FACE_NAMES[faceIndex]}</span><div class="face-grid" style="grid-template-columns:repeat(${size}, ${cellSize})">${cells}</div></div>`;
       };
@@ -457,7 +460,8 @@
     function startPlayback(profile = AppState.trainingProfile) {
       if (profile !== 'independent' && !validateAndUpdate()) { showToast(buildValidationHint(AppState.colorDataMap[AppState.puzzleType]), 'error', 5200); return; }
       AppState.trainingProfile = profile;
-      AppState.activeStepIndex = 0; AppState.activeMoveIndex = 0;
+      AppState.activeStepIndex = 0; AppState.activeMoveIndex = 0; AppState.playbackHistory = []; AppState.lastAppliedKey = null;
+      AppState.playbackState = profile === 'independent' ? COLORS.cube.flatMap(color => Array(9).fill(color)) : AppState.colorDataMap[AppState.puzzleType].slice();
       CurrentAlgorithm = prepareAlgorithm();
       $('#playbackModeBadge').textContent = profile === 'guided' ? 'Guided Practice' : profile === 'independent' ? 'Independent Study' : 'Solve Mode';
       $('#hintBox').classList.toggle('hidden', profile !== 'guided' && profile !== 'independent');
@@ -467,7 +471,7 @@
     function renderVisualFrame() {
       if (AppState.trainingProfile === 'independent') { renderIndependentStudy(); return; }
       const puzzle = PUZZLES[AppState.puzzleType];
-      $('#visualFrame').innerHTML = puzzle.kind === 'cube' ? renderCube3D(puzzle.size, AppState.colorDataMap[AppState.puzzleType]) : renderPyraminxNet(AppState.colorDataMap.pyraminx).replaceAll('paintable ', '');
+      $('#visualFrame').innerHTML = puzzle.kind === 'cube' ? renderCube3D(puzzle.size, AppState.playbackState) : renderPyraminxNet(AppState.playbackState).replaceAll('paintable ', '');
     }
 
     function renderCube3D(size, state) {
@@ -481,21 +485,117 @@
       const cases = IndependentLearningLibrary['3x3'];
       const activeCase = cases[AppState.independentCaseIndex % cases.length];
       const focusSet = new Set(activeCase.focusIndices);
-      const solved = COLORS.cube.flatMap(color => Array(9).fill(color));
-      $('#visualFrame').innerHTML = `<div class="mb-4 flex flex-wrap items-center justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Independent Case</p><h3 class="text-xl font-black text-slate-900">${activeCase.caseName}</h3></div><button id="nextCase" class="tap-target rounded-2xl bg-slate-900 px-4 py-2 text-sm font-black text-white">Next Case</button></div>${renderCubeNet(3, solved, {mask:true, focusSet})}`;
+      const solved = AppState.playbackState.length === 54 ? AppState.playbackState : COLORS.cube.flatMap(color => Array(9).fill(color));
+      $('#visualFrame').innerHTML = `<div class="mb-4 flex flex-wrap items-center justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Independent Case</p><h3 class="text-xl font-black text-slate-900">${activeCase.caseName}</h3></div><button id="nextCase" class="tap-target rounded-2xl bg-slate-900 px-4 py-2 text-sm font-black text-white">Next Case</button></div>${renderCubeNet(3, solved, {mask:true, focusSet, readOnly:true})}`;
       $('#hintBox').innerHTML = `<strong>Study Guide:</strong> ${activeCase.textGuide}<br><span class="font-mono text-xs">Mask color: ${COLORS.mask}</span>`;
       $('#nextCase').addEventListener('click', () => { AppState.independentCaseIndex++; renderIndependentStudy(); });
     }
 
+    function currentMoveKey() {
+      return `${AppState.activeStepIndex}:${AppState.activeMoveIndex}`;
+    }
+
+    function commitActiveMove() {
+      const step = CurrentAlgorithm[AppState.activeStepIndex];
+      if (!step) return;
+      const move = step.moves[AppState.activeMoveIndex];
+      const key = currentMoveKey();
+      if (!move || AppState.lastAppliedKey === key) return;
+      AppState.playbackHistory.push(AppState.playbackState.slice());
+      applyMoveToPlaybackState(move);
+      AppState.lastAppliedKey = key;
+      setTimeout(renderVisualFrame, 460);
+    }
+
+    function restorePreviousPlaybackState() {
+      const previous = AppState.playbackHistory.pop();
+      if (previous) AppState.playbackState = previous;
+      AppState.lastAppliedKey = null;
+      renderVisualFrame();
+    }
+
+    function applyMoveToPlaybackState(move) {
+      const puzzle = PUZZLES[AppState.puzzleType];
+      if (puzzle.kind === 'cube') {
+        applyCubeMove(move, puzzle.size);
+      } else {
+        applyPyraminxMove(move);
+      }
+    }
+
+    function applyPyraminxMove(move) {
+      const turns = move.includes('2') ? 2 : 1;
+      const faceMap = { U: 0, L: 1, R: 2, B: 3, u: 0, l: 1, r: 2, b: 3 };
+      const face = faceMap[move.charAt(0)] ?? 0;
+      for (let t = 0; t < turns; t++) rotateFaceBlock(face * 9, 3, !move.includes("'"));
+    }
+
+    function applyCubeMove(move, size) {
+      const base = move.charAt(0).toUpperCase();
+      const wide = move.includes('w');
+      const amount = move.includes('2') ? 2 : 1;
+      const clockwise = !move.includes("'");
+      for (let t = 0; t < amount; t++) {
+        applyCubeQuarterTurn(base, size, clockwise, 0);
+        if (wide && size > 3) applyCubeQuarterTurn(base, size, clockwise, 1);
+      }
+    }
+
+    function applyCubeQuarterTurn(face, size, clockwise, layer) {
+      const s = AppState.playbackState;
+      const idx = (f, r, c) => f * size * size + r * size + c;
+      const line = (f, type, n) => Array.from({length: size}, (_, i) => type === 'row' ? idx(f, n, i) : idx(f, i, n));
+      const cycle = (groups) => {
+        const values = groups.map(g => g.map(i => s[i]));
+        groups.forEach((group, i) => group.forEach((cell, j) => { s[cell] = values[(i + groups.length - 1) % groups.length][j]; }));
+      };
+      if (layer === 0) rotateFaceMatrix(faceToIndex(face), size, clockwise);
+      const n = size - 1 - layer;
+      if (face === 'U') cycle(clockwise ? [line(2,'row',layer), line(3,'row',layer), line(4,'row',layer), line(1,'row',layer)] : [line(2,'row',layer), line(1,'row',layer), line(4,'row',layer), line(3,'row',layer)]);
+      if (face === 'D') cycle(clockwise ? [line(2,'row',n), line(1,'row',n), line(4,'row',n), line(3,'row',n)] : [line(2,'row',n), line(3,'row',n), line(4,'row',n), line(1,'row',n)]);
+      if (face === 'R') cycle(clockwise ? [line(0,'col',n), line(2,'col',n), line(5,'col',n), line(4,'col',layer)] : [line(0,'col',n), line(4,'col',layer), line(5,'col',n), line(2,'col',n)]);
+      if (face === 'L') cycle(clockwise ? [line(0,'col',layer), line(4,'col',n), line(5,'col',layer), line(2,'col',layer)] : [line(0,'col',layer), line(2,'col',layer), line(5,'col',layer), line(4,'col',n)]);
+      if (face === 'F') cycle(clockwise ? [line(0,'row',n), line(3,'col',layer), line(5,'row',layer), line(1,'col',n)] : [line(0,'row',n), line(1,'col',n), line(5,'row',layer), line(3,'col',layer)]);
+      if (face === 'B') cycle(clockwise ? [line(0,'row',layer), line(1,'col',layer), line(5,'row',n), line(3,'col',n)] : [line(0,'row',layer), line(3,'col',n), line(5,'row',n), line(1,'col',layer)]);
+    }
+
+    function faceToIndex(face) {
+      return { U: 0, L: 1, F: 2, R: 3, B: 4, D: 5 }[face];
+    }
+
+    function rotateFaceMatrix(faceIndex, size, clockwise) {
+      const start = faceIndex * size * size;
+      const old = AppState.playbackState.slice(start, start + size * size);
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const source = clockwise ? (size - 1 - c) * size + r : c * size + (size - 1 - r);
+          AppState.playbackState[start + r * size + c] = old[source];
+        }
+      }
+    }
+
+    function rotateFaceBlock(start, size, clockwise) {
+      const old = AppState.playbackState.slice(start, start + size * size);
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const source = clockwise ? (size - 1 - c) * size + r : c * size + (size - 1 - r);
+          AppState.playbackState[start + r * size + c] = old[source];
+        }
+      }
+    }
+
     function advancePlaybackState(direction) {
       if (!CurrentAlgorithm.length) return;
+      let animationMove = CurrentAlgorithm[AppState.activeStepIndex]?.moves[AppState.activeMoveIndex];
       if (direction === 'NEXT') {
+        commitActiveMove();
         AppState.activeMoveIndex++;
         if (AppState.activeMoveIndex >= CurrentAlgorithm[AppState.activeStepIndex].moves.length) {
           AppState.activeMoveIndex = 0;
           AppState.activeStepIndex++;
         }
       } else if (direction === 'BACK') {
+        restorePreviousPlaybackState();
         AppState.activeMoveIndex--;
         if (AppState.activeMoveIndex < 0) {
           AppState.activeStepIndex--;
@@ -503,10 +603,11 @@
             AppState.activeMoveIndex = CurrentAlgorithm[AppState.activeStepIndex].moves.length - 1;
           }
         }
+        animationMove = CurrentAlgorithm[AppState.activeStepIndex]?.moves[AppState.activeMoveIndex] || animationMove;
       }
       if (AppState.activeStepIndex < 0) { AppState.activeStepIndex = 0; AppState.activeMoveIndex = 0; }
       if (AppState.activeStepIndex >= CurrentAlgorithm.length) { AppState.activeStepIndex = CurrentAlgorithm.length - 1; AppState.activeMoveIndex = CurrentAlgorithm[AppState.activeStepIndex].moves.length - 1; stopAutoPlay(); showToast('Algorithm complete. Puzzle solved or practice sequence finished.', 'success'); }
-      triggerVisualPuzzleTurnAnimation(CurrentAlgorithm[AppState.activeStepIndex].moves[AppState.activeMoveIndex]);
+      triggerVisualPuzzleTurnAnimation(animationMove);
       renderUIStatusDisplay();
     }
 
@@ -567,6 +668,7 @@
       $$('[data-learn="guided"]').forEach(b => b.addEventListener('click', () => openScanner('guided')));
       $$('[data-learn="independent"]').forEach(b => b.addEventListener('click', () => { AppState.puzzleType = '3x3'; startPlayback('independent'); }));
       $('#autoFillBtn').addEventListener('click', autoFillSolved);
+      $('#validateBtn').addEventListener('click', () => { validateAndUpdate() ? showToast('Validation passed. SOLVE is unlocked.', 'success') : showToast(buildValidationHint(AppState.colorDataMap[AppState.puzzleType]), 'error', 5200); });
       $('#resetPaintBtn').addEventListener('click', resetPaint);
       $('#solveBtn').addEventListener('click', () => startPlayback(AppState.trainingProfile));
       $('#nextMove').addEventListener('click', () => advancePlaybackState('NEXT'));
