@@ -1,7 +1,7 @@
 # Agent Execution Plan: Advanced Neo-Minimalist Puzzle Platform
 
 ## 🎯 Project Vision
-A premium, self-contained single-file (`index.html`) interactive playground enabling users to dynamically configure physical state inputs across 4 classic twisty puzzles (3x3, Pyraminx, 4x4, 5x5). It delivers an animated playback solution engine via the "Godfather Method", and provides guided/isolated learning frameworks featuring smart structural masking overlays.
+A premium, self-contained single-file (`index.html`) interactive playground enabling users to dynamically configure physical state inputs across 4 classic twisty puzzles (3x3, Pyraminx, 4x4, 5x5). It delivers an animated playback solution engine via the "Godfather Method", and provides guided/isolated learning frameworks featuring smart structural masking overlays. Use any languages needed.
 
 ---
 
