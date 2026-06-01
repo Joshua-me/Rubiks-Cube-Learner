@@ -33,13 +33,16 @@
     .notation-pill.active { background: #4f46e5; color: #fff; transform: translateY(-2px); box-shadow: 0 12px 22px rgba(79,70,229,.24); }
     .cube-scene { perspective: 950px; width: min(72vw, 330px); height: min(72vw, 330px); max-width: 330px; max-height: 330px; margin: 0 auto; display: grid; place-items: center; }
     .cube3d { --cubie: 40px; --gap: 1.5px; position: relative; width: calc(var(--cubie) * var(--cube-size)); height: calc(var(--cubie) * var(--cube-size)); transform-style: preserve-3d; transform: rotateX(-28deg) rotateY(38deg); transition: transform .46s cubic-bezier(.2,.8,.2,1); }
-    .cubie { --base: translate3d(0,0,0); position: absolute; left: calc(50% - var(--cubie) / 2); top: calc(50% - var(--cubie) / 2); width: var(--cubie); height: var(--cubie); transform-style: preserve-3d; transform: var(--base); transition: transform .5s cubic-bezier(.18,.85,.28,1.18); }
-    .cubie.turn-x-cw { transform: var(--base) rotateX(92deg); }
-    .cubie.turn-x-ccw { transform: var(--base) rotateX(-92deg); }
-    .cubie.turn-y-cw { transform: var(--base) rotateY(92deg); }
-    .cubie.turn-y-ccw { transform: var(--base) rotateY(-92deg); }
-    .cubie.turn-z-cw { transform: var(--base) rotateZ(92deg); }
-    .cubie.turn-z-ccw { transform: var(--base) rotateZ(-92deg); }
+    .cubie { --base: translate3d(0,0,0); position: absolute; left: calc(50% - var(--cubie) / 2); top: calc(50% - var(--cubie) / 2); width: var(--cubie); height: var(--cubie); transform-style: preserve-3d; transform: var(--base); transition: transform .62s cubic-bezier(.18,.85,.28,1.18), filter .24s ease; }
+    .cubie.turn-x-cw { transform: rotateX(90deg) var(--base); filter: brightness(1.08); }
+    .cubie.turn-x-ccw { transform: rotateX(-90deg) var(--base); filter: brightness(1.08); }
+    .cubie.turn-y-cw { transform: rotateY(90deg) var(--base); filter: brightness(1.08); }
+    .cubie.turn-y-ccw { transform: rotateY(-90deg) var(--base); filter: brightness(1.08); }
+    .cubie.turn-z-cw { transform: rotateZ(90deg) var(--base); filter: brightness(1.08); }
+    .cubie.turn-z-ccw { transform: rotateZ(-90deg) var(--base); filter: brightness(1.08); }
+    .cubie.turn-x-2 { transform: rotateX(180deg) var(--base); filter: brightness(1.1); }
+    .cubie.turn-y-2 { transform: rotateY(180deg) var(--base); filter: brightness(1.1); }
+    .cubie.turn-z-2 { transform: rotateZ(180deg) var(--base); filter: brightness(1.1); }
     .sticker3d { position: absolute; inset: var(--gap); border-radius: 6px; border: 1px solid rgba(15,23,42,.3); background: #0f172a; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); backface-visibility: visible; }
     .sticker-U { transform: rotateX(90deg) translateZ(calc(var(--cubie) / 2)); }
     .sticker-D { transform: rotateX(-90deg) translateZ(calc(var(--cubie) / 2)); }
@@ -567,7 +570,7 @@
       AppState.playbackHistory.push(AppState.playbackState.slice());
       applyMoveToPlaybackState(move);
       AppState.lastAppliedKey = key;
-      setTimeout(renderVisualFrame, 460);
+      setTimeout(renderVisualFrame, 650);
     }
 
     function restorePreviousPlaybackState() {
@@ -687,12 +690,13 @@
       const inner = { R: size - 2, L: 1, U: 1, D: size - 2, F: size - 2, B: 1 }[base];
       const layers = wide && size > 3 ? [outer, inner] : [outer];
       const naturalClockwise = ['R', 'U', 'F'].includes(base) ? clockwise : !clockwise;
-      const spinClass = `turn-${axis}-${naturalClockwise ? 'cw' : 'ccw'}`;
+      const turnClasses = ['turn-x-cw','turn-x-ccw','turn-y-cw','turn-y-ccw','turn-z-cw','turn-z-ccw','turn-x-2','turn-y-2','turn-z-2'];
+      const spinClass = move.includes('2') ? `turn-${axis}-2` : `turn-${axis}-${naturalClockwise ? 'cw' : 'ccw'}`;
       $$('.cubie').forEach(cubie => {
-        cubie.classList.remove('turn-x-cw','turn-x-ccw','turn-y-cw','turn-y-ccw','turn-z-cw','turn-z-ccw');
+        cubie.classList.remove(...turnClasses);
         if (layers.includes(Number(cubie.dataset[axis]))) cubie.classList.add(spinClass);
       });
-      setTimeout(() => $$('.cubie').forEach(cubie => cubie.classList.remove('turn-x-cw','turn-x-ccw','turn-y-cw','turn-y-ccw','turn-z-cw','turn-z-ccw')), 520);
+      setTimeout(() => $$('.cubie').forEach(cubie => cubie.classList.remove(...turnClasses)), 660);
     }
 
     function renderUIStatusDisplay() {
