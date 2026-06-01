@@ -51,6 +51,14 @@
     .sticker-R { transform: rotateY(90deg) translateZ(calc(var(--cubie) / 2)); }
     .sticker-L { transform: rotateY(-90deg) translateZ(calc(var(--cubie) / 2)); }
     .cube-shadow { width: min(54vw, 250px); height: 34px; margin: -18px auto 0; border-radius: 9999px; background: radial-gradient(ellipse, rgba(15,23,42,.18), rgba(15,23,42,0) 68%); }
+
+    .pyra-scene { perspective: 950px; width: min(72vw, 330px); height: min(62vw, 290px); max-width: 330px; max-height: 290px; margin: 0 auto; display: grid; place-items: center; }
+    .pyra3d { position: relative; width: 210px; height: 185px; transform-style: preserve-3d; transform: rotateX(-18deg) rotateY(35deg); }
+    .pyra-face3d { --face-transform: translateZ(0); position: absolute; left: 50%; top: 50%; width: 190px; height: 165px; margin-left: -95px; margin-top: -82px; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); background: #0f172a; transform: var(--face-transform); transform-style: preserve-3d; transition: transform .62s cubic-bezier(.18,.85,.28,1.18), filter .24s ease; box-shadow: inset 0 0 0 2px rgba(15,23,42,.45), 0 18px 36px rgba(15,23,42,.16); }
+    .pyra-face3d.face-turn-cw { transform: var(--face-transform) rotateZ(120deg) translateZ(18px); filter: brightness(1.1); }
+    .pyra-face3d.face-turn-ccw { transform: var(--face-transform) rotateZ(-120deg) translateZ(18px); filter: brightness(1.1); }
+    .pyra-sticker3d { position: absolute; width: 28%; height: 28%; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); border: 1px solid rgba(15,23,42,.32); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+    .pyra-sticker3d:nth-child(even) { clip-path: polygon(0 0, 100% 0, 50% 100%); }
     .toast { animation: toastIn .22s ease both; }
     @keyframes toastIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .shape-svg { filter: drop-shadow(0 14px 22px rgba(15,23,42,.12)); }
@@ -59,6 +67,8 @@
       .facelet { min-width: 18px; border-radius: 5px; }
       .cube3d { --cubie: 31px; }
       .sticker3d { border-radius: 4px; }
+      .pyra3d { width: 168px; height: 148px; }
+      .pyra-face3d { width: 156px; height: 136px; margin-left: -78px; margin-top: -68px; }
     }
   </style>
 </head>
@@ -517,7 +527,7 @@
     function renderVisualFrame() {
       if (AppState.trainingProfile === 'independent') { renderIndependentStudy(); return; }
       const puzzle = PUZZLES[AppState.puzzleType];
-      $('#visualFrame').innerHTML = puzzle.kind === 'cube' ? renderCube3D(puzzle.size, AppState.playbackState) : renderPyraminxNet(AppState.playbackState).replaceAll('paintable ', '');
+      $('#visualFrame').innerHTML = puzzle.kind === 'cube' ? renderCube3D(puzzle.size, AppState.playbackState) : renderPyraminx3D(AppState.playbackState);
     }
 
     function renderCube3D(size, state) {
@@ -547,12 +557,29 @@
       return `<div class="flex h-full min-h-[300px] flex-col items-center justify-center"><div class="cube-scene"><div id="cube3d" class="cube3d" data-size="${size}" style="--cube-size:${size}; --cubie:${cubie}px">${cubies.join('')}</div></div><div class="cube-shadow"></div></div>`;
     }
 
+    function renderPyraminx3D(state) {
+      const positions = [[36,4],[24,34],[48,34],[12,64],[36,64],[60,64],[0,94],[24,94],[48,94]];
+      const transforms = [
+        'translateZ(74px)',
+        'rotateY(-72deg) rotateZ(2deg) translateZ(64px)',
+        'rotateY(72deg) rotateZ(-2deg) translateZ(64px)',
+        'rotateX(70deg) rotateZ(180deg) translateZ(58px)'
+      ];
+      const face = (faceIndex) => {
+        const start = faceIndex * 9;
+        const stickers = positions.map((pos, i) => `<span class="pyra-sticker3d" style="left:${pos[0]}%; top:${pos[1]}%; background:${state[start + i] || COLORS.blank}"></span>`).join('');
+        return `<div class="pyra-face3d" data-pyra-face="${faceIndex}" style="--face-transform:${transforms[faceIndex]}">${stickers}</div>`;
+      };
+      return `<div class="flex h-full min-h-[300px] flex-col items-center justify-center"><div class="pyra-scene"><div id="pyra3d" class="pyra3d">${[0,1,2,3].map(face).join('')}</div></div><div class="cube-shadow"></div></div>`;
+    }
+
     function renderIndependentStudy() {
       const cases = IndependentLearningLibrary['3x3'];
       const activeCase = cases[AppState.independentCaseIndex % cases.length];
       const focusSet = new Set(activeCase.focusIndices);
       const solved = AppState.playbackState.length === 54 ? AppState.playbackState : COLORS.cube.flatMap(color => Array(9).fill(color));
-      $('#visualFrame').innerHTML = `<div class="mb-4 flex flex-wrap items-center justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Independent Case</p><h3 class="text-xl font-black text-slate-900">${activeCase.caseName}</h3></div><button id="nextCase" class="tap-target rounded-2xl bg-slate-900 px-4 py-2 text-sm font-black text-white">Next Case</button></div>${renderCubeNet(3, solved, {mask:true, focusSet, readOnly:true})}`;
+      const maskedState = solved.map((color, index) => focusSet.has(index) ? color : COLORS.mask);
+      $('#visualFrame').innerHTML = `<div class="mb-4 flex flex-wrap items-center justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Independent Case</p><h3 class="text-xl font-black text-slate-900">${activeCase.caseName}</h3></div><button id="nextCase" class="tap-target rounded-2xl bg-slate-900 px-4 py-2 text-sm font-black text-white">Next Case</button></div>${renderCube3D(3, maskedState)}`;
       $('#hintBox').innerHTML = `<strong>Study Guide:</strong> ${activeCase.textGuide}<br><span class="font-mono text-xs">Mask color: ${COLORS.mask}</span>`;
       $('#nextCase').addEventListener('click', () => { AppState.independentCaseIndex++; renderIndependentStudy(); });
     }
@@ -679,7 +706,8 @@
 
     function triggerVisualPuzzleTurnAnimation(move) {
       const cube = $('#cube3d');
-      if (!cube || !move) return;
+      if (!move) return;
+      if (!cube) { triggerPyraminxTurnAnimation(move); return; }
       const size = Number(cube.dataset.size || PUZZLES[AppState.puzzleType].size || 3);
       const base = move.charAt(0).toUpperCase();
       const wide = move.includes('w');
@@ -697,6 +725,18 @@
         if (layers.includes(Number(cubie.dataset[axis]))) cubie.classList.add(spinClass);
       });
       setTimeout(() => $$('.cubie').forEach(cubie => cubie.classList.remove(...turnClasses)), 660);
+    }
+
+    function triggerPyraminxTurnAnimation(move) {
+      const pyra = $('#pyra3d');
+      if (!pyra) return;
+      const faceMap = { U: 0, L: 1, R: 2, B: 3 };
+      const faceIndex = faceMap[move.charAt(0).toUpperCase()] ?? 0;
+      const turnClass = move.includes("'") ? 'face-turn-ccw' : 'face-turn-cw';
+      $$('.pyra-face3d').forEach(face => face.classList.remove('face-turn-cw', 'face-turn-ccw'));
+      const target = pyra.querySelector(`[data-pyra-face="${faceIndex}"]`);
+      if (target) target.classList.add(turnClass);
+      setTimeout(() => $$('.pyra-face3d').forEach(face => face.classList.remove('face-turn-cw', 'face-turn-ccw')), 660);
     }
 
     function renderUIStatusDisplay() {
