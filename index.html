@@ -51,6 +51,7 @@
     .sticker-R { transform: rotateY(90deg) translateZ(calc(var(--cubie) / 2)); }
     .sticker-L { transform: rotateY(-90deg) translateZ(calc(var(--cubie) / 2)); }
     .cube-shadow { width: min(54vw, 250px); height: 34px; margin: -18px auto 0; border-radius: 9999px; background: radial-gradient(ellipse, rgba(15,23,42,.18), rgba(15,23,42,0) 68%); }
+    .model-plaque { margin-top: 10px; border-radius: 9999px; background: rgba(255,255,255,.92); border: 1px solid rgba(226,232,240,.85); padding: 6px 12px; font-size: 11px; font-weight: 900; letter-spacing: .18em; text-transform: uppercase; color: #475569; box-shadow: 0 10px 22px rgba(15,23,42,.08); }
 
     .pyra-scene { perspective: 950px; width: min(72vw, 330px); height: min(62vw, 290px); max-width: 330px; max-height: 290px; margin: 0 auto; display: grid; place-items: center; }
     .pyra3d { position: relative; width: 210px; height: 185px; transform-style: preserve-3d; transform: rotateX(-18deg) rotateY(35deg); }
@@ -304,6 +305,115 @@
       }
     ];
 
+    const FourByFourBeginnerSolver = [
+      {
+        stepName: "4x4 Beginner Reduction — Solve White + Yellow Centers",
+        instructions: "Use slice turns to build two 2x2 center blocks first. Keep the completed center on the bottom/top while pairing matching center bars.",
+        moves: ["Rw", "U", "Rw'", "U'", "Rw'", "F", "Rw", "F'"]
+      },
+      {
+        stepName: "4x4 Beginner Reduction — Solve Remaining Centers",
+        instructions: "Build center bars on the front face and insert them into the left, right, front, and back centers without destroying the solved opposite centers.",
+        moves: ["Uw", "R", "U'", "R'", "Uw'", "F'", "U", "F"]
+      },
+      {
+        stepName: "4x4 Beginner Reduction — Pair Edge Wings",
+        instructions: "Match two wing pieces, store them safely, and repeat until the cube behaves like a 3x3 with paired edges.",
+        moves: ["Uw", "R", "U'", "R'", "F", "R'", "F'", "R", "Uw'"]
+      },
+      {
+        stepName: "4x4 Beginner Reduction — Finish Cross + First Layer",
+        instructions: "With centers and edges reduced, solve the white cross and first-layer corners exactly like the beginner 3x3 method.",
+        moves: ["F2", "R", "U", "R'", "U'"]
+      },
+      {
+        stepName: "4x4 Beginner Reduction — Complete F2L / Second Layer",
+        instructions: "Insert the four middle-layer edge pairs using right and left beginner insertions while preserving paired edges.",
+        moves: ["U", "R", "U'", "R'", "U'", "F'", "U", "F"]
+      },
+      {
+        stepName: "4x4 Beginner Reduction — Last Layer as 3x3",
+        instructions: "Orient and permute the last layer using the same beginner last-layer plan unless parity appears.",
+        moves: ["F", "R", "U", "R'", "U'", "F'", "R", "U", "R'", "U", "R", "U2", "R'"]
+      },
+      {
+        stepName: "4x4 Certified Beginner Parity — OLL Edge Flip",
+        instructions: "Flipped Edge Block Parity (Fixes an odd number of oriented edge pairs on the final layer).",
+        moves: ["Rw2", "B2", "U2", "Lw", "U2", "Rw'", "U2", "Rw", "U2", "F2", "Rw", "F2", "Lw'", "B2", "Rw2"]
+      },
+      {
+        stepName: "4x4 Certified Beginner Parity — PLL Two-Edge Swap",
+        instructions: "Two-Edge Swap Parity (Fixes two opposite or adjacent edges that are swapped at the very end).",
+        moves: ["Rw2", "U2", "Rw2", "Uw2", "Rw2", "Uw2"]
+      }
+    ];
+
+    const FiveByFiveBeginnerSolver = [
+      {
+        stepName: "5x5 Beginner Reduction — Build White + Yellow Centers",
+        instructions: "Create center bars, expand them into full 3x3 center blocks, and keep opposite centers aligned with the real-life color scheme.",
+        moves: ["Rw", "U", "Rw'", "U", "Rw", "U2", "Rw'"]
+      },
+      {
+        stepName: "5x5 Beginner Reduction — Complete Four Side Centers",
+        instructions: "Solve the remaining large centers one bar at a time. Preserve completed centers by moving bars through the unsolved slice.",
+        moves: ["Uw", "R", "U'", "R'", "Uw'", "F'", "U", "F"]
+      },
+      {
+        stepName: "5x5 Beginner Reduction — Pair First Eight Edges",
+        instructions: "Use the beginner edge-building workflow: match two wings with the middle edge, store the solved tredge, and continue.",
+        moves: ["Rw", "U", "R'", "F", "R", "F'", "Rw'"]
+      },
+      {
+        stepName: "5x5 Beginner Reduction — Last Four Edges",
+        instructions: "Use controlled slice-flip-slice moves to finish the final edge groups without breaking solved tredges.",
+        moves: ["Rw", "U2", "Rw'", "U2", "Rw", "U2", "Rw'"]
+      },
+      {
+        stepName: "5x5 Beginner Reduction — Solve Like a 3x3",
+        instructions: "Once centers and tredges are complete, solve cross, corners, middle layer, and last layer with beginner 3x3 logic.",
+        moves: ["F2", "R", "U", "R'", "U'", "F", "R", "U", "R'", "U'", "F'"]
+      },
+      {
+        stepName: "5x5 Certified Beginner Parity — Last Two Edges",
+        instructions: "Last Two Edges Slice (Corrects the final flipped mid-edge segment relative to its outer wing pairs).",
+        moves: ["Rw2", "B2", "U2", "Lw", "U2", "Rw'", "U2", "Rw", "U2", "F2", "Rw", "F2", "Lw'", "B2", "Rw2"]
+      }
+    ];
+
+    const PyraminxBeginnerSolver = [
+      {
+        stepName: "Pyraminx Beginner — Match All Tips",
+        instructions: "Twist each real-life tip until it matches the two adjacent center colors. Tips are independent, so solve them first.",
+        moves: ["u", "l", "r", "b"]
+      },
+      {
+        stepName: "Pyraminx Beginner — Choose a Color + Align Centers",
+        instructions: "Pick the easiest face, rotate the small centers so all three pieces around that face match, then hold it as the bottom.",
+        moves: ["U", "L", "R", "U'"]
+      },
+      {
+        stepName: "Pyraminx Beginner — Insert Bottom Edges Right",
+        instructions: "For a bottom edge that belongs on the right, use the standard right insertion and keep the solved face at the bottom.",
+        moves: ["R", "U'", "R'"]
+      },
+      {
+        stepName: "Pyraminx Beginner — Insert Bottom Edges Left",
+        instructions: "For a bottom edge that belongs on the left, use the mirrored left insertion.",
+        moves: ["L'", "U", "L"]
+      },
+      {
+        stepName: "Pyraminx Beginner — Last Layer Clockwise Cycle",
+        instructions: "If the final three top edges need a clockwise cycle, use the beginner last-layer cycle.",
+        moves: ["R", "U", "R'", "U", "R", "U", "R'"]
+      },
+      {
+        stepName: "Pyraminx Beginner — Last Layer Counterclockwise Cycle",
+        instructions: "If the final three top edges need the opposite direction, use the mirrored cycle.",
+        moves: ["L'", "U'", "L", "U'", "L'", "U'", "L"]
+      }
+    ];
+
     const BigCubeParities = {
       OLL_Parity_4x4: {
         description: "Flipped Edge Block Parity (Fixes an odd number of oriented edge pairs on the final layer).",
@@ -343,10 +453,10 @@
     const FACE_NAMES = ['Up', 'Left', 'Front', 'Right', 'Back', 'Down'];
     const PYRA_FACE_NAMES = ['Base', 'Left Wing', 'Right Wing', 'Rear Wing'];
     const PUZZLES = {
-      '3x3': { label: '3x3 Cube', kind: 'cube', size: 3, faces: 6, colors: COLORS.cube, subtitle: 'Classic layered method' },
-      'pyraminx': { label: 'Pyraminx', kind: 'pyraminx', size: 3, faces: 4, colors: COLORS.pyraminx, subtitle: 'Four triangular faces' },
-      '4x4': { label: '4x4 Master', kind: 'cube', size: 4, faces: 6, colors: COLORS.cube, subtitle: 'Reduction + parity' },
-      '5x5': { label: '5x5 Professor', kind: 'cube', size: 5, faces: 6, colors: COLORS.cube, subtitle: 'Centers, edges, parity' }
+      '3x3': { label: '3x3 Cube', kind: 'cube', size: 3, faces: 6, colors: COLORS.cube, subtitle: 'Classic layered method', methodName: 'CubeHead-style beginner layer method' },
+      'pyraminx': { label: 'Pyraminx', kind: 'pyraminx', size: 3, faces: 4, colors: COLORS.pyraminx, subtitle: 'Four triangular faces', methodName: 'Beginner layer-by-layer Pyraminx method' },
+      '4x4': { label: '4x4 Master', kind: 'cube', size: 4, faces: 6, colors: COLORS.cube, subtitle: 'Reduction + parity', methodName: 'Beginner reduction method + parity' },
+      '5x5': { label: '5x5 Professor', kind: 'cube', size: 5, faces: 6, colors: COLORS.cube, subtitle: 'Centers, edges, parity', methodName: 'Beginner reduction method + last-two-edges parity' }
     };
     const AppState = {
       activeScreen: 'dashboard', puzzleType: '3x3', trainingProfile: null, activeStepIndex: 0, activeMoveIndex: 0,
@@ -375,7 +485,7 @@
         <button class="tap-target group rounded-[2rem] border border-slate-200/60 bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl" data-puzzle="${key}">
           <div class="mb-5 flex h-44 items-center justify-center rounded-[1.5rem] bg-slate-50">${renderPuzzleIcon(key)}</div>
           <div class="flex items-start justify-between gap-3">
-            <div><h3 class="text-xl font-black text-slate-900">${puzzle.label}</h3><p class="mt-1 text-sm text-slate-500">${puzzle.subtitle}</p></div>
+            <div><h3 class="text-xl font-black text-slate-900">${puzzle.label}</h3><p class="mt-1 text-sm text-slate-500">${puzzle.subtitle}</p><p class="mt-2 text-xs font-bold uppercase tracking-wider text-indigo-600">${puzzle.methodName}</p></div>
             <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-600">Open</span>
           </div>
         </button>`).join('');
@@ -504,13 +614,10 @@
 
     function prepareAlgorithm() {
       if (AppState.puzzleType === '3x3') return CubeHead2026Solver;
-      if (AppState.puzzleType === '4x4') return [...CubeHead2026Solver, { stepName: '4x4 OLL Parity Subroutine', instructions: BigCubeParities.OLL_Parity_4x4.description, moves: BigCubeParities.OLL_Parity_4x4.moves }, { stepName: '4x4 PLL Parity Subroutine', instructions: BigCubeParities.PLL_Parity_4x4.description, moves: BigCubeParities.PLL_Parity_4x4.moves }];
-      if (AppState.puzzleType === '5x5') return [...CubeHead2026Solver, { stepName: '5x5 Last Two Edges Parity', instructions: BigCubeParities.L2E_Parity_5x5.description, moves: BigCubeParities.L2E_Parity_5x5.moves }];
-      return [
-        { stepName: 'Pyraminx Tip Orientation', instructions: 'Twist the four independent tips until they match their adjacent centers.', moves: ['u', 'l', 'r', 'b'] },
-        { stepName: 'Pyraminx First Layer Edges', instructions: 'Insert the three lower-layer edge pieces around the selected base face.', moves: ['R', "U'", "R'", 'L', 'U', "L'"] },
-        { stepName: 'Pyraminx Last Layer Cycle', instructions: 'Cycle the top edges until every triangular face is complete.', moves: ['R', "L'", "R'", 'L', "U'", 'L', 'U', "L'"] }
-      ];
+      if (AppState.puzzleType === '4x4') return FourByFourBeginnerSolver;
+      if (AppState.puzzleType === '5x5') return FiveByFiveBeginnerSolver;
+      if (AppState.puzzleType === 'pyraminx') return PyraminxBeginnerSolver;
+      return CubeHead2026Solver;
     }
 
     function startPlayback(profile = AppState.trainingProfile) {
@@ -554,7 +661,7 @@
           }
         }
       }
-      return `<div class="flex h-full min-h-[300px] flex-col items-center justify-center"><div class="cube-scene"><div id="cube3d" class="cube3d" data-size="${size}" style="--cube-size:${size}; --cubie:${cubie}px">${cubies.join('')}</div></div><div class="cube-shadow"></div></div>`;
+      return `<div class="flex h-full min-h-[300px] flex-col items-center justify-center"><div class="cube-scene"><div id="cube3d" class="cube3d puzzle-model-${size}x${size}" data-size="${size}" style="--cube-size:${size}; --cubie:${cubie}px">${cubies.join('')}</div></div><div class="cube-shadow"></div><div class="model-plaque">${size}×${size} physical cubie model</div></div>`;
     }
 
     function renderPyraminx3D(state) {
@@ -570,7 +677,7 @@
         const stickers = positions.map((pos, i) => `<span class="pyra-sticker3d" style="left:${pos[0]}%; top:${pos[1]}%; background:${state[start + i] || COLORS.blank}"></span>`).join('');
         return `<div class="pyra-face3d" data-pyra-face="${faceIndex}" style="--face-transform:${transforms[faceIndex]}">${stickers}</div>`;
       };
-      return `<div class="flex h-full min-h-[300px] flex-col items-center justify-center"><div class="pyra-scene"><div id="pyra3d" class="pyra3d">${[0,1,2,3].map(face).join('')}</div></div><div class="cube-shadow"></div></div>`;
+      return `<div class="flex h-full min-h-[300px] flex-col items-center justify-center"><div class="pyra-scene"><div id="pyra3d" class="pyra3d puzzle-model-pyraminx">${[0,1,2,3].map(face).join('')}</div></div><div class="cube-shadow"></div><div class="model-plaque">Pyraminx physical tetrahedron model</div></div>`;
     }
 
     function renderIndependentStudy() {
