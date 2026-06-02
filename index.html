@@ -11,7 +11,11 @@
       --slate-line: rgba(148, 163, 184, 0.35);
     }
     * { box-sizing: border-box; }
-    body { min-height: 100vh; background: #f8fafc; color: #0f172a; }
+    body { min-height: 100vh; background: #f8fafc; color: #0f172a; transition: background .25s ease, color .25s ease; }
+    html.dark body { background: #020617; color: #e2e8f0; }
+    html.dark .bg-white, html.dark .glass-card { background: rgba(15,23,42,.94) !important; color: #e2e8f0; border-color: rgba(71,85,105,.8) !important; }
+    html.dark .bg-slate-50, html.dark .bg-slate-100 { background-color: #0f172a !important; }
+    html.dark .text-slate-900 { color: #f8fafc !important; } html.dark .text-slate-800, html.dark .text-slate-700, html.dark .text-slate-600 { color: #cbd5e1 !important; } html.dark .text-slate-500 { color: #94a3b8 !important; }
     .hidden { display: none !important; }
     .glass-card { background: rgba(255,255,255,.92); border: 1px solid rgba(226,232,240,.75); box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 18px 55px rgba(15,23,42,.05); }
     .tap-target { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
@@ -33,7 +37,7 @@
     .notation-pill.active { background: #4f46e5; color: #fff; transform: translateY(-2px); box-shadow: 0 12px 22px rgba(79,70,229,.24); }
     .cube-scene { perspective: 950px; width: min(72vw, 330px); height: min(72vw, 330px); max-width: 330px; max-height: 330px; margin: 0 auto; display: grid; place-items: center; }
     .cube3d { --cubie: 40px; --gap: 1.5px; position: relative; width: calc(var(--cubie) * var(--cube-size)); height: calc(var(--cubie) * var(--cube-size)); transform-style: preserve-3d; transform: rotateX(-28deg) rotateY(38deg); transition: transform .46s cubic-bezier(.2,.8,.2,1); }
-    .cubie { --base: translate3d(0,0,0); position: absolute; left: calc(50% - var(--cubie) / 2); top: calc(50% - var(--cubie) / 2); width: var(--cubie); height: var(--cubie); transform-style: preserve-3d; transform: var(--base); transition: transform .62s cubic-bezier(.18,.85,.28,1.18), filter .24s ease; }
+    .cubie { --base: translate3d(0,0,0); position: absolute; left: calc(50% - var(--cubie) / 2); top: calc(50% - var(--cubie) / 2); width: var(--cubie); height: var(--cubie); transform-style: preserve-3d; transform: var(--base); transform-origin: 50% 50% calc(var(--cubie) * -1.5); transition: transform .72s cubic-bezier(.18,.85,.28,1.18), filter .24s ease; }
     .cubie.turn-x-cw { transform: rotateX(90deg) var(--base); filter: brightness(1.08); }
     .cubie.turn-x-ccw { transform: rotateX(-90deg) var(--base); filter: brightness(1.08); }
     .cubie.turn-y-cw { transform: rotateY(90deg) var(--base); filter: brightness(1.08); }
@@ -43,7 +47,7 @@
     .cubie.turn-x-2 { transform: rotateX(180deg) var(--base); filter: brightness(1.1); }
     .cubie.turn-y-2 { transform: rotateY(180deg) var(--base); filter: brightness(1.1); }
     .cubie.turn-z-2 { transform: rotateZ(180deg) var(--base); filter: brightness(1.1); }
-    .sticker3d { position: absolute; inset: var(--gap); border-radius: 6px; border: 1px solid rgba(15,23,42,.3); background: #0f172a; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); backface-visibility: visible; }
+    .sticker3d { position: absolute; inset: var(--gap); border-radius: 6px; border: 1px solid rgba(15,23,42,.3); background: #0f172a; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 1px 2px rgba(0,0,0,.22); backface-visibility: visible; }
     .sticker-U { transform: rotateX(90deg) translateZ(calc(var(--cubie) / 2)); }
     .sticker-D { transform: rotateX(-90deg) translateZ(calc(var(--cubie) / 2)); }
     .sticker-F { transform: translateZ(calc(var(--cubie) / 2)); }
@@ -60,6 +64,12 @@
     .pyra-face3d.face-turn-ccw { transform: var(--face-transform) rotateZ(-120deg) translateZ(18px); filter: brightness(1.1); }
     .pyra-sticker3d { position: absolute; width: 28%; height: 28%; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); border: 1px solid rgba(15,23,42,.32); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
     .pyra-sticker3d:nth-child(even) { clip-path: polygon(0 0, 100% 0, 50% 100%); }
+    .chat-panel { width: min(92vw, 420px); max-height: 72vh; }
+    .chat-log { max-height: 42vh; overflow-y: auto; }
+    .chat-bubble { border-radius: 18px; padding: 10px 12px; font-size: 13px; line-height: 1.55; }
+    .chat-bot { background: #eef2ff; color: #1e1b4b; }
+    .chat-user { background: #0f172a; color: white; margin-left: auto; }
+    html.dark .chat-bot { background: #1e293b; color: #e0e7ff; }
     .toast { animation: toastIn .22s ease both; }
     @keyframes toastIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     .shape-svg { filter: drop-shadow(0 14px 22px rgba(15,23,42,.12)); }
@@ -80,7 +90,11 @@
         <p class="text-xs font-bold uppercase tracking-[0.34em] text-indigo-600">Twisty Lab</p>
         <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">Puzzle Solver & Learning Platform</h1>
       </button>
-      <div id="crumbs" class="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600">Dashboard Hub</div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="themeToggle" class="tap-target rounded-2xl bg-slate-100 px-4 py-2 text-sm font-black text-slate-700">🌙 Dark</button>
+        <button id="chatToggle" class="tap-target rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-black text-white shadow-lg shadow-indigo-600/20">AI Coach</button>
+        <div id="crumbs" class="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600">Dashboard Hub</div>
+      </div>
     </header>
 
     <section id="dashboardView" class="view">
@@ -194,6 +208,19 @@
   </main>
 
   <div id="toastLayer" class="fixed inset-x-0 bottom-5 z-50 mx-auto flex max-w-xl flex-col gap-3 px-4 pointer-events-none"></div>
+  <section id="chatPanel" class="chat-panel fixed bottom-5 right-5 z-40 hidden rounded-[2rem] border border-slate-200/70 bg-white p-4 shadow-2xl">
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <div><p class="text-xs font-black uppercase tracking-[0.24em] text-indigo-600">AI Coach</p><h2 class="font-black text-slate-900">Twisty Lab helper</h2></div>
+      <button id="chatClose" class="tap-target rounded-full bg-slate-100 px-3 py-2 font-black text-slate-600">×</button>
+    </div>
+    <div id="chatLog" class="chat-log mb-3 flex flex-col gap-2 rounded-3xl bg-slate-50 p-3">
+      <div class="chat-bubble chat-bot">Ask me about notation, the next move, validation errors, beginner methods, parity, or why pieces are blacked out in Independent Study.</div>
+    </div>
+    <form id="chatForm" class="flex gap-2">
+      <input id="chatInput" class="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Ask: what does Rw mean?" />
+      <button class="tap-target rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-black text-white">Send</button>
+    </form>
+  </section>
 
   <script>
     const PuzzleValidators = {
@@ -440,6 +467,16 @@
           caseName: "F2L Corner-Edge Matching",
           focusIndices: [2, 11, 20, 8, 17], 
           textGuide: "Watch how the corner piece pair matches up on the top face. We ignore all other faces to see the insertion channel clearly."
+        },
+        {
+          caseName: "Yellow Cross Recognition",
+          focusIndices: [0, 1, 3, 4, 5, 7, 18, 19, 21, 23, 24, 26],
+          textGuide: "The next reveal adds top-layer yellow edge stickers and the front reference face so you can recognize dot, line, and L-shape cases."
+        },
+        {
+          caseName: "Last Layer Permutation",
+          focusIndices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 18, 19, 20, 21, 23, 24, 25, 26, 27, 28, 29, 30, 32],
+          textGuide: "The final reveal adds corners and side stickers needed for headlights and edge-cycle decisions."
         }
       ]
     };
@@ -461,7 +498,7 @@
     const AppState = {
       activeScreen: 'dashboard', puzzleType: '3x3', trainingProfile: null, activeStepIndex: 0, activeMoveIndex: 0,
       selectedPaintBrush: '#ffffff', activeFace: 0, autoTimer: null, independentCaseIndex: 0,
-      playbackState: [], playbackHistory: [], lastAppliedKey: null,
+      playbackState: [], playbackHistory: [], lastAppliedKey: null, darkMode: false,
       colorDataMap: {
         '3x3': Array(54).fill('#e2e8f0'), '4x4': Array(96).fill('#e2e8f0'), '5x5': Array(150).fill('#e2e8f0'), 'pyraminx': Array(36).fill('#e2e8f0')
       }
@@ -613,7 +650,7 @@
     }
 
     function prepareAlgorithm() {
-      if (AppState.puzzleType === '3x3') return CubeHead2026Solver;
+      if (AppState.puzzleType === '3x3') return buildGodfatherCalculatedPlan(AppState.playbackState);
       if (AppState.puzzleType === '4x4') return FourByFourBeginnerSolver;
       if (AppState.puzzleType === '5x5') return FiveByFiveBeginnerSolver;
       if (AppState.puzzleType === 'pyraminx') return PyraminxBeginnerSolver;
@@ -682,13 +719,86 @@
 
     function renderIndependentStudy() {
       const cases = IndependentLearningLibrary['3x3'];
-      const activeCase = cases[AppState.independentCaseIndex % cases.length];
-      const focusSet = new Set(activeCase.focusIndices);
+      const revealIndex = Math.min(Math.max(AppState.independentCaseIndex, AppState.activeStepIndex), cases.length - 1);
+      const activeCase = cases[revealIndex];
+      const focusSet = new Set(cases.slice(0, revealIndex + 1).flatMap(studyCase => studyCase.focusIndices));
       const solved = AppState.playbackState.length === 54 ? AppState.playbackState : COLORS.cube.flatMap(color => Array(9).fill(color));
       const maskedState = solved.map((color, index) => focusSet.has(index) ? color : COLORS.mask);
       $('#visualFrame').innerHTML = `<div class="mb-4 flex flex-wrap items-center justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Independent Case</p><h3 class="text-xl font-black text-slate-900">${activeCase.caseName}</h3></div><button id="nextCase" class="tap-target rounded-2xl bg-slate-900 px-4 py-2 text-sm font-black text-white">Next Case</button></div>${renderCube3D(3, maskedState)}`;
       $('#hintBox').innerHTML = `<strong>Study Guide:</strong> ${activeCase.textGuide}<br><span class="font-mono text-xs">Mask color: ${COLORS.mask}</span>`;
-      $('#nextCase').addEventListener('click', () => { AppState.independentCaseIndex++; renderIndependentStudy(); });
+      $('#nextCase').addEventListener('click', () => { AppState.independentCaseIndex = Math.min(AppState.independentCaseIndex + 1, cases.length - 1); renderIndependentStudy(); });
+    }
+
+    function isTurnMove(move) {
+      return /^[URFDLBurfdlb][w]?['2]?$/.test(move);
+    }
+
+    function buildGodfatherCalculatedPlan(state) {
+      const cleanState = state && state.length === 54 ? state : COLORS.cube.flatMap(color => Array(9).fill(color));
+      if (isSolvedState(cleanState, 3)) {
+        return [{ stepName: 'Godfather Calculated Plan — Already Solved', instructions: 'The planner checked every face and found a solved cube. No turns are needed.', moves: ['Solved'] }];
+      }
+      const shortSolution = findShortestCorrection(cleanState, 4);
+      if (shortSolution.length) {
+        return [{ stepName: 'Godfather Calculated Plan — Shortest Found Correction', instructions: `A bounded search found an exact ${shortSolution.length}-move correction from the scanned state. This is least-move optimal inside the searched depth.`, moves: shortSolution }];
+      }
+      return optimizeAlgorithmPlan(CubeHead2026Solver).map((step, index) => ({
+        ...step,
+        stepName: index === 0 ? 'Godfather Calculated Plan — ' + step.stepName : step.stepName,
+        instructions: index === 0 ? step.instructions + ' The planner did not find a ≤4 move direct solve, so it selected the pruned intuitive beginner route.' : step.instructions
+      }));
+    }
+
+    function isSolvedState(state, size) {
+      const faceSize = size * size;
+      return Array.from({length: 6}, (_, face) => state.slice(face * faceSize, face * faceSize + faceSize)).every(facelets => facelets.every(color => color === facelets[0]));
+    }
+
+    function findShortestCorrection(startState, maxDepth) {
+      const moves = ['U','U\'','U2','R','R\'','R2','F','F\'','F2','D','D\'','D2','L','L\'','L2','B','B\'','B2'];
+      const queue = [{ state: startState.slice(), path: [] }];
+      const seen = new Set([startState.join('|')]);
+      while (queue.length) {
+        const node = queue.shift();
+        if (node.path.length >= maxDepth) continue;
+        for (const move of moves) {
+          if (node.path.length && areInverseMoves(node.path[node.path.length - 1], move)) continue;
+          const next = simulateMoveOnState(node.state, move, 3);
+          const path = [...node.path, move];
+          if (isSolvedState(next, 3)) return path;
+          const key = next.join('|');
+          if (!seen.has(key)) { seen.add(key); queue.push({ state: next, path }); }
+        }
+      }
+      return [];
+    }
+
+    function simulateMoveOnState(state, move, size) {
+      const previous = AppState.playbackState;
+      AppState.playbackState = state.slice();
+      applyCubeMove(move, size);
+      const next = AppState.playbackState.slice();
+      AppState.playbackState = previous;
+      return next;
+    }
+
+    function areInverseMoves(a, b) {
+      const baseA = a.charAt(0), baseB = b.charAt(0);
+      if (baseA !== baseB) return false;
+      if (a.includes('2') && b.includes('2')) return true;
+      return (a.includes("'") && !b.includes("'") && !b.includes('2')) || (b.includes("'") && !a.includes("'") && !a.includes('2'));
+    }
+
+    function optimizeAlgorithmPlan(plan) {
+      return plan.map(step => ({ ...step, moves: pruneRedundantMoves(step.moves) })).filter(step => step.moves.length || /Already Solved/.test(step.stepName));
+    }
+
+    function pruneRedundantMoves(moves) {
+      return moves.reduce((stack, move) => {
+        const last = stack[stack.length - 1];
+        if (last && areInverseMoves(last, move)) stack.pop(); else stack.push(move);
+        return stack;
+      }, []);
     }
 
     function currentMoveKey() {
@@ -700,7 +810,7 @@
       if (!step) return;
       const move = step.moves[AppState.activeMoveIndex];
       const key = currentMoveKey();
-      if (!move || AppState.lastAppliedKey === key) return;
+      if (!move || AppState.lastAppliedKey === key || !isTurnMove(move)) return;
       AppState.playbackHistory.push(AppState.playbackState.slice());
       applyMoveToPlaybackState(move);
       AppState.lastAppliedKey = key;
@@ -789,6 +899,7 @@
       let animationMove = CurrentAlgorithm[AppState.activeStepIndex]?.moves[AppState.activeMoveIndex];
       if (direction === 'NEXT') {
         commitActiveMove();
+        if (!isTurnMove(animationMove) && CurrentAlgorithm[AppState.activeStepIndex]?.moves.length === 1) { showToast('No physical turn is required for this calculated step.', 'success', 1400); renderUIStatusDisplay(); return; }
         AppState.activeMoveIndex++;
         if (AppState.activeMoveIndex >= CurrentAlgorithm[AppState.activeStepIndex].moves.length) {
           AppState.activeMoveIndex = 0;
@@ -809,6 +920,7 @@
       if (AppState.activeStepIndex >= CurrentAlgorithm.length) { AppState.activeStepIndex = CurrentAlgorithm.length - 1; AppState.activeMoveIndex = CurrentAlgorithm[AppState.activeStepIndex].moves.length - 1; stopAutoPlay(); showToast('Algorithm complete. Puzzle solved or practice sequence finished.', 'success'); }
       triggerVisualPuzzleTurnAnimation(animationMove);
       renderUIStatusDisplay();
+      if (AppState.trainingProfile === 'independent') renderVisualFrame();
     }
 
     function triggerVisualPuzzleTurnAnimation(move) {
@@ -884,8 +996,50 @@
       setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(8px)'; setTimeout(() => toast.remove(), 240); }, duration);
     }
 
+    function toggleTheme() {
+      AppState.darkMode = !AppState.darkMode;
+      document.documentElement.classList.toggle('dark', AppState.darkMode);
+      $('#themeToggle').textContent = AppState.darkMode ? '☀️ Light' : '🌙 Dark';
+    }
+
+    function toggleChat(forceOpen = null) {
+      const panel = $('#chatPanel');
+      const open = forceOpen === null ? panel.classList.contains('hidden') : forceOpen;
+      panel.classList.toggle('hidden', !open);
+      if (open) $('#chatInput').focus();
+    }
+
+    function addChatMessage(text, role = 'bot') {
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${role === 'user' ? 'chat-user' : 'chat-bot'}`;
+      bubble.textContent = text;
+      $('#chatLog').appendChild(bubble);
+      $('#chatLog').scrollTop = $('#chatLog').scrollHeight;
+    }
+
+    function answerCoachQuestion(question) {
+      const q = question.toLowerCase();
+      const active = CurrentAlgorithm[AppState.activeStepIndex];
+      const move = active?.moves?.[AppState.activeMoveIndex] || 'no active move';
+      if (/rw|wide|slice/.test(q)) return 'Rw means turn the right outer layer plus the adjacent inner slice together. Big-cube beginner reduction uses wide turns for centers, edge pairing, and parity.';
+      if (/black|mask|hidden|independent/.test(q)) return 'Black pieces are intentionally masked. In Independent Study, each Next press reveals a larger cumulative focus set so only pieces needed for the next concept become visible.';
+      if (/next|move|what.*do/.test(q)) return `Current step: ${active?.stepName || 'none'}. The highlighted move is ${move}. Keep the same cube orientation and turn only the indicated layer.`;
+      if (/parity/.test(q)) return 'Parity is a big-cube-only problem after reduction. Use the displayed OLL/PLL or last-two-edges parity algorithm slowly, because these cases cannot occur on a normal 3x3.';
+      if (/validate|color|scan/.test(q)) return 'Validation only checks legal color counts: 9 per cube color on 3x3, 16 on 4x4, 25 on 5x5, and 9 per Pyraminx color. If SOLVE is hidden, use Validate counts for a targeted hint.';
+      if (/least|optimal|godfather|calculate/.test(q)) return 'The Godfather calculator first checks if the cube is solved, then searches for exact direct fixes up to 4 moves. If no short exact solution is found, it uses a pruned intuitive beginner route to stay understandable.';
+      if (/3x3|cubehead/.test(q)) return 'The 3x3 track follows a CubeHead-style beginner path: daisy/white cross, white corners, second layer, yellow cross, Sune, corner positioning, and final edge cycle.';
+      if (/4x4/.test(q)) return 'The 4x4 track uses beginner reduction: solve centers, pair edges, solve like a 3x3, then handle OLL/PLL parity if they appear.';
+      if (/5x5/.test(q)) return 'The 5x5 track uses beginner reduction too: build 3x3 centers, pair tredges, solve like a 3x3, and handle last-two-edges parity.';
+      if (/pyraminx/.test(q)) return 'The Pyraminx track solves tips, aligns centers, inserts bottom edges, then cycles the final top edges.';
+      return `I can help with notation, validation, parity, blacked-out study pieces, or the current move. Right now the active move is ${move}.`;
+    }
+
     function wireEvents() {
       $('#brandHome').addEventListener('click', () => setView('dashboard'));
+      $('#themeToggle').addEventListener('click', toggleTheme);
+      $('#chatToggle').addEventListener('click', () => toggleChat(true));
+      $('#chatClose').addEventListener('click', () => toggleChat(false));
+      $('#chatForm').addEventListener('submit', (event) => { event.preventDefault(); const question = $('#chatInput').value.trim(); if (!question) return; addChatMessage(question, 'user'); $('#chatInput').value = ''; addChatMessage(answerCoachQuestion(question), 'bot'); });
       $$('[data-route="dashboard"]').forEach(b => b.addEventListener('click', () => setView('dashboard')));
       $$('[data-route="mode"]').forEach(b => b.addEventListener('click', () => setView('mode')));
       $$('[data-mode="solve"]').forEach(b => b.addEventListener('click', () => openScanner(null)));
