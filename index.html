@@ -247,11 +247,19 @@
       return rule.colors.every(color => counts[color] === rule.perColor);
     }
 
+    function getPuzzleValidation(puzzleType, state) {
+      if (!validatePuzzleColorCounts(puzzleType, state)) {
+        return { valid: false, reason: null };
+      }
+      if (puzzleType === '3x3') return analyzeThreeByThreeCubies(state);
+      return { valid: true, reason: null };
+    }
+
     const PuzzleValidators = {
-      '3x3': (state) => validatePuzzleColorCounts('3x3', state),
-      '4x4': (state) => validatePuzzleColorCounts('4x4', state),
-      '5x5': (state) => validatePuzzleColorCounts('5x5', state),
-      'pyraminx': (state) => validatePuzzleColorCounts('pyraminx', state)
+      '3x3': (state) => getPuzzleValidation('3x3', state).valid,
+      '4x4': (state) => getPuzzleValidation('4x4', state).valid,
+      '5x5': (state) => getPuzzleValidation('5x5', state).valid,
+      'pyraminx': (state) => getPuzzleValidation('pyraminx', state).valid
     };
 
     const Godfather3x3Solver = [
@@ -793,6 +801,135 @@
       return activeCaseForStep(step)?.moves || step?.moves || [];
     }
 
+    const THREE_BY_THREE_CORNERS = [
+      { name: 'URF', faces: ['U', 'R', 'F'], indices: [8, 27, 20] },
+      { name: 'UFL', faces: ['U', 'F', 'L'], indices: [6, 18, 11] },
+      { name: 'ULB', faces: ['U', 'L', 'B'], indices: [0, 9, 38] },
+      { name: 'UBR', faces: ['U', 'B', 'R'], indices: [2, 36, 29] },
+      { name: 'DFR', faces: ['D', 'F', 'R'], indices: [47, 26, 33] },
+      { name: 'DLF', faces: ['D', 'L', 'F'], indices: [45, 17, 24] },
+      { name: 'DBL', faces: ['D', 'B', 'L'], indices: [51, 44, 15] },
+      { name: 'DRB', faces: ['D', 'R', 'B'], indices: [53, 35, 42] }
+    ];
+
+    const THREE_BY_THREE_EDGES = [
+      { name: 'UR', faces: ['U', 'R'], indices: [5, 28] },
+      { name: 'UF', faces: ['U', 'F'], indices: [7, 19] },
+      { name: 'UL', faces: ['U', 'L'], indices: [3, 10] },
+      { name: 'UB', faces: ['U', 'B'], indices: [1, 37] },
+      { name: 'DR', faces: ['D', 'R'], indices: [50, 34] },
+      { name: 'DF', faces: ['D', 'F'], indices: [46, 25] },
+      { name: 'DL', faces: ['D', 'L'], indices: [48, 16] },
+      { name: 'DB', faces: ['D', 'B'], indices: [52, 43] },
+      { name: 'FR', faces: ['F', 'R'], indices: [23, 30] },
+      { name: 'FL', faces: ['F', 'L'], indices: [21, 14] },
+      { name: 'BL', faces: ['B', 'L'], indices: [41, 12] },
+      { name: 'BR', faces: ['B', 'R'], indices: [39, 32] }
+    ];
+
+    const FACE_CENTER_INDEX = { U: 4, L: 13, F: 22, R: 31, B: 40, D: 49 };
+    const AXIS_FACES = {
+      UD: new Set(['U', 'D']),
+      LR: new Set(['L', 'R']),
+      FB: new Set(['F', 'B'])
+    };
+
+    function analyzeThreeByThreeCubies(state) {
+      const centers = Object.fromEntries(Object.entries(FACE_CENTER_INDEX).map(([face, index]) => [face, state[index]]));
+      if (new Set(Object.values(centers)).size !== 6) {
+        return { valid: false, reason: 'The six 3x3 center stickers must all be different. Recheck the center of each face before solving.' };
+      }
+
+      const colorToFace = Object.fromEntries(Object.entries(centers).map(([face, color]) => [color, face]));
+      const cornerReference = buildPieceReference(THREE_BY_THREE_CORNERS, centers);
+      const edgeReference = buildPieceReference(THREE_BY_THREE_EDGES, centers);
+      const cornerState = readPieceState(THREE_BY_THREE_CORNERS, state, colorToFace, cornerReference, 'corner');
+      if (!cornerState.valid) return cornerState;
+      const edgeState = readPieceState(THREE_BY_THREE_EDGES, state, colorToFace, edgeReference, 'edge');
+      if (!edgeState.valid) return edgeState;
+
+      const cornerTwist = THREE_BY_THREE_CORNERS.reduce((sum, position) => {
+        const faces = position.indices.map(index => colorToFace[state[index]]);
+        const orientedIndex = faces.findIndex(face => AXIS_FACES.UD.has(face));
+        return sum + orientedIndex;
+      }, 0) % 3;
+      if (cornerTwist !== 0) {
+        return { valid: false, reason: 'Impossible 3x3 state: corner twist detected. A real solve cannot fix a single twisted corner; twist the physical corner back or rescan it.' };
+      }
+
+      const edgeFlip = THREE_BY_THREE_EDGES.reduce((sum, position) => {
+        const faces = position.indices.map(index => colorToFace[state[index]]);
+        const faceSlots = position.faces;
+        const udIndex = faces.findIndex(face => AXIS_FACES.UD.has(face));
+        if (udIndex >= 0) return sum + (AXIS_FACES.UD.has(faceSlots[udIndex]) ? 0 : 1);
+        const fbIndex = faces.findIndex(face => AXIS_FACES.FB.has(face));
+        return sum + (AXIS_FACES.FB.has(faceSlots[fbIndex]) ? 0 : 1);
+      }, 0) % 2;
+      if (edgeFlip !== 0) {
+        return { valid: false, reason: 'Impossible 3x3 state: flipped edge detected. One edge appears flipped in place, which legal turns cannot solve.' };
+      }
+
+      if (permutationParity(cornerState.permutation) !== permutationParity(edgeState.permutation)) {
+        return { valid: false, reason: 'Impossible 3x3 state: corner and edge parity do not match. This usually means two pieces were swapped or one scan entry is wrong.' };
+      }
+
+      return { valid: true, reason: null };
+    }
+
+    function buildPieceReference(positions, centers) {
+      return new Map(positions.map((position, index) => [pieceKey(position.faces.map(face => centers[face])), { index, name: position.name }]));
+    }
+
+    function readPieceState(positions, state, colorToFace, reference, pieceType) {
+      const seen = new Set();
+      const permutation = [];
+      for (const position of positions) {
+        const colors = position.indices.map(index => state[index]);
+        const faces = colors.map(color => colorToFace[color]);
+        if (faces.some(face => !face)) {
+          return { valid: false, reason: `Impossible 3x3 state: ${position.name} ${pieceType} uses a color that is not one of the centers.` };
+        }
+        if (pieceType === 'corner' && !hasOneFromEachAxis(faces)) {
+          return { valid: false, reason: `Impossible 3x3 state: ${position.name} corner has colors from the same opposite pair.` };
+        }
+        if (pieceType === 'edge' && facesShareOppositeAxis(faces[0], faces[1])) {
+          return { valid: false, reason: `Impossible 3x3 state: ${position.name} edge combines opposite colors, which cannot be one edge piece.` };
+        }
+        const found = reference.get(pieceKey(colors));
+        if (!found) {
+          return { valid: false, reason: `Impossible 3x3 state: ${position.name} ${pieceType} is not a real cubie for these centers.` };
+        }
+        if (seen.has(found.index)) {
+          return { valid: false, reason: `Impossible 3x3 state: duplicate ${pieceType} detected. Another ${pieceType} is missing.` };
+        }
+        seen.add(found.index);
+        permutation.push(found.index);
+      }
+      return { valid: true, permutation };
+    }
+
+    function hasOneFromEachAxis(faces) {
+      return [AXIS_FACES.UD, AXIS_FACES.LR, AXIS_FACES.FB].every(axis => faces.some(face => axis.has(face)));
+    }
+
+    function facesShareOppositeAxis(a, b) {
+      return [AXIS_FACES.UD, AXIS_FACES.LR, AXIS_FACES.FB].some(axis => axis.has(a) && axis.has(b));
+    }
+
+    function pieceKey(colors) {
+      return colors.slice().sort().join('|');
+    }
+
+    function permutationParity(permutation) {
+      let inversions = 0;
+      for (let i = 0; i < permutation.length; i++) {
+        for (let j = i + 1; j < permutation.length; j++) {
+          if (permutation[i] > permutation[j]) inversions++;
+        }
+      }
+      return inversions % 2;
+    }
+
     function setView(viewName) {
       ['dashboardView', 'modeView', 'learnView', 'scannerView', 'playbackView'].forEach(id => $('#' + id).classList.add('hidden'));
       $('#' + viewName + 'View').classList.remove('hidden');
@@ -923,6 +1060,8 @@
       if (over) return `Validation Warning: Found ${counts[over]} ${colorName(over)} facelets. A standard ${PUZZLES[AppState.puzzleType].label} can only contain ${target}. Recheck the face with duplicate colors.`;
       if (blank) return `${blank} segment${blank === 1 ? '' : 's'} still unpainted. Complete every face before solving.`;
       if (under) return verbose ? `Validation Warning: Found only ${counts[under]} ${colorName(under)} facelets; ${target} are required. Recheck faces with similar colors.` : `Needs exact color counts: ${colorName(under)} is ${counts[under]}/${target}.`;
+      const puzzleValidation = getPuzzleValidation(AppState.puzzleType, state);
+      if (!puzzleValidation.valid && puzzleValidation.reason) return puzzleValidation.reason;
       return 'Validation Warning: Counts are inconsistent. Recheck every face for accidental duplicate colors.';
     }
 
@@ -1376,6 +1515,18 @@
       const step = CurrentAlgorithm[AppState.activeStepIndex];
       if (!step) return;
       const moves = activeMovesForStep(step);
+      if (!AppState.trainingProfile && step.calculationOnly) {
+        const pureMoves = moves.filter(isTurnMove);
+        $('#stepName').textContent = pureMoves.length ? 'Pure solve moves' : step.stepName;
+        $('#stepInstructions').textContent = pureMoves.length ? '' : step.instructions;
+        $('#formulaDisplay').innerHTML = (pureMoves.length ? pureMoves : moves).map((move, i) => `<span class="notation-pill ${i === AppState.activeMoveIndex ? 'active' : ''} rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">${escapeHtml(move)}</span>`).join('');
+        $('#sourceBox').classList.add('hidden');
+        $('#sourceBox').innerHTML = '';
+        $('#caseLibrary').innerHTML = '';
+        $('#parityPanel').classList.add('hidden');
+        $('#parityPanel').innerHTML = '';
+        return;
+      }
       $('#stepName').textContent = step.stepName;
       $('#stepInstructions').textContent = step.instructions;
       $('#formulaDisplay').innerHTML = moves.map((move, i) => `<span class="notation-pill ${i === AppState.activeMoveIndex ? 'active' : ''} rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">${escapeHtml(move)}</span>`).join('');

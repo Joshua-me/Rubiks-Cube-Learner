@@ -4,6 +4,7 @@ Twisty Lab is a static, single-page twisty-puzzle learning playground. The app l
 
 - 3x3, 4x4, 5x5, and Pyraminx scanner layouts
 - strict sticker color-count validation
+- 3x3 impossible-state detection for corner twists, edge flips, duplicate/missing cubies, and parity mismatch
 - calculation-only Solve My Puzzle playback with bounded exact search
 - guided source-backed case libraries for beginner/reduction methods
 - 3x3 Independent Study masking

@@ -19,6 +19,7 @@ return {
   areInverseMoves,
   createBlankState,
   createSolvedState,
+  analyzeThreeByThreeCubies,
   buildCalculatedSolvePlan,
   parseAlgorithmMoves,
   prepareAlgorithm
@@ -39,6 +40,20 @@ for (const type of Object.keys(api.PUZZLES)) {
 }
 
 assert(!api.PuzzleValidators['3x3'](api.createSolvedState('3x3').concat('#ffffff')), 'Extra scanner entries should not validate');
+const twistedCorner = api.createSolvedState('3x3');
+[twistedCorner[8], twistedCorner[27], twistedCorner[20]] = [twistedCorner[27], twistedCorner[20], twistedCorner[8]];
+assert(!api.analyzeThreeByThreeCubies(twistedCorner).valid, 'Single twisted corner should be rejected');
+
+const flippedEdge = api.createSolvedState('3x3');
+[flippedEdge[5], flippedEdge[28]] = [flippedEdge[28], flippedEdge[5]];
+assert(!api.analyzeThreeByThreeCubies(flippedEdge).valid, 'Single flipped edge should be rejected');
+
+const swappedCorners = api.createSolvedState('3x3');
+for (const [a, b] of [[8, 6], [27, 18], [20, 11]]) {
+  [swappedCorners[a], swappedCorners[b]] = [swappedCorners[b], swappedCorners[a]];
+}
+assert(!api.analyzeThreeByThreeCubies(swappedCorners).valid, 'Odd corner swap should be rejected');
+
 assert(!api.areInverseMoves('R', "Rw'"), 'Outer and wide turns must not be treated as the same move family');
 assert(api.areInverseMoves('Rw2', 'Rw2'), 'Double wide turns should be self-inverse');
 
