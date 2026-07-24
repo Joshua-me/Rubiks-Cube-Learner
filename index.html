@@ -35,6 +35,10 @@
     .brush.active { transform: translateY(-4px) scale(1.08); box-shadow: 0 0 0 4px rgba(79,70,229,.22), 0 12px 22px rgba(15,23,42,.18); }
     .notation-pill { transition: all .18s ease; }
     .notation-pill.active { background: #4f46e5; color: #fff; transform: translateY(-2px); box-shadow: 0 12px 22px rgba(79,70,229,.24); }
+    .case-card { border: 1px solid rgba(226,232,240,.9); background: rgba(255,255,255,.96); border-radius: 18px; padding: 14px; text-align: left; transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease; }
+    .case-card.active { border-color: rgba(79,70,229,.55); box-shadow: 0 12px 28px rgba(79,70,229,.14); transform: translateY(-1px); }
+    .case-alg { overflow-wrap: anywhere; word-break: break-word; }
+    html.dark .case-card, html.dark #sourceBox { background: rgba(15,23,42,.94) !important; border-color: rgba(71,85,105,.8) !important; }
     .cube-scene { perspective: 950px; width: min(72vw, 330px); height: min(72vw, 330px); max-width: 330px; max-height: 330px; margin: 0 auto; display: grid; place-items: center; }
     .cube3d { --cubie: 40px; --gap: 1.5px; position: relative; width: calc(var(--cubie) * var(--cube-size)); height: calc(var(--cubie) * var(--cube-size)); transform-style: preserve-3d; transform: rotateX(-28deg) rotateY(38deg); transition: transform .46s cubic-bezier(.2,.8,.2,1); }
     .cubie { --base: translate3d(0,0,0); position: absolute; left: calc(50% - var(--cubie) / 2); top: calc(50% - var(--cubie) / 2); width: var(--cubie); height: var(--cubie); transform-style: preserve-3d; transform: var(--base); transform-origin: 50% 50% calc(var(--cubie) * -1.5); transition: transform .72s cubic-bezier(.18,.85,.28,1.18), filter .24s ease; }
@@ -137,14 +141,19 @@
 
     <section id="learnView" class="view hidden">
       <button data-route="mode" class="tap-target mb-5 rounded-2xl border border-slate-200/60 bg-white px-4 py-3 font-bold text-slate-700 shadow-sm">← Back to Mode Selection</button>
-      <div class="grid gap-5 lg:grid-cols-2">
-        <button data-learn="guided" class="tap-target rounded-[2rem] border border-slate-200/60 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+      <div class="grid gap-5 lg:grid-cols-3">
+        <button data-learn="normal" class="tap-target rounded-[2rem] border border-slate-200/60 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
           <p class="text-sm font-bold uppercase tracking-[0.28em] text-indigo-600">Track A</p>
+          <h2 class="mt-3 text-3xl font-black text-slate-900">Normal Learning</h2>
+          <p class="mt-3 text-slate-600">Study each trusted beginner step with its cases and algorithms separated into a clean practice list.</p>
+        </button>
+        <button data-learn="guided" class="tap-target rounded-[2rem] border border-slate-200/60 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+          <p class="text-sm font-bold uppercase tracking-[0.28em] text-emerald-600">Track B</p>
           <h2 class="mt-3 text-3xl font-black text-slate-900">Guided Practice</h2>
-          <p class="mt-3 text-slate-600">Paint your puzzle first, then get method playback plus a dynamic hint box with context-sensitive coaching.</p>
+          <p class="mt-3 text-slate-600">Use the same case library as normal learning, with clue prompts that nudge recognition before giving the move.</p>
         </button>
         <button data-learn="independent" class="tap-target rounded-[2rem] border border-slate-200/60 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-          <p class="text-sm font-bold uppercase tracking-[0.28em] text-slate-500">Track B</p>
+          <p class="text-sm font-bold uppercase tracking-[0.28em] text-slate-500">Track C</p>
           <h2 class="mt-3 text-3xl font-black text-slate-900">Independent Study</h2>
           <p class="mt-3 text-slate-600">Skip scanning and inspect pre-set mechanical cases with all non-focus pieces masked in matte charcoal black.</p>
         </button>
@@ -191,10 +200,12 @@
           <p class="text-xs font-bold uppercase tracking-[0.28em] text-indigo-600">Current algorithm step</p>
           <h3 id="stepName" class="mt-2 text-3xl font-black tracking-tight text-slate-900"></h3>
           <p id="stepInstructions" class="mt-3 text-base leading-7 text-slate-600"></p>
+          <div id="sourceBox" class="mt-4 hidden rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-600"></div>
           <div class="mt-5 rounded-3xl bg-slate-50 p-4">
-            <p class="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Formula</p>
+            <p class="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Active algorithm</p>
             <div id="formulaDisplay" class="flex flex-wrap gap-2 font-mono text-lg text-slate-800"></div>
           </div>
+          <div id="caseLibrary" class="mt-5 grid gap-3"></div>
           <div id="parityPanel" class="mt-5 hidden rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"></div>
           <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <button id="backMove" class="tap-target rounded-2xl bg-white px-3 py-3 font-black text-slate-700 ring-1 ring-slate-200">◀ Back One Move</button>
