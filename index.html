@@ -223,27 +223,29 @@
   </section>
 
   <script>
-    const PuzzleValidators = {
-      '3x3': (state) => {
-        const counts = { '#ffffff':0, '#ffff00':0, '#00ff00':0, '#0000ff':0, '#ff0000':0, '#ffaa00':0 };
-        state.forEach(color => { if(counts[color] !== undefined) counts[color]++; });
-        return Object.values(counts).every(count => count === 9);
-      },
-      '4x4': (state) => {
-        const counts = { '#ffffff':0, '#ffff00':0, '#00ff00':0, '#0000ff':0, '#ff0000':0, '#ffaa00':0 };
-        state.forEach(color => { if(counts[color] !== undefined) counts[color]++; });
-        return Object.values(counts).every(count => count === 16);
-      },
-      '5x5': (state) => {
-        const counts = { '#ffffff':0, '#ffff00':0, '#00ff00':0, '#0000ff':0, '#ff0000':0, '#ffaa00':0 };
-        state.forEach(color => { if(counts[color] !== undefined) counts[color]++; });
-        return Object.values(counts).every(count => count === 25);
-      },
-      'pyraminx': (state) => {
-        const counts = { '#ffffff':0, '#ffff00':0, '#00ff00':0, '#0000ff':0 };
-        state.forEach(color => { if(counts[color] !== undefined) counts[color]++; });
-        return Object.values(counts).every(count => count === 9);
+    const VALIDATION_RULES = {
+      '3x3': { colors: ['#ffffff', '#ffff00', '#00ff00', '#0000ff', '#ff0000', '#ffaa00'], perColor: 9, length: 54 },
+      '4x4': { colors: ['#ffffff', '#ffff00', '#00ff00', '#0000ff', '#ff0000', '#ffaa00'], perColor: 16, length: 96 },
+      '5x5': { colors: ['#ffffff', '#ffff00', '#00ff00', '#0000ff', '#ff0000', '#ffaa00'], perColor: 25, length: 150 },
+      'pyraminx': { colors: ['#ffffff', '#ffff00', '#00ff00', '#0000ff'], perColor: 9, length: 36 }
+    };
+
+    function validatePuzzleColorCounts(puzzleType, state) {
+      const rule = VALIDATION_RULES[puzzleType];
+      if (!rule || !Array.isArray(state) || state.length !== rule.length) return false;
+      const counts = Object.fromEntries(rule.colors.map(color => [color, 0]));
+      for (const color of state) {
+        if (counts[color] === undefined) return false;
+        counts[color]++;
       }
+      return rule.colors.every(color => counts[color] === rule.perColor);
+    }
+
+    const PuzzleValidators = {
+      '3x3': (state) => validatePuzzleColorCounts('3x3', state),
+      '4x4': (state) => validatePuzzleColorCounts('4x4', state),
+      '5x5': (state) => validatePuzzleColorCounts('5x5', state),
+      'pyraminx': (state) => validatePuzzleColorCounts('pyraminx', state)
     };
 
     const Godfather3x3Solver = [
@@ -508,6 +510,46 @@
     const $ = (selector) => document.querySelector(selector);
     const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
+    function faceletCountFor(puzzleType = AppState.puzzleType) {
+      const puzzle = PUZZLES[puzzleType];
+      return puzzle.kind === 'cube' ? puzzle.size * puzzle.size : 9;
+    }
+
+    function createBlankState(puzzleType = AppState.puzzleType) {
+      return Array(PUZZLES[puzzleType].faces * faceletCountFor(puzzleType)).fill(COLORS.blank);
+    }
+
+    function createSolvedState(puzzleType = AppState.puzzleType) {
+      return PUZZLES[puzzleType].colors.flatMap(color => Array(faceletCountFor(puzzleType)).fill(color));
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+    }
+
+    function parseAlgorithmMoves(input) {
+      if (Array.isArray(input)) return input.flatMap(parseAlgorithmMoves);
+      if (typeof input !== 'string') return [];
+      const compactPattern = /[URFDLBurfdlb](?:w)?(?:2|')?/g;
+      return input.trim().split(/[\s,]+/).filter(Boolean).flatMap(token => {
+        if (isTurnMove(token)) return [token];
+        const compactMoves = token.match(compactPattern);
+        return compactMoves && compactMoves.join('') === token ? compactMoves : [token];
+      });
+    }
+
+    function normalizeAlgorithmPlan(plan) {
+      return plan.map(step => ({ ...step, moves: parseAlgorithmMoves(step.moves) }));
+    }
+
+    function buildIndependentStudyPlan() {
+      return IndependentLearningLibrary['3x3'].map(studyCase => ({
+        stepName: `Independent Study — ${studyCase.caseName}`,
+        instructions: studyCase.textGuide,
+        moves: ['Reveal']
+      }));
+    }
+
     function setView(viewName) {
       ['dashboardView', 'modeView', 'learnView', 'scannerView', 'playbackView'].forEach(id => $('#' + id).classList.add('hidden'));
       $('#' + viewName + 'View').classList.remove('hidden');
@@ -567,11 +609,12 @@
       const faceSize = size * size;
       const cellSize = size === 5 ? 'clamp(19px, 5.4vw, 36px)' : size === 4 ? 'clamp(22px, 6vw, 42px)' : 'clamp(28px, 7.2vw, 52px)';
       const buttonClass = options.readOnly ? 'facelet' : 'paintable facelet';
+      const focusSet = options.focusSet || new Set();
       const face = (faceIndex) => {
         const start = faceIndex * faceSize;
         const cells = Array.from({length: faceSize}, (_, i) => {
           const idx = start + i;
-          const color = options.mask && !options.focusSet.has(idx) ? COLORS.mask : state[idx];
+          const color = options.mask && !focusSet.has(idx) ? COLORS.mask : state[idx];
           return `<button class="${buttonClass}" data-index="${idx}" style="background:${color}; width:${cellSize}" title="${FACE_NAMES[faceIndex]} ${i + 1}"></button>`;
         }).join('');
         return `<div class="flex flex-col items-center gap-2"><span class="text-xs font-black uppercase tracking-widest text-slate-500">${FACE_NAMES[faceIndex]}</span><div class="face-grid" style="grid-template-columns:repeat(${size}, ${cellSize})">${cells}</div></div>`;
@@ -589,12 +632,12 @@
     }
 
     function paintIndex(index) {
-      AppState.colorDataMap[AppState.puzzleType][index] = AppState.selectedPaintBrush;
-      const puzzle = PUZZLES[AppState.puzzleType];
-      const perFace = puzzle.kind === 'cube' ? puzzle.size * puzzle.size : 9;
+      const perFace = faceletCountFor();
       const paintedFace = Math.floor(index / perFace);
+      const wasComplete = faceComplete(paintedFace, perFace);
+      AppState.colorDataMap[AppState.puzzleType][index] = AppState.selectedPaintBrush;
       renderScanner();
-      if (faceComplete(paintedFace, perFace)) animateFaceRotation(paintedFace + 1);
+      if (!wasComplete && faceComplete(paintedFace, perFace)) animateFaceRotation(paintedFace + 1);
       validateAndUpdate();
     }
 
@@ -621,13 +664,20 @@
 
     function buildValidationHint(state, verbose = true) {
       const allowed = PUZZLES[AppState.puzzleType].colors;
-      const target = AppState.puzzleType === '3x3' || AppState.puzzleType === 'pyraminx' ? 9 : AppState.puzzleType === '4x4' ? 16 : 25;
+      const target = faceletCountFor();
+      const expectedLength = PUZZLES[AppState.puzzleType].faces * target;
+      if (!Array.isArray(state) || state.length !== expectedLength) return `Scanner data is incomplete for ${PUZZLES[AppState.puzzleType].label}. Reset the scanner and paint ${expectedLength} segments.`;
       const counts = Object.fromEntries(allowed.map(c => [c, 0]));
-      let blank = 0;
-      state.forEach(color => { if (counts[color] !== undefined) counts[color]++; else blank++; });
+      let blank = 0, invalid = 0;
+      state.forEach(color => {
+        if (counts[color] !== undefined) counts[color]++;
+        else if (color === COLORS.blank) blank++;
+        else invalid++;
+      });
       const over = allowed.find(c => counts[c] > target);
       const under = allowed.find(c => counts[c] < target);
-      if (over) return `Validation Warning: Found ${counts[over]} ${colorName(over)} facelets. A standard ${PUZZLES[AppState.puzzleType].label} can only contain ${target}. Please inspect your Left and Back face entries.`;
+      if (invalid) return `${invalid} segment${invalid === 1 ? '' : 's'} use an unsupported color. Use the palette colors or reset the scanner.`;
+      if (over) return `Validation Warning: Found ${counts[over]} ${colorName(over)} facelets. A standard ${PUZZLES[AppState.puzzleType].label} can only contain ${target}. Recheck the face with duplicate colors.`;
       if (blank) return `${blank} segment${blank === 1 ? '' : 's'} still unpainted. Complete every face before solving.`;
       if (under) return verbose ? `Validation Warning: Found only ${counts[under]} ${colorName(under)} facelets; ${target} are required. Recheck faces with similar colors.` : `Needs exact color counts: ${colorName(under)} is ${counts[under]}/${target}.`;
       return 'Validation Warning: Counts are inconsistent. Recheck every face for accidental duplicate colors.';
@@ -638,31 +688,35 @@
     }
 
     function autoFillSolved() {
-      const colors = PUZZLES[AppState.puzzleType].colors;
-      const perFace = AppState.puzzleType === '3x3' || AppState.puzzleType === 'pyraminx' ? 9 : AppState.puzzleType === '4x4' ? 16 : 25;
-      AppState.colorDataMap[AppState.puzzleType] = colors.flatMap(color => Array(perFace).fill(color));
+      AppState.colorDataMap[AppState.puzzleType] = createSolvedState();
       renderScanner(); validateAndUpdate(); showToast('Solved color layout filled. You can edit any segment before playback.', 'success');
     }
 
     function resetPaint() {
-      AppState.colorDataMap[AppState.puzzleType] = Array(PUZZLES[AppState.puzzleType].faces * (PUZZLES[AppState.puzzleType].kind === 'cube' ? PUZZLES[AppState.puzzleType].size ** 2 : 9)).fill(COLORS.blank);
+      AppState.colorDataMap[AppState.puzzleType] = createBlankState();
       renderScanner(); validateAndUpdate();
     }
 
-    function prepareAlgorithm() {
-      if (AppState.puzzleType === '3x3') return buildGodfatherCalculatedPlan(AppState.playbackState);
-      if (AppState.puzzleType === '4x4') return FourByFourBeginnerSolver;
-      if (AppState.puzzleType === '5x5') return FiveByFiveBeginnerSolver;
-      if (AppState.puzzleType === 'pyraminx') return PyraminxBeginnerSolver;
-      return CubeHead2026Solver;
+    function prepareAlgorithm(profile = AppState.trainingProfile) {
+      let plan = CubeHead2026Solver;
+      if (profile === 'independent') plan = buildIndependentStudyPlan();
+      else if (AppState.puzzleType === '3x3') plan = buildGodfatherCalculatedPlan(AppState.playbackState);
+      else if (AppState.puzzleType === '4x4') plan = FourByFourBeginnerSolver;
+      else if (AppState.puzzleType === '5x5') plan = FiveByFiveBeginnerSolver;
+      else if (AppState.puzzleType === 'pyraminx') plan = PyraminxBeginnerSolver;
+      return normalizeAlgorithmPlan(plan);
     }
 
     function startPlayback(profile = AppState.trainingProfile) {
       if (profile !== 'independent' && !validateAndUpdate()) { showToast(buildValidationHint(AppState.colorDataMap[AppState.puzzleType]), 'error', 5200); return; }
+      if (profile === 'independent') {
+        AppState.puzzleType = '3x3';
+        $('#modePuzzleBadge').textContent = PUZZLES[AppState.puzzleType].label;
+      }
       AppState.trainingProfile = profile;
-      AppState.activeStepIndex = 0; AppState.activeMoveIndex = 0; AppState.playbackHistory = []; AppState.lastAppliedKey = null;
-      AppState.playbackState = profile === 'independent' ? COLORS.cube.flatMap(color => Array(9).fill(color)) : AppState.colorDataMap[AppState.puzzleType].slice();
-      CurrentAlgorithm = prepareAlgorithm();
+      AppState.activeStepIndex = 0; AppState.activeMoveIndex = 0; AppState.independentCaseIndex = 0; AppState.playbackHistory = []; AppState.lastAppliedKey = null;
+      AppState.playbackState = profile === 'independent' ? createSolvedState('3x3') : AppState.colorDataMap[AppState.puzzleType].slice();
+      CurrentAlgorithm = prepareAlgorithm(profile);
       $('#playbackModeBadge').textContent = profile === 'guided' ? 'Guided Practice' : profile === 'independent' ? 'Independent Study' : 'Solve Mode';
       $('#hintBox').classList.toggle('hidden', profile !== 'guided' && profile !== 'independent');
       renderVisualFrame(); renderUIStatusDisplay(); setView('playback');
@@ -722,11 +776,18 @@
       const revealIndex = Math.min(Math.max(AppState.independentCaseIndex, AppState.activeStepIndex), cases.length - 1);
       const activeCase = cases[revealIndex];
       const focusSet = new Set(cases.slice(0, revealIndex + 1).flatMap(studyCase => studyCase.focusIndices));
-      const solved = AppState.playbackState.length === 54 ? AppState.playbackState : COLORS.cube.flatMap(color => Array(9).fill(color));
+      const solved = AppState.playbackState.length === 54 ? AppState.playbackState : createSolvedState('3x3');
       const maskedState = solved.map((color, index) => focusSet.has(index) ? color : COLORS.mask);
-      $('#visualFrame').innerHTML = `<div class="mb-4 flex flex-wrap items-center justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Independent Case</p><h3 class="text-xl font-black text-slate-900">${activeCase.caseName}</h3></div><button id="nextCase" class="tap-target rounded-2xl bg-slate-900 px-4 py-2 text-sm font-black text-white">Next Case</button></div>${renderCube3D(3, maskedState)}`;
-      $('#hintBox').innerHTML = `<strong>Study Guide:</strong> ${activeCase.textGuide}<br><span class="font-mono text-xs">Mask color: ${COLORS.mask}</span>`;
-      $('#nextCase').addEventListener('click', () => { AppState.independentCaseIndex = Math.min(AppState.independentCaseIndex + 1, cases.length - 1); renderIndependentStudy(); });
+      $('#visualFrame').innerHTML = `<div class="mb-4 flex flex-wrap items-center justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Independent Case</p><h3 class="text-xl font-black text-slate-900">${escapeHtml(activeCase.caseName)}</h3></div><button id="nextCase" class="tap-target rounded-2xl bg-slate-900 px-4 py-2 text-sm font-black text-white">Next Case</button></div>${renderCube3D(3, maskedState)}`;
+      $('#hintBox').innerHTML = `<strong>Study Guide:</strong> ${escapeHtml(activeCase.textGuide)}<br><span class="font-mono text-xs">Mask color: ${COLORS.mask}</span>`;
+      $('#nextCase').addEventListener('click', () => {
+        const nextIndex = Math.min(revealIndex + 1, cases.length - 1);
+        AppState.independentCaseIndex = nextIndex;
+        AppState.activeStepIndex = nextIndex;
+        AppState.activeMoveIndex = 0;
+        renderIndependentStudy();
+        renderUIStatusDisplay();
+      });
     }
 
     function isTurnMove(move) {
@@ -734,7 +795,7 @@
     }
 
     function buildGodfatherCalculatedPlan(state) {
-      const cleanState = state && state.length === 54 ? state : COLORS.cube.flatMap(color => Array(9).fill(color));
+      const cleanState = state && state.length === 54 ? state : createSolvedState('3x3');
       if (isSolvedState(cleanState, 3)) {
         return [{ stepName: 'Godfather Calculated Plan — Already Solved', instructions: 'The planner checked every face and found a solved cube. No turns are needed.', moves: ['Solved'] }];
       }
@@ -758,8 +819,8 @@
       const moves = ['U','U\'','U2','R','R\'','R2','F','F\'','F2','D','D\'','D2','L','L\'','L2','B','B\'','B2'];
       const queue = [{ state: startState.slice(), path: [] }];
       const seen = new Set([startState.join('|')]);
-      while (queue.length) {
-        const node = queue.shift();
+      for (let head = 0; head < queue.length; head++) {
+        const node = queue[head];
         if (node.path.length >= maxDepth) continue;
         for (const move of moves) {
           if (node.path.length && areInverseMoves(node.path[node.path.length - 1], move)) continue;
@@ -783,10 +844,18 @@
     }
 
     function areInverseMoves(a, b) {
-      const baseA = a.charAt(0), baseB = b.charAt(0);
-      if (baseA !== baseB) return false;
-      if (a.includes('2') && b.includes('2')) return true;
-      return (a.includes("'") && !b.includes("'") && !b.includes('2')) || (b.includes("'") && !a.includes("'") && !a.includes('2'));
+      if (moveFamily(a) !== moveFamily(b)) return false;
+      return (moveAmount(a) + moveAmount(b)) % 4 === 0;
+    }
+
+    function moveFamily(move) {
+      const match = String(move).match(/^[URFDLBurfdlb](?:w)?/);
+      return match ? match[0] : String(move);
+    }
+
+    function moveAmount(move) {
+      if (String(move).includes('2')) return 2;
+      return String(move).includes("'") ? 3 : 1;
     }
 
     function optimizeAlgorithmPlan(plan) {
@@ -896,6 +965,7 @@
 
     function advancePlaybackState(direction) {
       if (!CurrentAlgorithm.length) return;
+      if (AppState.trainingProfile === 'independent') { advanceIndependentStudy(direction); return; }
       let animationMove = CurrentAlgorithm[AppState.activeStepIndex]?.moves[AppState.activeMoveIndex];
       if (direction === 'NEXT') {
         commitActiveMove();
@@ -920,7 +990,22 @@
       if (AppState.activeStepIndex >= CurrentAlgorithm.length) { AppState.activeStepIndex = CurrentAlgorithm.length - 1; AppState.activeMoveIndex = CurrentAlgorithm[AppState.activeStepIndex].moves.length - 1; stopAutoPlay(); showToast('Algorithm complete. Puzzle solved or practice sequence finished.', 'success'); }
       triggerVisualPuzzleTurnAnimation(animationMove);
       renderUIStatusDisplay();
-      if (AppState.trainingProfile === 'independent') renderVisualFrame();
+    }
+
+    function advanceIndependentStudy(direction) {
+      const maxIndex = IndependentLearningLibrary['3x3'].length - 1;
+      if (direction === 'NEXT') {
+        if (AppState.activeStepIndex >= maxIndex) { showToast('All independent study cases are revealed.', 'success', 1400); return; }
+        AppState.activeStepIndex++;
+      } else if (direction === 'BACK') {
+        if (AppState.activeStepIndex <= 0) { showToast('Already at the first independent study case.', 'info', 1200); return; }
+        AppState.activeStepIndex--;
+      }
+      AppState.activeMoveIndex = 0;
+      AppState.independentCaseIndex = AppState.activeStepIndex;
+      AppState.lastAppliedKey = null;
+      renderVisualFrame();
+      renderUIStatusDisplay();
     }
 
     function triggerVisualPuzzleTurnAnimation(move) {
@@ -963,13 +1048,13 @@
       if (!step) return;
       $('#stepName').textContent = step.stepName;
       $('#stepInstructions').textContent = step.instructions;
-      $('#formulaDisplay').innerHTML = step.moves.map((move, i) => `<span class="notation-pill ${i === AppState.activeMoveIndex ? 'active' : ''} rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">${move}</span>`).join('');
+      $('#formulaDisplay').innerHTML = step.moves.map((move, i) => `<span class="notation-pill ${i === AppState.activeMoveIndex ? 'active' : ''} rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">${escapeHtml(move)}</span>`).join('');
       if (AppState.trainingProfile === 'guided') {
-        $('#hintBox').innerHTML = `<strong>Hint Box:</strong> ${guidedHint(step, step.moves[AppState.activeMoveIndex])}`;
+        $('#hintBox').innerHTML = `<strong>Hint Box:</strong> ${escapeHtml(guidedHint(step, step.moves[AppState.activeMoveIndex]))}`;
       }
       const parityStep = /Parity|Edges Slice/.test(step.stepName);
       $('#parityPanel').classList.toggle('hidden', !parityStep);
-      $('#parityPanel').innerHTML = parityStep ? `<strong>Parity handler active:</strong> Use slow, deliberate wide turns. Current slice is <span class="font-mono font-black">${step.moves[AppState.activeMoveIndex]}</span>.` : '';
+      $('#parityPanel').innerHTML = parityStep ? `<strong>Parity handler active:</strong> Use slow, deliberate wide turns. Current slice is <span class="font-mono font-black">${escapeHtml(step.moves[AppState.activeMoveIndex])}</span>.` : '';
     }
 
     function guidedHint(step, move) {
