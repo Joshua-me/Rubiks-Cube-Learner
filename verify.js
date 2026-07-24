@@ -19,6 +19,7 @@ return {
   areInverseMoves,
   createBlankState,
   createSolvedState,
+  buildCalculatedSolvePlan,
   parseAlgorithmMoves,
   prepareAlgorithm
 };`)();
@@ -77,5 +78,19 @@ api.AppState.playbackState = api.createSolvedState('3x3');
 const independentPlan = api.prepareAlgorithm('independent');
 assert(independentPlan.length === 4, 'Independent Study should expose all four study cases');
 assert(/^Independent Study/.test(independentPlan[0].stepName), 'Independent Study should use its own plan');
+
+for (const type of Object.keys(api.PUZZLES)) {
+  api.AppState.trainingProfile = 'guided';
+  api.AppState.puzzleType = type;
+  api.AppState.playbackState = api.createSolvedState(type);
+  const guidedPlan = api.prepareAlgorithm('guided');
+  assert(guidedPlan.length > 0, `${type} guided plan should exist`);
+  assert(guidedPlan.every(step => step.source && step.cases && step.cases.length), `${type} guided steps should expose source-backed cases`);
+
+  const calculatedPlan = api.buildCalculatedSolvePlan(type, api.createSolvedState(type));
+  assert(calculatedPlan.length === 1, `${type} calculated solve should produce a plan`);
+  assert(calculatedPlan[0].calculationOnly, `${type} solve plan should be calculation-only`);
+  assert(/Already Solved/.test(calculatedPlan[0].stepName), `${type} solved scan should be detected`);
+}
 
 console.log('verify: ok');

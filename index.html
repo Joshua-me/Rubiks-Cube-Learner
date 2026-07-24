@@ -96,7 +96,7 @@
       </button>
       <div class="flex flex-wrap items-center gap-2">
         <button id="themeToggle" class="tap-target rounded-2xl bg-slate-100 px-4 py-2 text-sm font-black text-slate-700">🌙 Dark</button>
-        <button id="chatToggle" class="tap-target rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-black text-white shadow-lg shadow-indigo-600/20">AI Coach</button>
+        <button id="chatToggle" class="tap-target hidden rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-black text-white shadow-lg shadow-indigo-600/20" aria-hidden="true" tabindex="-1">AI Coach</button>
         <div id="crumbs" class="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600">Dashboard Hub</div>
       </div>
     </header>
@@ -134,26 +134,21 @@
         <button data-mode="learn" class="tap-target group rounded-[2rem] border border-slate-200/60 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
           <div class="mb-8 flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-900 text-3xl text-white shadow-lg shadow-slate-900/20">◐</div>
           <h2 class="text-3xl font-black tracking-tight text-slate-900">Learn Techniques</h2>
-          <p class="mt-3 text-slate-600">Enter guided practice with your own colors or independent study with charcoal masking for only the relevant pieces.</p>
+          <p class="mt-3 text-slate-600">Study trusted beginner methods through guided case clues or independent masked focus drills.</p>
         </button>
       </div>
     </section>
 
     <section id="learnView" class="view hidden">
       <button data-route="mode" class="tap-target mb-5 rounded-2xl border border-slate-200/60 bg-white px-4 py-3 font-bold text-slate-700 shadow-sm">← Back to Mode Selection</button>
-      <div class="grid gap-5 lg:grid-cols-3">
-        <button data-learn="normal" class="tap-target rounded-[2rem] border border-slate-200/60 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-          <p class="text-sm font-bold uppercase tracking-[0.28em] text-indigo-600">Track A</p>
-          <h2 class="mt-3 text-3xl font-black text-slate-900">Normal Learning</h2>
-          <p class="mt-3 text-slate-600">Study each trusted beginner step with its cases and algorithms separated into a clean practice list.</p>
-        </button>
+      <div class="grid gap-5 lg:grid-cols-2">
         <button data-learn="guided" class="tap-target rounded-[2rem] border border-slate-200/60 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-          <p class="text-sm font-bold uppercase tracking-[0.28em] text-emerald-600">Track B</p>
+          <p class="text-sm font-bold uppercase tracking-[0.28em] text-indigo-600">Track A</p>
           <h2 class="mt-3 text-3xl font-black text-slate-900">Guided Practice</h2>
-          <p class="mt-3 text-slate-600">Use the same case library as normal learning, with clue prompts that nudge recognition before giving the move.</p>
+          <p class="mt-3 text-slate-600">Study trusted beginner steps with every case and algorithm separated, plus clue prompts for recognition.</p>
         </button>
         <button data-learn="independent" class="tap-target rounded-[2rem] border border-slate-200/60 bg-white p-7 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-          <p class="text-sm font-bold uppercase tracking-[0.28em] text-slate-500">Track C</p>
+          <p class="text-sm font-bold uppercase tracking-[0.28em] text-slate-500">Track B</p>
           <h2 class="mt-3 text-3xl font-black text-slate-900">Independent Study</h2>
           <p class="mt-3 text-slate-600">Skip scanning and inspect pre-set mechanical cases with all non-focus pieces masked in matte charcoal black.</p>
         </button>
@@ -494,6 +489,217 @@
       ]
     };
 
+    const LEARNING_SOURCES = {
+      '3x3': {
+        teacher: 'J Perm',
+        title: 'How To Solve The 3x3 Rubik\'s Cube',
+        url: 'https://www.jperm.net/3x3',
+        note: 'Beginner method with white cross, first layer, second layer, yellow cross, yellow face, corner matching, and final corner solving.'
+      },
+      '4x4': {
+        teacher: 'J Perm',
+        title: 'How To Solve the 4x4 Rubik\'s Cube',
+        url: 'https://www.jperm.net/4x4',
+        note: 'Yau-style beginner path: centers, partial cross, edge pairing, 3x3 stage, and parity.'
+      },
+      '5x5': {
+        teacher: 'J Perm',
+        title: 'How To Solve the 5x5 Rubik\'s Cube',
+        url: 'https://www.jperm.net/5x5',
+        note: 'Reduction method: centers, joined edge groups, then solve like a 3x3.'
+      },
+      'pyraminx': {
+        teacher: 'Kevin Gittemeier',
+        title: 'How To Solve a Pyraminx: Beginner & Intermediate Methods',
+        url: 'https://www.kevingittemeier.com/solve-pyraminx/',
+        note: 'Layer-by-layer Pyraminx guide with named last-layer cases and algorithms.'
+      }
+    };
+
+    const GuidedLearningLibrary = {
+      '3x3': [
+        {
+          stepName: 'J Perm 3x3 — White Cross',
+          instructions: 'Build the white cross while matching each edge side color to its center.',
+          cases: [
+            { name: 'White edge under matching center', clue: 'The side color already lines up with its center; send the edge straight to white.', moves: ['F2'] },
+            { name: 'White edge flipped on top', clue: 'White is on top but the side color is wrong; move it out, line it up, then bring it back.', moves: ['F', 'U', 'R', 'U\''] },
+            { name: 'White edge trapped in middle', clue: 'Free the edge into the bottom layer before solving it normally.', moves: ['R', 'U', 'R\''] }
+          ]
+        },
+        {
+          stepName: 'J Perm 3x3 — First Layer Corners',
+          instructions: 'Hold the white cross on bottom, place each white corner above its slot, and use the matching trigger.',
+          cases: [
+            { name: 'Front-right insertion', clue: 'Corner belongs between front and right centers.', moves: ['R', 'U', 'R\'', 'U\''] },
+            { name: 'Front-left insertion', clue: 'Mirror the right trigger when the slot is on the front-left.', moves: ['L\'', 'U\'', 'L', 'U'] },
+            { name: 'Incorrect bottom corner', clue: 'Extract it to the top layer, then solve it as a normal corner.', moves: ['R', 'U', 'R\'', 'U\''] }
+          ]
+        },
+        {
+          stepName: 'J Perm 3x3 — Second Layer Edges',
+          instructions: 'Find a top edge with no yellow, match its front color, then insert left or right.',
+          cases: [
+            { name: 'Edge goes right', clue: 'The top sticker color belongs on the right side.', moves: ['U', 'R', 'U\'', 'R\'', 'U\'', 'F\'', 'U', 'F'] },
+            { name: 'Edge goes left', clue: 'The top sticker color belongs on the left side.', moves: ['U\'', 'L\'', 'U', 'L', 'U', 'F', 'U\'', 'F\''] },
+            { name: 'Bad edge stuck in middle', clue: 'Use either insertion to kick it out, then solve the correct edge.', moves: ['U', 'R', 'U\'', 'R\'', 'U\'', 'F\'', 'U', 'F'] }
+          ]
+        },
+        {
+          stepName: 'J Perm 3x3 — Yellow Cross',
+          instructions: 'Recognize the yellow edge pattern on top and use the front-trigger algorithm.',
+          cases: [
+            { name: 'Dot', clue: 'No yellow edge line yet; run the algorithm, then reassess.', moves: ['F', 'R', 'U', 'R\'', 'U\'', 'F\''] },
+            { name: 'L shape', clue: 'Hold the L in the back-left corner before the trigger.', moves: ['F', 'R', 'U', 'R\'', 'U\'', 'F\''] },
+            { name: 'Line', clue: 'Hold the yellow line horizontally.', moves: ['F', 'R', 'U', 'R\'', 'U\'', 'F\''] }
+          ]
+        },
+        {
+          stepName: 'J Perm 3x3 — Yellow Face',
+          instructions: 'Use Sune-style corner orientation until the whole top face is yellow.',
+          cases: [
+            { name: 'Sune', clue: 'One yellow corner points up; keep it at front-right.', moves: ['R', 'U', 'R\'', 'U', 'R', 'U2', 'R\''] },
+            { name: 'Anti-Sune', clue: 'Mirror the shape when the oriented corner sits front-left.', moves: ['R', 'U2', 'R\'', 'U\'', 'R', 'U\'', 'R\''] },
+            { name: 'No solved corner', clue: 'Run Sune once to create a recognizable case.', moves: ['R', 'U', 'R\'', 'U', 'R', 'U2', 'R\''] }
+          ]
+        },
+        {
+          stepName: 'J Perm 3x3 — Match Corners',
+          instructions: 'Position the yellow corners before the final corner-twisting finish.',
+          cases: [
+            { name: 'One correct corner', clue: 'Hold the correct corner at front-right.', moves: ['U', 'R', 'U\'', 'L\'', 'U', 'R\'', 'U\'', 'L'] },
+            { name: 'No correct corners', clue: 'Hold any corner front-right, run the algorithm, then check again.', moves: ['U', 'R', 'U\'', 'L\'', 'U', 'R\'', 'U\'', 'L'] },
+            { name: 'Two corners only', clue: 'This is not a legal beginner-method case if only two are correct.', moves: ['Inspect'] }
+          ]
+        },
+        {
+          stepName: 'J Perm 3x3 — Solve Final Corners',
+          instructions: 'Turn the cube over and twist each unsolved bottom corner with the same four moves.',
+          cases: [
+            { name: '2 unsolved corners', clue: 'Only turn the bottom layer between corners; keep cube orientation fixed.', moves: ['R', 'U', 'R\'', 'U\''] },
+            { name: '3 unsolved corners', clue: 'Finish a corner with repeated triggers, then D-turn to the next.', moves: ['R', 'U', 'R\'', 'U\''] },
+            { name: '4 unsolved corners', clue: 'Same rule: finish front-right, D-turn, repeat.', moves: ['R', 'U', 'R\'', 'U\''] }
+          ]
+        }
+      ],
+      '4x4': [
+        {
+          stepName: 'J Perm 4x4 — White And Yellow Centers',
+          instructions: 'Build two opposite 2x2 centers from bars without destroying the center already solved.',
+          cases: [
+            { name: 'Join two white bars', clue: 'Make two white bars on compatible faces, then bring them together.', moves: ['Rw', 'U', 'Rw\''] },
+            { name: 'Move yellow bar to top', clue: 'Store the bar on top, restore white, then continue.', moves: ['Rw', 'U2', 'Rw\''] },
+            { name: 'Broken white center', clue: 'Reverse the setup move immediately before continuing.', moves: ['Rw\'', 'U\'', 'Rw'] }
+          ]
+        },
+        {
+          stepName: 'J Perm 4x4 — Partial White Cross',
+          instructions: 'Pair three white cross edges in the correct color order before finishing all centers.',
+          cases: [
+            { name: 'Matching wings in different slices', clue: 'Slice to join the two wings, store the pair, then restore centers.', moves: ['Uw', 'R', 'U\'', 'R\'', 'Uw\''] },
+            { name: 'Matching wings in same slice', clue: 'Flip one wing first, then pair them normally.', moves: ['R', 'U', 'R\'', 'F', 'R\'', 'F\'', 'R'] },
+            { name: 'Need to preserve cross edge', clue: 'Replace a solved pair only with an unsolved pair.', moves: ['Uw', 'R', 'U', 'R\'', 'Uw\''] }
+          ]
+        },
+        {
+          stepName: 'J Perm 4x4 — Last Centers',
+          instructions: 'Build remaining centers as bars while preserving the partial cross.',
+          cases: [
+            { name: 'First center bar free', clue: 'Make a vertical bar and keep it safe while building the second bar.', moves: ['Uw', 'R', 'U\'', 'R\'', 'Uw\''] },
+            { name: 'Join bars with solved centers nearby', clue: 'Put both bars on the same face before joining.', moves: ['Rw', 'U', 'Rw\'', 'U\''] },
+            { name: 'Last two centers swapped', clue: 'Use a setup, swap center bars, then restore.', moves: ['Rw\'', 'F2', 'Rw2', 'U2', 'Rw\''] }
+          ]
+        },
+        {
+          stepName: 'J Perm 4x4 — Edge Pairing',
+          instructions: 'Pair all remaining edge wings so the cube behaves like a 3x3.',
+          cases: [
+            { name: 'Different-slice pair', clue: 'Join, replace with an unsolved edge, then fix centers.', moves: ['Uw', 'R', 'U\'', 'R\'', 'Uw\''] },
+            { name: 'Same-slice flip', clue: 'Hold the piece to flip at front-right.', moves: ['R', 'U', 'R\'', 'F', 'R\'', 'F\'', 'R'] },
+            { name: 'All top edges already solved', clue: 'Flip one edge to force a workable pairing case.', moves: ['R', 'U', 'R\'', 'F', 'R\'', 'F\'', 'R'] }
+          ]
+        },
+        {
+          stepName: 'J Perm 4x4 — Parity And 3x3 Stage',
+          instructions: 'Use only outer-layer turns for the 3x3 stage, then handle impossible 4x4 parity if it appears.',
+          cases: [
+            { name: 'OLL parity', clue: 'One final-layer edge pair is flipped; hold it front-top.', moves: ['Rw2', 'B2', 'U2', 'Lw', 'U2', 'Rw\'', 'U2', 'Rw', 'U2', 'F2', 'Rw', 'F2', 'Lw\'', 'B2', 'Rw2'] },
+            { name: 'PLL parity', clue: 'Two final pieces are swapped in a way a 3x3 cannot have.', moves: ['Rw2', 'U2', 'Rw2', 'Uw2', 'Rw2', 'Uw2'] },
+            { name: 'No parity', clue: 'Continue with the 3x3 beginner steps using only outer layers.', moves: ['Continue'] }
+          ]
+        }
+      ],
+      '5x5': [
+        {
+          stepName: 'J Perm 5x5 — First Two Centers',
+          instructions: 'Build center bars of three stickers and join them into full 3x3 centers.',
+          cases: [
+            { name: 'Make a center bar', clue: 'Line up three matching center pieces into a row.', moves: ['Rw', 'U', 'Rw\''] },
+            { name: 'Join two bars', clue: 'Bring the bars together, then restore any center you disturbed.', moves: ['Rw', 'U2', 'Rw\''] },
+            { name: 'Preserve first center', clue: 'Keep the solved center on bottom while building the opposite center.', moves: ['Uw', 'R', 'U\'', 'R\'', 'Uw\''] }
+          ]
+        },
+        {
+          stepName: 'J Perm 5x5 — Remaining Centers',
+          instructions: 'Finish the four side centers one bar at a time.',
+          cases: [
+            { name: 'Open bar insert', clue: 'Move a solved bar into an empty center row.', moves: ['Rw', 'U', 'Rw\'', 'U\''] },
+            { name: 'Protected bar insert', clue: 'Use the unsolved slice as the workspace.', moves: ['Uw', 'R', 'U\'', 'R\'', 'Uw\''] },
+            { name: 'Last two center bars', clue: 'Set both bars on compatible faces before joining.', moves: ['Rw\'', 'F2', 'Rw', 'U2'] }
+          ]
+        },
+        {
+          stepName: 'J Perm 5x5 — Edge Pairing',
+          instructions: 'Join matching edge pieces into tredges, then solve the reduced cube like a 3x3.',
+          cases: [
+            { name: 'First eight tredges', clue: 'Match two wings with the middle edge, store, and continue.', moves: ['Rw', 'U', 'R\'', 'F', 'R', 'F\'', 'Rw\''] },
+            { name: 'Slice-flip-slice', clue: 'Use this when the last groups need one piece flipped relative to the others.', moves: ['Rw', 'U2', 'Rw\'', 'U2', 'Rw', 'U2', 'Rw\''] },
+            { name: 'Last two edges parity', clue: 'One final tredge is impossible until this correction is done.', moves: ['Rw2', 'B2', 'U2', 'Lw', 'U2', 'Rw\'', 'U2', 'Rw', 'U2', 'F2', 'Rw', 'F2', 'Lw\'', 'B2', 'Rw2'] }
+          ]
+        },
+        {
+          stepName: 'J Perm 5x5 — 3x3 Stage',
+          instructions: 'Once centers and tredges are solved, only turn the outer layers.',
+          cases: [
+            { name: 'White cross and first layer', clue: 'Use the same beginner triggers from 3x3.', moves: ['F2', 'R', 'U', 'R\'', 'U\''] },
+            { name: 'Second layer', clue: 'Insert reduced edge pairs as if they were normal 3x3 edges.', moves: ['U', 'R', 'U\'', 'R\'', 'U\'', 'F\'', 'U', 'F'] },
+            { name: 'Last layer', clue: 'No PLL parity on 5x5 after reduction; solve as a 3x3.', moves: ['F', 'R', 'U', 'R\'', 'U\'', 'F\''] }
+          ]
+        }
+      ],
+      'pyraminx': [
+        {
+          stepName: 'Kevin Gittemeier Pyraminx — Align Tips And Centers',
+          instructions: 'Match each tip with its adjacent center colors, then choose the easiest bottom color.',
+          cases: [
+            { name: 'Right tip', clue: 'Only the small right tip needs to turn.', moves: ['r'] },
+            { name: 'Left tip', clue: 'Only the small left tip needs to turn.', moves: ['l'] },
+            { name: 'Top or back tip', clue: 'Tips are independent; solve them before layer edges.', moves: ['u', 'b'] }
+          ]
+        },
+        {
+          stepName: 'Kevin Gittemeier Pyraminx — Bottom Layer Edges',
+          instructions: 'Insert the three bottom-layer edges while keeping the chosen solved face on bottom.',
+          cases: [
+            { name: 'Right insertion', clue: 'The edge belongs in the right bottom slot.', moves: ['R', 'U\'', 'R\''] },
+            { name: 'Left insertion', clue: 'The edge belongs in the left bottom slot.', moves: ['L\'', 'U', 'L'] },
+            { name: 'Edge stuck in bottom', clue: 'Extract the wrong edge, then insert it correctly.', moves: ['R', 'U\'', 'R\''] }
+          ]
+        },
+        {
+          stepName: 'Kevin Gittemeier Pyraminx — Last Layer Cases',
+          instructions: 'Recognize one of the five last-layer edge cases and run its algorithm.',
+          cases: [
+            { name: 'Case 1: 2E Bug Eyes', clue: 'Two edges are unsolved; this is the hardest beginner case.', moves: ['L', 'R\'', 'L\'', 'R', 'U\'', 'R', 'U', 'R\''] },
+            { name: 'Case 2: 3E CCW', clue: 'Three edges cycle counter-clockwise.', moves: ['R', 'U', 'R\'', 'U', 'R', 'U', 'R\''] },
+            { name: 'Case 3: 3E CW', clue: 'Three edges cycle clockwise.', moves: ['R', 'U\'', 'R\'', 'U\'', 'R', 'U\'', 'R\''] },
+            { name: 'Case 4: 2F1E CCW Winky Eye', clue: 'The eye pair is on the right.', moves: ['R\'', 'L', 'R', 'L\'', 'U\'', 'L\'', 'U', 'L\''] },
+            { name: 'Case 5: 2F1E CW Winky Eye', clue: 'The eye pair is on the left.', moves: ['L', 'R\'', 'L\'', 'R', 'U', 'R', 'U\'', 'R\''] }
+          ]
+        }
+      ]
+    };
+
     const COLORS = {
       cube: ['#ffffff', '#ffff00', '#00ff00', '#0000ff', '#ff0000', '#ffaa00'],
       pyraminx: ['#ffffff', '#ffff00', '#00ff00', '#0000ff'],
@@ -510,7 +716,7 @@
     };
     const AppState = {
       activeScreen: 'dashboard', puzzleType: '3x3', trainingProfile: null, activeStepIndex: 0, activeMoveIndex: 0,
-      selectedPaintBrush: '#ffffff', activeFace: 0, autoTimer: null, independentCaseIndex: 0,
+      selectedPaintBrush: '#ffffff', activeFace: 0, autoTimer: null, activeCaseIndex: 0, independentCaseIndex: 0,
       playbackState: [], playbackHistory: [], lastAppliedKey: null, darkMode: false,
       colorDataMap: {
         '3x3': Array(54).fill('#e2e8f0'), '4x4': Array(96).fill('#e2e8f0'), '5x5': Array(150).fill('#e2e8f0'), 'pyraminx': Array(36).fill('#e2e8f0')
@@ -553,12 +759,38 @@
       return plan.map(step => ({ ...step, moves: parseAlgorithmMoves(step.moves) }));
     }
 
+    function normalizeLearningPlan(plan) {
+      return plan.map(step => ({
+        ...step,
+        moves: parseAlgorithmMoves(step.cases?.[0]?.moves || step.moves || []),
+        cases: (step.cases || []).map(studyCase => ({ ...studyCase, moves: parseAlgorithmMoves(studyCase.moves) })),
+        source: LEARNING_SOURCES[AppState.puzzleType]
+      }));
+    }
+
+    function buildGuidedLearningPlan() {
+      return normalizeLearningPlan(GuidedLearningLibrary[AppState.puzzleType] || GuidedLearningLibrary['3x3']);
+    }
+
     function buildIndependentStudyPlan() {
       return IndependentLearningLibrary['3x3'].map(studyCase => ({
         stepName: `Independent Study — ${studyCase.caseName}`,
         instructions: studyCase.textGuide,
         moves: ['Reveal']
       }));
+    }
+
+    function stepCases(step) {
+      return step?.cases || [];
+    }
+
+    function activeCaseForStep(step) {
+      const cases = stepCases(step);
+      return cases.length ? cases[Math.min(AppState.activeCaseIndex, cases.length - 1)] : null;
+    }
+
+    function activeMovesForStep(step) {
+      return activeCaseForStep(step)?.moves || step?.moves || [];
     }
 
     function setView(viewName) {
@@ -709,24 +941,20 @@
     }
 
     function prepareAlgorithm(profile = AppState.trainingProfile) {
-      let plan = CubeHead2026Solver;
-      if (profile === 'independent') plan = buildIndependentStudyPlan();
-      else if (AppState.puzzleType === '3x3') plan = buildGodfatherCalculatedPlan(AppState.playbackState);
-      else if (AppState.puzzleType === '4x4') plan = FourByFourBeginnerSolver;
-      else if (AppState.puzzleType === '5x5') plan = FiveByFiveBeginnerSolver;
-      else if (AppState.puzzleType === 'pyraminx') plan = PyraminxBeginnerSolver;
-      return normalizeAlgorithmPlan(plan);
+      if (profile === 'guided') return buildGuidedLearningPlan();
+      if (profile === 'independent') return normalizeAlgorithmPlan(buildIndependentStudyPlan());
+      return buildCalculatedSolvePlan(AppState.puzzleType, AppState.playbackState);
     }
 
     function startPlayback(profile = AppState.trainingProfile) {
-      if (profile !== 'independent' && !validateAndUpdate()) { showToast(buildValidationHint(AppState.colorDataMap[AppState.puzzleType]), 'error', 5200); return; }
+      if (!profile && !validateAndUpdate()) { showToast(buildValidationHint(AppState.colorDataMap[AppState.puzzleType]), 'error', 5200); return; }
       if (profile === 'independent') {
         AppState.puzzleType = '3x3';
         $('#modePuzzleBadge').textContent = PUZZLES[AppState.puzzleType].label;
       }
       AppState.trainingProfile = profile;
-      AppState.activeStepIndex = 0; AppState.activeMoveIndex = 0; AppState.independentCaseIndex = 0; AppState.playbackHistory = []; AppState.lastAppliedKey = null;
-      AppState.playbackState = profile === 'independent' ? createSolvedState('3x3') : AppState.colorDataMap[AppState.puzzleType].slice();
+      AppState.activeStepIndex = 0; AppState.activeMoveIndex = 0; AppState.activeCaseIndex = 0; AppState.independentCaseIndex = 0; AppState.playbackHistory = []; AppState.lastAppliedKey = null;
+      AppState.playbackState = profile ? createSolvedState(AppState.puzzleType) : AppState.colorDataMap[AppState.puzzleType].slice();
       CurrentAlgorithm = prepareAlgorithm(profile);
       $('#playbackModeBadge').textContent = profile === 'guided' ? 'Guided Practice' : profile === 'independent' ? 'Independent Study' : 'Solve Mode';
       $('#hintBox').classList.toggle('hidden', profile !== 'guided' && profile !== 'independent');
@@ -803,6 +1031,76 @@
 
     function isTurnMove(move) {
       return /^[URFDLBurfdlb][w]?['2]?$/.test(move);
+    }
+
+    const SOLVE_SEARCH_CONFIG = {
+      '3x3': { maxDepth: 4, moves: ['U','U\'','U2','R','R\'','R2','F','F\'','F2','D','D\'','D2','L','L\'','L2','B','B\'','B2'] },
+      '4x4': { maxDepth: 3, moves: ['U','U\'','U2','R','R\'','R2','F','F\'','F2','D','D\'','D2','L','L\'','L2','B','B\'','B2','Rw','Rw\'','Rw2','Uw','Uw\'','Uw2'] },
+      '5x5': { maxDepth: 3, moves: ['U','U\'','U2','R','R\'','R2','F','F\'','F2','D','D\'','D2','L','L\'','L2','B','B\'','B2','Rw','Rw\'','Rw2','Uw','Uw\'','Uw2'] },
+      'pyraminx': { maxDepth: 4, moves: ['U','U\'','R','R\'','L','L\'','B','B\'','u','u\'','r','r\'','l','l\'','b','b\''] }
+    };
+
+    function buildCalculatedSolvePlan(puzzleType, state) {
+      const puzzle = PUZZLES[puzzleType];
+      const cleanState = Array.isArray(state) && state.length === puzzle.faces * faceletCountFor(puzzleType) ? state.slice() : createSolvedState(puzzleType);
+      if (isSolvedPuzzleState(puzzleType, cleanState)) {
+        return [{
+          stepName: `${puzzle.label} Calculated Solve — Already Solved`,
+          instructions: 'The scanner state already matches solved color blocks. No algorithm is needed.',
+          moves: ['Solved'],
+          calculationOnly: true
+        }];
+      }
+      const solution = findShortestPuzzleCorrection(puzzleType, cleanState, SOLVE_SEARCH_CONFIG[puzzleType]);
+      if (solution.length) {
+        return [{
+          stepName: `${puzzle.label} Calculated Solve — Exact Correction`,
+          instructions: `The local calculator found an exact ${solution.length}-move correction from the scanned sticker state.`,
+          moves: solution,
+          calculationOnly: true
+        }];
+      }
+      return [{
+        stepName: `${puzzle.label} Calculated Solve — Search Limit Reached`,
+        instructions: `This scan is valid by color count, but the exact state is outside the built-in ${SOLVE_SEARCH_CONFIG[puzzleType].maxDepth}-move calculator. Solve mode stays calculation-only, so it will not substitute a lesson algorithm.`,
+        moves: ['No bounded exact solve'],
+        calculationOnly: true
+      }];
+    }
+
+    function isSolvedPuzzleState(puzzleType, state) {
+      const perFace = faceletCountFor(puzzleType);
+      return Array.from({length: PUZZLES[puzzleType].faces}, (_, face) => state.slice(face * perFace, face * perFace + perFace)).every(facelets => facelets.every(color => color === facelets[0]));
+    }
+
+    function findShortestPuzzleCorrection(puzzleType, startState, config) {
+      const queue = [{ state: startState.slice(), path: [] }];
+      const seen = new Set([startState.join('|')]);
+      for (let head = 0; head < queue.length; head++) {
+        const node = queue[head];
+        if (node.path.length >= config.maxDepth) continue;
+        for (const move of config.moves) {
+          if (node.path.length && areInverseMoves(node.path[node.path.length - 1], move)) continue;
+          const next = simulateMoveOnPuzzleState(puzzleType, node.state, move);
+          const path = [...node.path, move];
+          if (isSolvedPuzzleState(puzzleType, next)) return path;
+          const key = next.join('|');
+          if (!seen.has(key)) { seen.add(key); queue.push({ state: next, path }); }
+        }
+      }
+      return [];
+    }
+
+    function simulateMoveOnPuzzleState(puzzleType, state, move) {
+      const previousPuzzle = AppState.puzzleType;
+      const previousState = AppState.playbackState;
+      AppState.puzzleType = puzzleType;
+      AppState.playbackState = state.slice();
+      applyMoveToPlaybackState(move);
+      const next = AppState.playbackState.slice();
+      AppState.puzzleType = previousPuzzle;
+      AppState.playbackState = previousState;
+      return next;
     }
 
     function buildGodfatherCalculatedPlan(state) {
@@ -882,13 +1180,14 @@
     }
 
     function currentMoveKey() {
-      return `${AppState.activeStepIndex}:${AppState.activeMoveIndex}`;
+      return `${AppState.activeStepIndex}:${AppState.activeCaseIndex}:${AppState.activeMoveIndex}`;
     }
 
     function commitActiveMove() {
       const step = CurrentAlgorithm[AppState.activeStepIndex];
       if (!step) return;
-      const move = step.moves[AppState.activeMoveIndex];
+      const moves = activeMovesForStep(step);
+      const move = moves[AppState.activeMoveIndex];
       const key = currentMoveKey();
       if (!move || AppState.lastAppliedKey === key || !isTurnMove(move)) return;
       AppState.playbackHistory.push(AppState.playbackState.slice());
@@ -977,28 +1276,47 @@
     function advancePlaybackState(direction) {
       if (!CurrentAlgorithm.length) return;
       if (AppState.trainingProfile === 'independent') { advanceIndependentStudy(direction); return; }
-      let animationMove = CurrentAlgorithm[AppState.activeStepIndex]?.moves[AppState.activeMoveIndex];
+      let step = CurrentAlgorithm[AppState.activeStepIndex];
+      let moves = activeMovesForStep(step);
+      let animationMove = moves[AppState.activeMoveIndex];
       if (direction === 'NEXT') {
         commitActiveMove();
-        if (!isTurnMove(animationMove) && CurrentAlgorithm[AppState.activeStepIndex]?.moves.length === 1) { showToast('No physical turn is required for this calculated step.', 'success', 1400); renderUIStatusDisplay(); return; }
-        AppState.activeMoveIndex++;
-        if (AppState.activeMoveIndex >= CurrentAlgorithm[AppState.activeStepIndex].moves.length) {
+        if (!isTurnMove(animationMove) && moves.length === 1) {
+          showToast('No physical turn is required for this step.', 'success', 1400);
           AppState.activeMoveIndex = 0;
-          AppState.activeStepIndex++;
+          AppState.activeCaseIndex = 0;
+          if (CurrentAlgorithm.length > 1 && AppState.activeStepIndex < CurrentAlgorithm.length - 1) AppState.activeStepIndex++;
+          else { renderUIStatusDisplay(); return; }
+        } else {
+          AppState.activeMoveIndex++;
+          if (AppState.activeMoveIndex >= moves.length) {
+            AppState.activeMoveIndex = 0;
+            AppState.activeCaseIndex = 0;
+            AppState.activeStepIndex++;
+          }
         }
       } else if (direction === 'BACK') {
         restorePreviousPlaybackState();
         AppState.activeMoveIndex--;
         if (AppState.activeMoveIndex < 0) {
           AppState.activeStepIndex--;
+          AppState.activeCaseIndex = 0;
           if (AppState.activeStepIndex >= 0) {
-            AppState.activeMoveIndex = CurrentAlgorithm[AppState.activeStepIndex].moves.length - 1;
+            AppState.activeMoveIndex = activeMovesForStep(CurrentAlgorithm[AppState.activeStepIndex]).length - 1;
           }
         }
-        animationMove = CurrentAlgorithm[AppState.activeStepIndex]?.moves[AppState.activeMoveIndex] || animationMove;
+        step = CurrentAlgorithm[AppState.activeStepIndex];
+        moves = activeMovesForStep(step);
+        animationMove = moves[AppState.activeMoveIndex] || animationMove;
       }
-      if (AppState.activeStepIndex < 0) { AppState.activeStepIndex = 0; AppState.activeMoveIndex = 0; }
-      if (AppState.activeStepIndex >= CurrentAlgorithm.length) { AppState.activeStepIndex = CurrentAlgorithm.length - 1; AppState.activeMoveIndex = CurrentAlgorithm[AppState.activeStepIndex].moves.length - 1; stopAutoPlay(); showToast('Algorithm complete. Puzzle solved or practice sequence finished.', 'success'); }
+      if (AppState.activeStepIndex < 0) { AppState.activeStepIndex = 0; AppState.activeMoveIndex = 0; AppState.activeCaseIndex = 0; }
+      if (AppState.activeStepIndex >= CurrentAlgorithm.length) {
+        AppState.activeStepIndex = CurrentAlgorithm.length - 1;
+        AppState.activeCaseIndex = 0;
+        AppState.activeMoveIndex = activeMovesForStep(CurrentAlgorithm[AppState.activeStepIndex]).length - 1;
+        stopAutoPlay();
+        showToast('Algorithm complete. Puzzle solved or practice sequence finished.', 'success');
+      }
       triggerVisualPuzzleTurnAnimation(animationMove);
       renderUIStatusDisplay();
     }
@@ -1057,18 +1375,55 @@
     function renderUIStatusDisplay() {
       const step = CurrentAlgorithm[AppState.activeStepIndex];
       if (!step) return;
+      const moves = activeMovesForStep(step);
       $('#stepName').textContent = step.stepName;
       $('#stepInstructions').textContent = step.instructions;
-      $('#formulaDisplay').innerHTML = step.moves.map((move, i) => `<span class="notation-pill ${i === AppState.activeMoveIndex ? 'active' : ''} rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">${escapeHtml(move)}</span>`).join('');
+      $('#formulaDisplay').innerHTML = moves.map((move, i) => `<span class="notation-pill ${i === AppState.activeMoveIndex ? 'active' : ''} rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">${escapeHtml(move)}</span>`).join('');
+      renderSourceBox(step);
+      renderCaseLibrary(step);
       if (AppState.trainingProfile === 'guided') {
-        $('#hintBox').innerHTML = `<strong>Hint Box:</strong> ${escapeHtml(guidedHint(step, step.moves[AppState.activeMoveIndex]))}`;
+        $('#hintBox').innerHTML = `<strong>Clue Box:</strong> ${escapeHtml(guidedHint(step, moves[AppState.activeMoveIndex]))}`;
       }
       const parityStep = /Parity|Edges Slice/.test(step.stepName);
       $('#parityPanel').classList.toggle('hidden', !parityStep);
-      $('#parityPanel').innerHTML = parityStep ? `<strong>Parity handler active:</strong> Use slow, deliberate wide turns. Current slice is <span class="font-mono font-black">${escapeHtml(step.moves[AppState.activeMoveIndex])}</span>.` : '';
+      $('#parityPanel').innerHTML = parityStep ? `<strong>Parity handler active:</strong> Use slow, deliberate wide turns. Current slice is <span class="font-mono font-black">${escapeHtml(moves[AppState.activeMoveIndex])}</span>.` : '';
+    }
+
+    function renderSourceBox(step) {
+      const source = step.source || (AppState.trainingProfile === 'guided' ? LEARNING_SOURCES[AppState.puzzleType] : null);
+      $('#sourceBox').classList.toggle('hidden', !source);
+      $('#sourceBox').innerHTML = source ? `<span class="font-black text-slate-900">Source:</span> ${escapeHtml(source.teacher)} — <a class="font-bold text-indigo-600 underline" href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)}</a><p class="mt-1">${escapeHtml(source.note)}</p>` : '';
+    }
+
+    function renderCaseLibrary(step) {
+      const cases = stepCases(step);
+      if (AppState.trainingProfile !== 'guided' || !cases.length) {
+        $('#caseLibrary').innerHTML = '';
+        return;
+      }
+      $('#caseLibrary').innerHTML = cases.map((studyCase, index) => `
+        <button class="case-card tap-target ${index === AppState.activeCaseIndex ? 'active' : ''}" data-case-index="${index}">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="text-xs font-black uppercase tracking-[0.22em] text-indigo-600">Case ${index + 1}</p>
+              <h4 class="mt-1 text-base font-black text-slate-900">${escapeHtml(studyCase.name)}</h4>
+            </div>
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">${index === AppState.activeCaseIndex ? 'Active' : 'Use'}</span>
+          </div>
+          <p class="mt-2 text-sm leading-6 text-slate-600">${escapeHtml(studyCase.clue)}</p>
+          <p class="case-alg mt-3 font-mono text-sm font-black text-slate-800">${escapeHtml(studyCase.moves.join(' '))}</p>
+        </button>`).join('');
+      $$('[data-case-index]').forEach(button => button.addEventListener('click', () => {
+        AppState.activeCaseIndex = Number(button.dataset.caseIndex);
+        AppState.activeMoveIndex = 0;
+        AppState.lastAppliedKey = null;
+        renderUIStatusDisplay();
+      }));
     }
 
     function guidedHint(step, move) {
+      const activeCase = activeCaseForStep(step);
+      if (activeCase) return `${activeCase.clue} Selected case algorithm: ${activeCase.moves.join(' ')}. Current move: ${move || 'inspect the case first'}.`;
       if (/White Cross/.test(step.stepName)) return `CubeHead-style daisy check: track the white edge, line its side color with the center, then use ${move} without losing orientation.`;
       if (/Corner|F2L/.test(step.stepName)) return `Keep the pair in the top layer and preserve solved pieces while executing ${move}. Pause after every insertion to inspect the slot.`;
       if (/Middle Layer/.test(step.stepName)) return `The target edge should have no yellow stickers. The highlighted ${move} starts or continues a safe extraction-and-insert cycle.`;
@@ -1140,7 +1495,7 @@
       $$('[data-route="mode"]').forEach(b => b.addEventListener('click', () => setView('mode')));
       $$('[data-mode="solve"]').forEach(b => b.addEventListener('click', () => openScanner(null)));
       $$('[data-mode="learn"]').forEach(b => b.addEventListener('click', () => setView('learn')));
-      $$('[data-learn="guided"]').forEach(b => b.addEventListener('click', () => openScanner('guided')));
+      $$('[data-learn="guided"]').forEach(b => b.addEventListener('click', () => startPlayback('guided')));
       $$('[data-learn="independent"]').forEach(b => b.addEventListener('click', () => { AppState.puzzleType = '3x3'; startPlayback('independent'); }));
       $('#autoFillBtn').addEventListener('click', autoFillSolved);
       $('#validateBtn').addEventListener('click', () => { validateAndUpdate() ? showToast('Validation passed. SOLVE is unlocked.', 'success') : showToast(buildValidationHint(AppState.colorDataMap[AppState.puzzleType]), 'error', 5200); });

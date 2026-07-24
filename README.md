@@ -4,9 +4,9 @@ Twisty Lab is a static, single-page twisty-puzzle learning playground. The app l
 
 - 3x3, 4x4, 5x5, and Pyraminx scanner layouts
 - strict sticker color-count validation
-- animated move playback for beginner/reduction methods
-- guided hints and 3x3 Independent Study masking
-- a local keyword-based coach panel
+- calculation-only Solve My Puzzle playback with bounded exact search
+- guided source-backed case libraries for beginner/reduction methods
+- 3x3 Independent Study masking
 
 Open `index.html` in a browser to run the app.
 
@@ -18,4 +18,4 @@ Run the local verifier before deploying:
 node verify.js
 ```
 
-The verifier compiles the inline app script, checks scanner validators, confirms move inverse/rotation invariants, checks algorithm parsing, and ensures Independent Study builds its own study plan.
+The verifier compiles the inline app script, checks scanner validators, confirms move inverse/rotation invariants, checks algorithm parsing, and ensures Guided Practice, Independent Study, and calculation-only solve plans build correctly.
