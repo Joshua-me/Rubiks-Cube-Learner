@@ -1,65 +1,85 @@
-# Agent Execution Plan: Advanced Neo-Minimalist Puzzle Platform
+# Twisty Lab — Project Instructions and Implementation Status
 
-## 🎯 Project Vision
-A premium, self-contained single-file (`index.html`) interactive playground enabling users to dynamically configure physical state inputs across 4 classic twisty puzzles (3x3, Pyraminx, 4x4, 5x5). It delivers an animated playback solution engine via the "Godfather Method", and provides guided/isolated learning frameworks featuring smart structural masking overlays. Use any languages needed.
+## Purpose
 
----
+Maintain an offline puzzle solver and learning playground in a single runtime file, `index.html`. Support 3x3, Pyraminx, 4x4, and 5x5 with a white/slate interface, editable sticker nets, verified move playback, guided practice, and independent study masks. Development scripts and tests may live outside the HTML; running the app must not require a server, build, CDN, account, or network connection.
 
-## 🛠️ System State Configuration Model
-```javascript
-const ApplicationState = {
-  activeScreen: 'dashboard',      // dashboard, mode-select, input-scanner, playback-engine, learning-hub
-  puzzleType: '3x3',              // 3x3, pyraminx, 4x4, 5x5
-  trainingProfile: null,          // guided, independent
-  activeStepIndex: 0,             // Tracking sequence numbers inside execution arrays
-  activeMoveIndex: 0,             // Index tracking single character notation moves inside an active algorithm string
-  selectedPaintBrush: '#ffffff', // Active color hex value selected in input scanner
-  
-  // Normalized facelet maps storing color hex strings
-  colorDataMap: {
-    '3x3': Array(54).fill('#e2e8f0'),      // Slate layout default fills
-    '4x4': Array(96).fill('#e2e8f0'),      
-    '5x5': Array(150).fill('#e2e8f0'),     
-    'pyraminx': Array(36).fill('#e2e8f0')  
-  }
-};
-```
+## Actual solver capabilities
 
----
+| Puzzle | Implemented calculation | Limits |
+| --- | --- | --- |
+| 3x3 | Embedded cubejs 1.3.2 two-phase solver for legal scanned states | A valid solution, not a guarantee of the shortest solution or a beginner-method solution |
+| Pyraminx | Tetrahedral move model, edge/center pattern tables, iterative deepening, independent tip correction | At most 11 body moves searched; tips corrected separately. Face orientation must match the labeled scanner |
+| 4x4 | Reduced-cube solving, OLL/PLL parity correction, budgeted short corrections | General center building and wing pairing are not automated |
+| 5x5 | Reduced-cube solving, supported inner-wing corrections with setup turns, budgeted short corrections | General center building and tredge pairing are not automated; the wing routine does not cover every unreduced state |
 
-## 🚀 Granular Development Roadmap
+**Do not claim arbitrary 4x4/5x5 solving is complete.** An unsupported scan must show “Reduction required,” with no substituted lesson moves. The remaining feature is a general reduction engine or an appropriately licensed embedded solver; it must satisfy the offline/single-file constraint and receive end-to-end validation before being advertised.
 
-### Phase 1: Core Shell Framework & Neo-Minimalist Styles
-- [ ] Initialize single-page view router using state-reactive class switching (`.hidden { display: none !important; }`).
-- [ ] Setup full Tailwind CSS layout templates utilizing clean white/slate tones (`bg-slate-50`, `text-slate-900`, fine border rings).
-- [ ] Implement scalable SVG/Canvas static components modeling distinct wireframe isometric silhouettes for the 4 target puzzles.
+The old “Godfather” arrays were fixed demonstrations, not solvers that calculated from a scan. They have been removed. The guided 3x3 curriculum still has eight stages; keep practice and calculation clearly distinct.
 
-### Phase 2: Exploded Matrix Input Scanner & Orientation Sequencer
-- [ ] Code dynamic UI generator creating layout grids matching selected dimensional counts (3x3 up to 5x5 grid fields).
-- [ ] Write click-to-paint state listener tracking index overrides from the active color palette.
-- [ ] Construct the Face Flip Animation: Use standard CSS 3D transform keyframes (`transform: rotateY(180deg) scale(0.98)`) applied directly to the scanner container to signal safe physical rotations to the end-user.
-- [ ] Build strict global validation metrics checking exact structural element limits via `PuzzleValidators`.
+## State and face orientation
 
-### Phase 3: The Godfather Method Playback Core
-- [ ] Build a robust parsing engine that accepts algorithm notation blocks and breaks them down into individual steps.
-- [ ] Implement UI step panel tracking: Top half displays active puzzle visual states, bottom half highlights current instruction blocks.
-- [ ] Code player mechanics loops: Bind `Back`, `Play/Pause Timer Interval`, and `Next` handlers directly to active state indices.
+`AppState` is the single application state. It stores the selected puzzle, screen, training profile, facelet colors, move/case/lesson cursor, playback snapshots, completion/animation/calculation flags, timer, and view settings.
 
-### Phase 4: Educational Modules & Visual Masking Engine
-- [ ] **Guided Track:** Link the live solver views to a dynamic string lookup table to output contextual, user-friendly tips alongside standard formulas.
-- [ ] **Independent Track:** Program an isolated rendering override mask. If a case is flagged as an independent case, iterate through facelet arrays and explicitly swap non-essential indices out for a flat `#1e1e24` matte black layer before paint execution.
-- [ ] Ensure all mock algorithm sequences perfectly parse and execute standard layout moves.
+Cube facelets use **U, L, F, R, B, D** face order. Each face is a row-major square viewed directly from outside. Counts are 54 / 96 / 150. Solved defaults are white U, orange L, green F, red R, blue B, yellow D. Learning examples put white on D and yellow on U.
 
-### Phase 5: Hardcoded Algorithmic Arrays & Parity Maps
-- [ ] Implement complete `PuzzleValidators` functions mapping exact 9, 16, 25 sticker color boundaries.
-- [ ] Embed full 8-stage step definitions for `Godfather3x3Solver` notation strings.
-- [ ] Inject raw 4x4/5x5 WCA multi-slice parity logic (`Rw2`, `Uw2`, etc.) directly into global execution modules.
-- [ ] Construct the masking overlay algorithm matching the target index array patterns inside `IndependentLearningLibrary`.
+Pyraminx has 36 triangular facelets. Vertex labels are U (top), L (left), R (right), B (back). Each face shows its local **top / left / right vertex** labels:
 
----
+- Base: L / B / R.
+- Left: U / B / L.
+- Right: U / R / B.
+- Front: U / L / R.
 
-## ⚠️ High-Risk Conditions & Automated Safety Shields
-1. **Impossible Input Permutations:** Users may paint combinations that are mathematically impossible to solve. 
-   * *Shield:* The input scanner engine features a strict count validator. If the color counts do not line up exactly with a standard configuration, the "SOLVE" button remains locked and an explicit error toast provides debugging tips.
-2. **Buffer/Token Overflow:** Massive algorithm tables can cause single files to look messy.
-   * *Shield:* Keep string variables highly structured using compact array lookups, ensuring clean code readability inside the unified script.
+The Pyraminx palette includes white and red as alternatives. A scan must contain exactly four colors with nine stickers each.
+
+A triangular face has rows of 1, 3, and 5 cells, numbered row-major. Tips are 0/4/8, axial centers 2/5/7, and edge stickers 1/3/6. Body turns permute 12 stickers across three faces; tip-only turns permute three stickers. Both have order three. Infer the scanned face-color scheme from the axial centers.
+
+## Engine requirements
+
+- Generate cube sticker permutations from 3D position and outward normal. Use the same face geometry in the visual model. Do not restore hand-written strip cycles without independent model checks.
+- Parse compact and spaced moves, apostrophes, half turns, wide turns (`Rw`, `3Rw`), and inner-only slices (`2R`). `2R2` means second layer from Right, half turn; `Rw2` means two layers together, half turn. Reject unsupported notation explicitly.
+- Validate array length, allowed colors, and exact counts: 9/16/25 per cube color and 9 per Pyraminx color.
+- On 3x3, reject duplicate/missing cubies, mirrored corners, corner-twist sums, edge-flip sums, duplicate centers, and permutation parity mismatch. Use ordered cubie conventions; a simple axis test for edge orientation rejects legal scrambles.
+- On Pyraminx, validate reachable edge states and cyclic center/tip color order. Counts alone are insufficient.
+- On big cubes, counts alone are a partial check. Validate a reduced 5x5 as a 3x3. Reduced 4x4 parity can be legal. Never describe count validity as proof of physical solvability.
+- Calculate in an embedded Blob Worker. Keep the UI responsive; terminate pending work on navigation, scan edits, reset, or timeout. Ignore stale responses.
+- Replay every returned solution internally using the actual puzzle model. Expose moves only if the final state is solved.
+- Keep short big-cube search bounded in both depth and work. Exhausting this budget means unsupported by this calculator, not physically impossible.
+
+## Playback and learning requirements
+
+- The cursor denotes the next unapplied move. NEXT applies it once; completion disables further turns and stops autoplay.
+- BACK restores an exact snapshot of colors, move cursor, case, lesson, and completion state. BACK at the start is harmless. Do not animate an undo as though it were the original forward turn.
+- Prevent overlapping animations. Cancel delayed rendering when leaving the view or resetting a case.
+- Keep lesson navigation separate from move playback. Changing cases/lessons stops autoplay and creates a fresh practice state/history.
+- Prepare each guided example by reversing and inverting its algorithm from a solved baseline. Finishing the example must restore that baseline. Locally generated setups are demonstrations, not quoted tutorial cases or automatic recognition.
+- Independent Study retains the selected puzzle and renders a prepared case with a relevant mask. Mask only the rendered copy; never overwrite actual sticker colors. Next/Back navigate study cases.
+- Provide all-face net inspection as well as the 3D view. Scanner completion animation is a cue, not an instruction to mirror the net or guess a rotation.
+- Keyboard shortcuts must ignore inputs, editable text, and focused buttons. Provide disabled controls, accessible sticker labels, live validation, focus indication, and reduced-motion CSS.
+- The Puzzle Coach is a local rule-based helper, not an external AI service. Its text must match current solver limits and validation behavior.
+
+## Implementation status
+
+- [x] Single-file offline shell, embedded Tailwind styles, view routing, theme toggle.
+- [x] Four puzzle cards, labeled dynamic scanner nets, painting, count validation, completion cue.
+- [x] Physical cube facelet permutations and tetrahedral Pyraminx permutations.
+- [x] 3x3/Pyraminx legality checks and full legal-state solving.
+- [x] Background calculation, cancellation, and internal solution verification.
+- [x] Reduced big-cube solving, 4x4 parity, supported 5x5 wing correction, bounded short search.
+- [x] Move playback, exact undo, completion, autoplay, all-face inspection.
+- [x] Eight-stage 3x3 practice and big-cube/Pyraminx case libraries.
+- [x] Independent masks and prepared cases for all four puzzles.
+- [x] Offline runtime regression checks and browser interaction checks.
+- [ ] General unreduced 4x4/5x5 solving and complete big-cube legality checks.
+
+## Files and validation
+
+- `index.html`: shipped app, embedded CSS, licensed cubejs model/solver, and application engine.
+- `verify.js`: dependency-free Node regression suite. Run `node verify.js` or `npm test`.
+- `tests/browser.cjs`: Playwright checks including offline file loading, workers, scanning, playback/undo, cancellation, keyboard behavior, learning selection, and mobile layout. Run `npm run test:browser` after installing development dependencies and Chromium. On macOS the runner can use installed Chrome; `CHROME_PATH` overrides the executable.
+- `scripts/build-styles.cjs`: regenerate embedded utility CSS after adding/changing classes. Run `npm run build:styles`. Custom CSS stays separate. The deployed HTML remains standalone.
+- `README.md`: user instructions and supported solver scope; keep it in agreement with this file and the UI.
+
+Before completing an engine change, run the Node checks and relevant browser checks. Test actual solved outcomes, random legal scrambles, impossible states, wide/inner turns, parity fixtures, completion/undo, and case resets. Inverse/four-turn invariants alone cannot prove a move model is correct.
+
+Preserve cubejs's embedded MIT license and attribution. Do not replace vendored code casually. Do not deploy or change hosting solely because implementation work was requested.
