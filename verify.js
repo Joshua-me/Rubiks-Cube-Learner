@@ -203,6 +203,13 @@ for (const type of Object.keys(api.PUZZLES)) {
   const guided=api.buildGuidedLearningPlan();
   if(type==='3x3') assert.equal(guided.length,8);
   for (const step of guided) for (const example of step.cases) {
+    assert(step.goal && step.explanation && step.application, `${type}: both teaching and application instructions are required`);
+    const teaching=example.teachingMoves;
+    assert(Array.isArray(teaching));
+    const teachingBaseline=api.learningSolvedState(type,step);
+    const teachingSetup=api.simulateAlgorithm(type,teachingBaseline,teaching.slice().reverse().map(api.inverseMove));
+    assert(api.PuzzleValidators[type](teachingSetup), `${type} ${example.name}: illegal teaching state`);
+    assert.equal(api.simulateAlgorithm(type,teachingSetup,teaching).join('|'),teachingBaseline.join('|'));
     const baseline=api.learningSolvedState(type,step), moves=example.moves;
     assert(moves.length || example.setupMoves?.length, 'An inspection example requires a prepared state');
     const prepared=api.simulateAlgorithm(type,baseline,example.setupMoves||moves.slice().reverse().map(api.inverseMove));

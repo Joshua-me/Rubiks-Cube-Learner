@@ -85,6 +85,36 @@ const { chromium } = require('playwright');
       await page.keyboard.press('ArrowRight');assert.equal(await read(()=>AppState.playbackState.join('|')),finished);
       await page.click('#backMove');assert(!await read(()=>AppState.completed));
     }
+    // A stage teaches both related algorithms before introducing their applications.
+    await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+    assert.equal(await read(()=>AppState.lessonPhase),'teach');
+    assert((await page.locator('#lessonTeaching').innerText()).includes('righty and lefty'));
+    assert(await page.locator('#continueLesson').isDisabled());
+    await page.locator('#lessonTeaching summary').first().click();
+    assert.equal(await page.locator('#lessonTeaching li').count(),4);
+    const finishPractice=async()=>page.evaluate(()=>{while(executeNextPlaybackMove()){}renderVisualFrame();renderUIStatusDisplay();});
+    await finishPractice();assert(!await page.locator('#continueLesson').isDisabled());
+    await page.click('#continueLesson');assert.equal(await read(()=>AppState.activeCaseIndex),1);
+    assert.equal(await read(()=>AppState.lessonPhase),'teach');assert.equal(await read(()=>AppState.playbackHistory.length),0);
+    await finishPractice();await page.click('#continueLesson');
+    assert.equal(await read(()=>AppState.lessonPhase),'apply');assert.equal(await read(()=>AppState.activeCaseIndex),0);
+    assert((await page.locator('#lessonTeaching').innerText()).includes('Match its two side colors'));
+    await page.click('#nextMove');await settle();assert.equal(await read(()=>AppState.playbackHistory.length),1);
+    await page.click('#reviewAlgorithm');assert.equal(await read(()=>AppState.lessonPhase),'teach');
+    assert.equal(await read(()=>AppState.playbackHistory.length),0);assert.equal(await read(()=>AppState.activeMoveIndex),0);
+    await finishPractice();await page.click('#continueLesson');await finishPractice();await page.click('#continueLesson');
+    await finishPractice();await page.click('#continueLesson');assert.equal(await read(()=>AppState.activeCaseIndex),1);
+    await finishPractice();await page.click('#continueLesson');assert.equal(await read(()=>AppState.activeStepIndex),2);
+    assert.equal(await read(()=>AppState.lessonPhase),'teach');
+    // Final twisting teaches the reusable trigger before the full application.
+    await page.evaluate(()=>selectLessonStep(5));
+    assert.equal(await read(()=>activeMovesForStep(CurrentAlgorithm[7]).length),4);
+    await finishPractice();await page.click('#continueLesson');
+    assert.equal(await read(()=>AppState.lessonPhase),'apply');
+    assert(await read(()=>activeMovesForStep(CurrentAlgorithm[7]).includes('D')));
+    assert.equal(await page.locator('#continueLesson').innerText(),'Finish this application');
+    await finishPractice();assert.equal(await page.locator('#continueLesson').innerText(),'Learning complete');
+    await page.screenshot({path:path.join(os.tmpdir(),'twisty-stage-application.png'),fullPage:true});
     // Named videos, chapter links, inspection steps, and source rotation notation.
     await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
     assert((await page.locator('#sourceChapterLink').getAttribute('href')).endsWith('&t=53s'));
