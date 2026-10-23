@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Twisty Lab — Puzzle Solver & Learning Platform</title>
+  <title>Twisty Lab — Learn & solve cubes</title>
   <style id="utilities">/*! tailwindcss v4.3.0 | MIT License | https://tailwindcss.com */
-@layer properties{@supports (((-webkit-hyphens:none)) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-rotate-x:initial;--tw-rotate-y:initial;--tw-rotate-z:initial;--tw-skew-x:initial;--tw-skew-y:initial;--tw-space-y-reverse:0;--tw-border-style:solid;--tw-gradient-position:initial;--tw-gradient-from:#0000;--tw-gradient-via:#0000;--tw-gradient-to:#0000;--tw-gradient-stops:initial;--tw-gradient-via-stops:initial;--tw-gradient-from-position:0%;--tw-gradient-via-position:50%;--tw-gradient-to-position:100%;--tw-leading:initial;--tw-font-weight:initial;--tw-tracking:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-outline-style:solid;--tw-blur:initial;--tw-brightness:initial;--tw-contrast:initial;--tw-grayscale:initial;--tw-hue-rotate:initial;--tw-invert:initial;--tw-opacity:initial;--tw-saturate:initial;--tw-sepia:initial;--tw-drop-shadow:initial;--tw-drop-shadow-color:initial;--tw-drop-shadow-alpha:100%;--tw-drop-shadow-size:initial;--tw-backdrop-blur:initial;--tw-backdrop-brightness:initial;--tw-backdrop-contrast:initial;--tw-backdrop-grayscale:initial;--tw-backdrop-hue-rotate:initial;--tw-backdrop-invert:initial;--tw-backdrop-opacity:initial;--tw-backdrop-saturate:initial;--tw-backdrop-sepia:initial;--tw-translate-x:0;--tw-translate-y:0;--tw-translate-z:0}}}@layer theme{:root,:host{--font-sans:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";--font-mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;--color-red-50:oklch(97.1% .013 17.38);--color-red-200:oklch(88.5% .062 18.334);--color-red-950:oklch(25.8% .092 26.042);--color-amber-50:oklch(98.7% .022 95.277);--color-amber-200:oklch(92.4% .12 95.746);--color-amber-500:oklch(76.9% .188 70.08);--color-amber-950:oklch(27.9% .077 45.635);--color-emerald-50:oklch(97.9% .021 166.113);--color-emerald-200:oklch(90.5% .093 164.15);--color-emerald-500:oklch(69.6% .17 162.48);--color-emerald-950:oklch(26.2% .051 172.552);--color-indigo-50:oklch(96.2% .018 272.314);--color-indigo-100:oklch(93% .034 272.788);--color-indigo-200:oklch(87% .065 274.039);--color-indigo-500:oklch(58.5% .233 277.117);--color-indigo-600:oklch(51.1% .262 276.966);--color-indigo-700:oklch(45.7% .24 277.023);--color-indigo-950:oklch(25.7% .09 281.288);--color-slate-50:oklch(98.4% .003 247.858);--color-slate-100:oklch(96.8% .007 247.896);--color-slate-200:oklch(92.9% .013 255.508);--color-slate-500:oklch(55.4% .046 257.417);--color-slate-600:oklch(44.6% .043 257.281);--color-slate-700:oklch(37.2% .044 257.287);--color-slate-800:oklch(27.9% .041 260.031);--color-slate-900:oklch(20.8% .042 265.755);--color-white:#fff;--spacing:.25rem;--container-xl:36rem;--container-2xl:42rem;--container-3xl:48rem;--container-7xl:80rem;--text-xs:.75rem;--text-xs--line-height:calc(1 / .75);--text-sm:.875rem;--text-sm--line-height:calc(1.25 / .875);--text-base:1rem;--text-base--line-height:calc(1.5 / 1);--text-lg:1.125rem;--text-lg--line-height:calc(1.75 / 1.125);--text-xl:1.25rem;--text-xl--line-height:calc(1.75 / 1.25);--text-2xl:1.5rem;--text-2xl--line-height:calc(2 / 1.5);--text-3xl:1.875rem;--text-3xl--line-height:calc(2.25 / 1.875);--text-4xl:2.25rem;--text-4xl--line-height:calc(2.5 / 2.25);--text-5xl:3rem;--text-5xl--line-height:1;--font-weight-semibold:600;--font-weight-bold:700;--font-weight-black:900;--tracking-tight:-.025em;--tracking-wider:.05em;--tracking-widest:.1em;--radius-lg:.5rem;--radius-xl:.75rem;--radius-2xl:1rem;--radius-3xl:1.5rem;--default-transition-duration:.15s;--default-transition-timing-function:cubic-bezier(.4, 0, .2, 1);--default-font-family:var(--font-sans);--default-mono-font-family:var(--font-mono)}}@layer base{*,:after,:before,::backdrop{box-sizing:border-box;border:0 solid;margin:0;padding:0}::file-selector-button{box-sizing:border-box;border:0 solid;margin:0;padding:0}html,:host{-webkit-text-size-adjust:100%;tab-size:4;line-height:1.5;font-family:var(--default-font-family,ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");font-feature-settings:var(--default-font-feature-settings,normal);font-variation-settings:var(--default-font-variation-settings,normal);-webkit-tap-highlight-color:transparent}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:var(--default-mono-font-family,ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);font-feature-settings:var(--default-mono-font-feature-settings,normal);font-variation-settings:var(--default-mono-font-variation-settings,normal);font-size:1em}small{font-size:80%}sub,sup{vertical-align:baseline;font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}:-moz-focusring{outline:auto}progress{vertical-align:baseline}summary{display:list-item}ol,ul,menu{list-style:none}img,svg,video,canvas,audio,iframe,embed,object{vertical-align:middle;display:block}img,video{max-width:100%;height:auto}button,input,select,optgroup,textarea{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}::file-selector-button{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}:where(select:is([multiple],[size])) optgroup{font-weight:bolder}:where(select:is([multiple],[size])) optgroup option{padding-inline-start:20px}::file-selector-button{margin-inline-end:4px}::placeholder{opacity:1}@supports (not ((-webkit-appearance:-apple-pay-button))) or (contain-intrinsic-size:1px){::placeholder{color:currentColor}@supports (color:color-mix(in lab, red, red)){::placeholder{color:color-mix(in oklab, currentcolor 50%, transparent)}}}textarea{resize:vertical}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-date-and-time-value{min-height:1lh;text-align:inherit}::-webkit-datetime-edit{display:inline-flex}::-webkit-datetime-edit-fields-wrapper{padding:0}::-webkit-datetime-edit{padding-block:0}::-webkit-datetime-edit-year-field{padding-block:0}::-webkit-datetime-edit-month-field{padding-block:0}::-webkit-datetime-edit-day-field{padding-block:0}::-webkit-datetime-edit-hour-field{padding-block:0}::-webkit-datetime-edit-minute-field{padding-block:0}::-webkit-datetime-edit-second-field{padding-block:0}::-webkit-datetime-edit-millisecond-field{padding-block:0}::-webkit-datetime-edit-meridiem-field{padding-block:0}::-webkit-calendar-picker-indicator{line-height:1}:-moz-ui-invalid{box-shadow:none}button,input:where([type=button],[type=reset],[type=submit]){appearance:button}::file-selector-button{appearance:button}::-webkit-inner-spin-button{height:auto}::-webkit-outer-spin-button{height:auto}[hidden]:where(:not([hidden=until-found])){display:none!important}}@layer components;@layer utilities{.pointer-events-auto{pointer-events:auto}.pointer-events-none{pointer-events:none}.visible{visibility:visible}.fixed{position:fixed}.relative{position:relative}.static{position:static}.inset-x-0{inset-inline:calc(var(--spacing) * 0)}.right-5{right:calc(var(--spacing) * 5)}.bottom-5{bottom:calc(var(--spacing) * 5)}.isolate{isolation:isolate}.z-20{z-index:20}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-inline:auto}.mt-1{margin-top:calc(var(--spacing) * 1)}.mt-2{margin-top:calc(var(--spacing) * 2)}.mt-3{margin-top:calc(var(--spacing) * 3)}.mt-4{margin-top:calc(var(--spacing) * 4)}.mt-5{margin-top:calc(var(--spacing) * 5)}.mt-6{margin-top:calc(var(--spacing) * 6)}.mb-1{margin-bottom:calc(var(--spacing) * 1)}.mb-2{margin-bottom:calc(var(--spacing) * 2)}.mb-3{margin-bottom:calc(var(--spacing) * 3)}.mb-4{margin-bottom:calc(var(--spacing) * 4)}.mb-5{margin-bottom:calc(var(--spacing) * 5)}.mb-6{margin-bottom:calc(var(--spacing) * 6)}.mb-8{margin-bottom:calc(var(--spacing) * 8)}.ml-2{margin-left:calc(var(--spacing) * 2)}.ml-3{margin-left:calc(var(--spacing) * 3)}.flex{display:flex}.grid{display:grid}.hidden{display:none}.inline-block{display:inline-block}.table{display:table}.h-2\.5{height:calc(var(--spacing) * 2.5)}.h-16{height:calc(var(--spacing) * 16)}.h-44{height:calc(var(--spacing) * 44)}.h-full{height:100%}.max-h-60{max-height:calc(var(--spacing) * 60)}.min-h-\[300px\]{min-height:300px}.min-h-\[320px\]{min-height:320px}.min-h-\[390px\]{min-height:390px}.min-h-screen{min-height:100vh}.w-2\.5{width:calc(var(--spacing) * 2.5)}.w-16{width:calc(var(--spacing) * 16)}.w-full{width:100%}.max-w-2xl{max-width:var(--container-2xl)}.max-w-3xl{max-width:var(--container-3xl)}.max-w-7xl{max-width:var(--container-7xl)}.max-w-xl{max-width:var(--container-xl)}.min-w-0{min-width:calc(var(--spacing) * 0)}.min-w-max{min-width:max-content}.flex-1{flex:1}.transform{transform:var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,)}.cursor-pointer{cursor:pointer}.list-decimal{list-style-type:decimal}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-start{align-items:flex-start}.justify-between{justify-content:space-between}.justify-center{justify-content:center}.gap-2{gap:calc(var(--spacing) * 2)}.gap-3{gap:calc(var(--spacing) * 3)}.gap-4{gap:calc(var(--spacing) * 4)}.gap-5{gap:calc(var(--spacing) * 5)}:where(.space-y-3>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)))}.overflow-auto{overflow:auto}.rounded-2xl{border-radius:var(--radius-2xl)}.rounded-3xl{border-radius:var(--radius-3xl)}.rounded-\[1\.5rem\]{border-radius:1.5rem}.rounded-\[2rem\]{border-radius:2rem}.rounded-full{border-radius:3.40282e38px}.rounded-lg{border-radius:var(--radius-lg)}.rounded-xl{border-radius:var(--radius-xl)}.border{border-style:var(--tw-border-style);border-width:1px}.border-amber-200{border-color:var(--color-amber-200)}.border-emerald-200{border-color:var(--color-emerald-200)}.border-indigo-100{border-color:var(--color-indigo-100)}.border-indigo-200{border-color:var(--color-indigo-200)}.border-red-200{border-color:var(--color-red-200)}.border-slate-200{border-color:var(--color-slate-200)}.border-slate-200\/60{border-color:#e2e8f099}@supports (color:color-mix(in lab, red, red)){.border-slate-200\/60{border-color:color-mix(in oklab, var(--color-slate-200) 60%, transparent)}}.border-slate-200\/70{border-color:#e2e8f0b3}@supports (color:color-mix(in lab, red, red)){.border-slate-200\/70{border-color:color-mix(in oklab, var(--color-slate-200) 70%, transparent)}}.bg-amber-50{background-color:var(--color-amber-50)}.bg-amber-500{background-color:var(--color-amber-500)}.bg-emerald-50{background-color:var(--color-emerald-50)}.bg-emerald-500{background-color:var(--color-emerald-500)}.bg-indigo-50{background-color:var(--color-indigo-50)}.bg-indigo-500{background-color:var(--color-indigo-500)}.bg-indigo-600{background-color:var(--color-indigo-600)}.bg-red-50{background-color:var(--color-red-50)}.bg-slate-50{background-color:var(--color-slate-50)}.bg-slate-100{background-color:var(--color-slate-100)}.bg-slate-900{background-color:var(--color-slate-900)}.bg-white{background-color:var(--color-white)}.bg-white\/95{background-color:#fffffff2}@supports (color:color-mix(in lab, red, red)){.bg-white\/95{background-color:color-mix(in oklab, var(--color-white) 95%, transparent)}}.bg-linear-to-br{--tw-gradient-position:to bottom right}@supports (background-image:linear-gradient(in lab, red, red)){.bg-linear-to-br{--tw-gradient-position:to bottom right in oklab}}.bg-linear-to-br{background-image:linear-gradient(var(--tw-gradient-stops))}.from-slate-50{--tw-gradient-from:var(--color-slate-50);--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.to-white{--tw-gradient-to:var(--color-white);--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.p-2{padding:calc(var(--spacing) * 2)}.p-3{padding:calc(var(--spacing) * 3)}.p-4{padding:calc(var(--spacing) * 4)}.p-5{padding:calc(var(--spacing) * 5)}.p-6{padding:calc(var(--spacing) * 6)}.p-7{padding:calc(var(--spacing) * 7)}.px-2{padding-inline:calc(var(--spacing) * 2)}.px-3{padding-inline:calc(var(--spacing) * 3)}.px-4{padding-inline:calc(var(--spacing) * 4)}.px-5{padding-inline:calc(var(--spacing) * 5)}.py-1{padding-block:calc(var(--spacing) * 1)}.py-2{padding-block:calc(var(--spacing) * 2)}.py-3{padding-block:calc(var(--spacing) * 3)}.py-4{padding-block:calc(var(--spacing) * 4)}.py-5{padding-block:calc(var(--spacing) * 5)}.pl-5{padding-left:calc(var(--spacing) * 5)}.text-left{text-align:left}.font-mono{font-family:var(--font-mono)}.text-2xl{font-size:var(--text-2xl);line-height:var(--tw-leading,var(--text-2xl--line-height))}.text-3xl{font-size:var(--text-3xl);line-height:var(--tw-leading,var(--text-3xl--line-height))}.text-4xl{font-size:var(--text-4xl);line-height:var(--tw-leading,var(--text-4xl--line-height))}.text-base{font-size:var(--text-base);line-height:var(--tw-leading,var(--text-base--line-height))}.text-lg{font-size:var(--text-lg);line-height:var(--tw-leading,var(--text-lg--line-height))}.text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.text-xl{font-size:var(--text-xl);line-height:var(--tw-leading,var(--text-xl--line-height))}.text-xs{font-size:var(--text-xs);line-height:var(--tw-leading,var(--text-xs--line-height))}.leading-6{--tw-leading:calc(var(--spacing) * 6);line-height:calc(var(--spacing) * 6)}.leading-7{--tw-leading:calc(var(--spacing) * 7);line-height:calc(var(--spacing) * 7)}.font-black{--tw-font-weight:var(--font-weight-black);font-weight:var(--font-weight-black)}.font-bold{--tw-font-weight:var(--font-weight-bold);font-weight:var(--font-weight-bold)}.font-semibold{--tw-font-weight:var(--font-weight-semibold);font-weight:var(--font-weight-semibold)}.tracking-\[0\.3em\]{--tw-tracking:.3em;letter-spacing:.3em}.tracking-\[0\.22em\]{--tw-tracking:.22em;letter-spacing:.22em}.tracking-\[0\.24em\]{--tw-tracking:.24em;letter-spacing:.24em}.tracking-\[0\.28em\]{--tw-tracking:.28em;letter-spacing:.28em}.tracking-\[0\.34em\]{--tw-tracking:.34em;letter-spacing:.34em}.tracking-tight{--tw-tracking:var(--tracking-tight);letter-spacing:var(--tracking-tight)}.tracking-wider{--tw-tracking:var(--tracking-wider);letter-spacing:var(--tracking-wider)}.tracking-widest{--tw-tracking:var(--tracking-widest);letter-spacing:var(--tracking-widest)}.break-words{overflow-wrap:break-word}.whitespace-pre-wrap{white-space:pre-wrap}.text-amber-950{color:var(--color-amber-950)}.text-emerald-950{color:var(--color-emerald-950)}.text-indigo-600{color:var(--color-indigo-600)}.text-indigo-700{color:var(--color-indigo-700)}.text-indigo-950{color:var(--color-indigo-950)}.text-red-950{color:var(--color-red-950)}.text-slate-500{color:var(--color-slate-500)}.text-slate-600{color:var(--color-slate-600)}.text-slate-700{color:var(--color-slate-700)}.text-slate-800{color:var(--color-slate-800)}.text-slate-900{color:var(--color-slate-900)}.text-white{color:var(--color-white)}.uppercase{text-transform:uppercase}.underline{text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.accent-indigo-600{accent-color:var(--color-indigo-600)}.shadow-2xl{--tw-shadow:0 25px 50px -12px var(--tw-shadow-color,#00000040);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px var(--tw-shadow-color,#0000001a), 0 4px 6px -4px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a), 0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px var(--tw-shadow-color,#0000001a), 0 8px 10px -6px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.ring-1{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-indigo-600\/20{--tw-shadow-color:#4f39f633}@supports (color:color-mix(in lab, red, red)){.shadow-indigo-600\/20{--tw-shadow-color:color-mix(in oklab, color-mix(in oklab, var(--color-indigo-600) 20%, transparent) var(--tw-shadow-alpha), transparent)}}.shadow-slate-900\/20{--tw-shadow-color:#0f172b33}@supports (color:color-mix(in lab, red, red)){.shadow-slate-900\/20{--tw-shadow-color:color-mix(in oklab, color-mix(in oklab, var(--color-slate-900) 20%, transparent) var(--tw-shadow-alpha), transparent)}}.ring-indigo-100{--tw-ring-color:var(--color-indigo-100)}.ring-slate-200{--tw-ring-color:var(--color-slate-200)}.outline{outline-style:var(--tw-outline-style);outline-width:1px}.filter{filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.transition{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,content-visibility,overlay,pointer-events;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.outline-none{--tw-outline-style:none;outline-style:none}@media (hover:hover){.hover\:-translate-y-1:hover{--tw-translate-y:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.hover\:shadow-xl:hover{--tw-shadow:0 20px 25px -5px var(--tw-shadow-color,#0000001a), 0 8px 10px -6px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}}.focus\:ring-2:focus{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus\:ring-indigo-500:focus{--tw-ring-color:var(--color-indigo-500)}@media (min-width:40rem){.sm\:sticky{position:sticky}.sm\:bottom-3{bottom:calc(var(--spacing) * 3)}.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:justify-between{justify-content:space-between}.sm\:p-8{padding:calc(var(--spacing) * 8)}.sm\:px-6{padding-inline:calc(var(--spacing) * 6)}.sm\:text-3xl{font-size:var(--text-3xl);line-height:var(--tw-leading,var(--text-3xl--line-height))}.sm\:text-5xl{font-size:var(--text-5xl);line-height:var(--tw-leading,var(--text-5xl--line-height))}}@media (min-width:48rem){.md\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}.md\:justify-between{justify-content:space-between}}@media (min-width:64rem){.lg\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.lg\:grid-cols-\[\.9fr_1\.1fr\]{grid-template-columns:.9fr 1.1fr}.lg\:grid-cols-\[1\.2fr_\.8fr\]{grid-template-columns:1.2fr .8fr}.lg\:px-8{padding-inline:calc(var(--spacing) * 8)}}@media (min-width:80rem){.xl\:grid-cols-5{grid-template-columns:repeat(5,minmax(0,1fr))}}}@property --tw-rotate-x{syntax:"*";inherits:false}@property --tw-rotate-y{syntax:"*";inherits:false}@property --tw-rotate-z{syntax:"*";inherits:false}@property --tw-skew-x{syntax:"*";inherits:false}@property --tw-skew-y{syntax:"*";inherits:false}@property --tw-space-y-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-gradient-position{syntax:"*";inherits:false}@property --tw-gradient-from{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-via{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-to{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-stops{syntax:"*";inherits:false}@property --tw-gradient-via-stops{syntax:"*";inherits:false}@property --tw-gradient-from-position{syntax:"<length-percentage>";inherits:false;initial-value:0%}@property --tw-gradient-via-position{syntax:"<length-percentage>";inherits:false;initial-value:50%}@property --tw-gradient-to-position{syntax:"<length-percentage>";inherits:false;initial-value:100%}@property --tw-leading{syntax:"*";inherits:false}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-tracking{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-outline-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-blur{syntax:"*";inherits:false}@property --tw-brightness{syntax:"*";inherits:false}@property --tw-contrast{syntax:"*";inherits:false}@property --tw-grayscale{syntax:"*";inherits:false}@property --tw-hue-rotate{syntax:"*";inherits:false}@property --tw-invert{syntax:"*";inherits:false}@property --tw-opacity{syntax:"*";inherits:false}@property --tw-saturate{syntax:"*";inherits:false}@property --tw-sepia{syntax:"*";inherits:false}@property --tw-drop-shadow{syntax:"*";inherits:false}@property --tw-drop-shadow-color{syntax:"*";inherits:false}@property --tw-drop-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-drop-shadow-size{syntax:"*";inherits:false}@property --tw-backdrop-blur{syntax:"*";inherits:false}@property --tw-backdrop-brightness{syntax:"*";inherits:false}@property --tw-backdrop-contrast{syntax:"*";inherits:false}@property --tw-backdrop-grayscale{syntax:"*";inherits:false}@property --tw-backdrop-hue-rotate{syntax:"*";inherits:false}@property --tw-backdrop-invert{syntax:"*";inherits:false}@property --tw-backdrop-opacity{syntax:"*";inherits:false}@property --tw-backdrop-saturate{syntax:"*";inherits:false}@property --tw-backdrop-sepia{syntax:"*";inherits:false}@property --tw-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-z{syntax:"*";inherits:false;initial-value:0}</style>
+@layer properties{@supports (((-webkit-hyphens:none)) and (not (margin-trim:inline))) or ((-moz-orient:inline) and (not (color:rgb(from red r g b)))){*,:before,:after,::backdrop{--tw-rotate-x:initial;--tw-rotate-y:initial;--tw-rotate-z:initial;--tw-skew-x:initial;--tw-skew-y:initial;--tw-space-y-reverse:0;--tw-border-style:solid;--tw-gradient-position:initial;--tw-gradient-from:#0000;--tw-gradient-via:#0000;--tw-gradient-to:#0000;--tw-gradient-stops:initial;--tw-gradient-via-stops:initial;--tw-gradient-from-position:0%;--tw-gradient-via-position:50%;--tw-gradient-to-position:100%;--tw-leading:initial;--tw-font-weight:initial;--tw-tracking:initial;--tw-shadow:0 0 #0000;--tw-shadow-color:initial;--tw-shadow-alpha:100%;--tw-inset-shadow:0 0 #0000;--tw-inset-shadow-color:initial;--tw-inset-shadow-alpha:100%;--tw-ring-color:initial;--tw-ring-shadow:0 0 #0000;--tw-inset-ring-color:initial;--tw-inset-ring-shadow:0 0 #0000;--tw-ring-inset:initial;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-offset-shadow:0 0 #0000;--tw-outline-style:solid;--tw-blur:initial;--tw-brightness:initial;--tw-contrast:initial;--tw-grayscale:initial;--tw-hue-rotate:initial;--tw-invert:initial;--tw-opacity:initial;--tw-saturate:initial;--tw-sepia:initial;--tw-drop-shadow:initial;--tw-drop-shadow-color:initial;--tw-drop-shadow-alpha:100%;--tw-drop-shadow-size:initial;--tw-backdrop-blur:initial;--tw-backdrop-brightness:initial;--tw-backdrop-contrast:initial;--tw-backdrop-grayscale:initial;--tw-backdrop-hue-rotate:initial;--tw-backdrop-invert:initial;--tw-backdrop-opacity:initial;--tw-backdrop-saturate:initial;--tw-backdrop-sepia:initial;--tw-translate-x:0;--tw-translate-y:0;--tw-translate-z:0}}}@layer theme{:root,:host{--font-sans:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";--font-mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;--color-red-50:oklch(97.1% .013 17.38);--color-red-200:oklch(88.5% .062 18.334);--color-red-950:oklch(25.8% .092 26.042);--color-amber-50:oklch(98.7% .022 95.277);--color-amber-200:oklch(92.4% .12 95.746);--color-amber-500:oklch(76.9% .188 70.08);--color-amber-950:oklch(27.9% .077 45.635);--color-emerald-50:oklch(97.9% .021 166.113);--color-emerald-200:oklch(90.5% .093 164.15);--color-emerald-500:oklch(69.6% .17 162.48);--color-emerald-950:oklch(26.2% .051 172.552);--color-indigo-50:oklch(96.2% .018 272.314);--color-indigo-100:oklch(93% .034 272.788);--color-indigo-200:oklch(87% .065 274.039);--color-indigo-500:oklch(58.5% .233 277.117);--color-indigo-600:oklch(51.1% .262 276.966);--color-indigo-700:oklch(45.7% .24 277.023);--color-indigo-950:oklch(25.7% .09 281.288);--color-slate-50:oklch(98.4% .003 247.858);--color-slate-100:oklch(96.8% .007 247.896);--color-slate-200:oklch(92.9% .013 255.508);--color-slate-500:oklch(55.4% .046 257.417);--color-slate-600:oklch(44.6% .043 257.281);--color-slate-700:oklch(37.2% .044 257.287);--color-slate-800:oklch(27.9% .041 260.031);--color-slate-900:oklch(20.8% .042 265.755);--color-white:#fff;--spacing:.25rem;--container-xl:36rem;--container-2xl:42rem;--container-3xl:48rem;--container-7xl:80rem;--text-xs:.75rem;--text-xs--line-height:calc(1 / .75);--text-sm:.875rem;--text-sm--line-height:calc(1.25 / .875);--text-base:1rem;--text-base--line-height:calc(1.5 / 1);--text-lg:1.125rem;--text-lg--line-height:calc(1.75 / 1.125);--text-xl:1.25rem;--text-xl--line-height:calc(1.75 / 1.25);--text-2xl:1.5rem;--text-2xl--line-height:calc(2 / 1.5);--text-3xl:1.875rem;--text-3xl--line-height:calc(2.25 / 1.875);--text-4xl:2.25rem;--text-4xl--line-height:calc(2.5 / 2.25);--text-5xl:3rem;--text-5xl--line-height:1;--font-weight-semibold:600;--font-weight-bold:700;--font-weight-black:900;--tracking-tight:-.025em;--tracking-wider:.05em;--tracking-widest:.1em;--radius-lg:.5rem;--radius-xl:.75rem;--radius-2xl:1rem;--radius-3xl:1.5rem;--default-transition-duration:.15s;--default-transition-timing-function:cubic-bezier(.4, 0, .2, 1);--default-font-family:var(--font-sans);--default-mono-font-family:var(--font-mono)}}@layer base{*,:after,:before,::backdrop{box-sizing:border-box;border:0 solid;margin:0;padding:0}::file-selector-button{box-sizing:border-box;border:0 solid;margin:0;padding:0}html,:host{-webkit-text-size-adjust:100%;tab-size:4;line-height:1.5;font-family:var(--default-font-family,ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");font-feature-settings:var(--default-font-feature-settings,normal);font-variation-settings:var(--default-font-variation-settings,normal);-webkit-tap-highlight-color:transparent}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;-webkit-text-decoration:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:var(--default-mono-font-family,ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);font-feature-settings:var(--default-mono-font-feature-settings,normal);font-variation-settings:var(--default-mono-font-variation-settings,normal);font-size:1em}small{font-size:80%}sub,sup{vertical-align:baseline;font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}:-moz-focusring{outline:auto}progress{vertical-align:baseline}summary{display:list-item}ol,ul,menu{list-style:none}img,svg,video,canvas,audio,iframe,embed,object{vertical-align:middle;display:block}img,video{max-width:100%;height:auto}button,input,select,optgroup,textarea{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}::file-selector-button{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;opacity:1;background-color:#0000;border-radius:0}:where(select:is([multiple],[size])) optgroup{font-weight:bolder}:where(select:is([multiple],[size])) optgroup option{padding-inline-start:20px}::file-selector-button{margin-inline-end:4px}::placeholder{opacity:1}@supports (not ((-webkit-appearance:-apple-pay-button))) or (contain-intrinsic-size:1px){::placeholder{color:currentColor}@supports (color:color-mix(in lab, red, red)){::placeholder{color:color-mix(in oklab, currentcolor 50%, transparent)}}}textarea{resize:vertical}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-date-and-time-value{min-height:1lh;text-align:inherit}::-webkit-datetime-edit{display:inline-flex}::-webkit-datetime-edit-fields-wrapper{padding:0}::-webkit-datetime-edit{padding-block:0}::-webkit-datetime-edit-year-field{padding-block:0}::-webkit-datetime-edit-month-field{padding-block:0}::-webkit-datetime-edit-day-field{padding-block:0}::-webkit-datetime-edit-hour-field{padding-block:0}::-webkit-datetime-edit-minute-field{padding-block:0}::-webkit-datetime-edit-second-field{padding-block:0}::-webkit-datetime-edit-millisecond-field{padding-block:0}::-webkit-datetime-edit-meridiem-field{padding-block:0}::-webkit-calendar-picker-indicator{line-height:1}:-moz-ui-invalid{box-shadow:none}button,input:where([type=button],[type=reset],[type=submit]){appearance:button}::file-selector-button{appearance:button}::-webkit-inner-spin-button{height:auto}::-webkit-outer-spin-button{height:auto}[hidden]:where(:not([hidden=until-found])){display:none!important}}@layer components;@layer utilities{.pointer-events-auto{pointer-events:auto}.pointer-events-none{pointer-events:none}.visible{visibility:visible}.fixed{position:fixed}.relative{position:relative}.static{position:static}.inset-x-0{inset-inline:calc(var(--spacing) * 0)}.right-5{right:calc(var(--spacing) * 5)}.bottom-5{bottom:calc(var(--spacing) * 5)}.z-20{z-index:20}.z-40{z-index:40}.z-50{z-index:50}.mx-auto{margin-inline:auto}.mt-1{margin-top:calc(var(--spacing) * 1)}.mt-2{margin-top:calc(var(--spacing) * 2)}.mt-3{margin-top:calc(var(--spacing) * 3)}.mt-4{margin-top:calc(var(--spacing) * 4)}.mt-5{margin-top:calc(var(--spacing) * 5)}.mb-1{margin-bottom:calc(var(--spacing) * 1)}.mb-2{margin-bottom:calc(var(--spacing) * 2)}.mb-3{margin-bottom:calc(var(--spacing) * 3)}.mb-4{margin-bottom:calc(var(--spacing) * 4)}.mb-5{margin-bottom:calc(var(--spacing) * 5)}.mb-6{margin-bottom:calc(var(--spacing) * 6)}.mb-8{margin-bottom:calc(var(--spacing) * 8)}.ml-2{margin-left:calc(var(--spacing) * 2)}.ml-3{margin-left:calc(var(--spacing) * 3)}.flex{display:flex}.grid{display:grid}.hidden{display:none}.inline-block{display:inline-block}.table{display:table}.h-2\.5{height:calc(var(--spacing) * 2.5)}.h-16{height:calc(var(--spacing) * 16)}.h-44{height:calc(var(--spacing) * 44)}.h-full{height:100%}.max-h-60{max-height:calc(var(--spacing) * 60)}.min-h-\[300px\]{min-height:300px}.min-h-\[320px\]{min-height:320px}.min-h-\[390px\]{min-height:390px}.min-h-screen{min-height:100vh}.w-2\.5{width:calc(var(--spacing) * 2.5)}.w-16{width:calc(var(--spacing) * 16)}.w-full{width:100%}.max-w-2xl{max-width:var(--container-2xl)}.max-w-3xl{max-width:var(--container-3xl)}.max-w-7xl{max-width:var(--container-7xl)}.max-w-xl{max-width:var(--container-xl)}.min-w-0{min-width:calc(var(--spacing) * 0)}.min-w-max{min-width:max-content}.flex-1{flex:1}.transform{transform:var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,)}.cursor-pointer{cursor:pointer}.list-decimal{list-style-type:decimal}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-center{align-items:center}.items-start{align-items:flex-start}.justify-between{justify-content:space-between}.justify-center{justify-content:center}.gap-2{gap:calc(var(--spacing) * 2)}.gap-3{gap:calc(var(--spacing) * 3)}.gap-4{gap:calc(var(--spacing) * 4)}.gap-5{gap:calc(var(--spacing) * 5)}:where(.space-y-3>:not(:last-child)){--tw-space-y-reverse:0;margin-block-start:calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));margin-block-end:calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)))}.overflow-auto{overflow:auto}.rounded-2xl{border-radius:var(--radius-2xl)}.rounded-3xl{border-radius:var(--radius-3xl)}.rounded-\[1\.5rem\]{border-radius:1.5rem}.rounded-\[2rem\]{border-radius:2rem}.rounded-full{border-radius:3.40282e38px}.rounded-lg{border-radius:var(--radius-lg)}.rounded-xl{border-radius:var(--radius-xl)}.border{border-style:var(--tw-border-style);border-width:1px}.border-amber-200{border-color:var(--color-amber-200)}.border-emerald-200{border-color:var(--color-emerald-200)}.border-indigo-100{border-color:var(--color-indigo-100)}.border-indigo-200{border-color:var(--color-indigo-200)}.border-red-200{border-color:var(--color-red-200)}.border-slate-200{border-color:var(--color-slate-200)}.border-slate-200\/60{border-color:#e2e8f099}@supports (color:color-mix(in lab, red, red)){.border-slate-200\/60{border-color:color-mix(in oklab, var(--color-slate-200) 60%, transparent)}}.border-slate-200\/70{border-color:#e2e8f0b3}@supports (color:color-mix(in lab, red, red)){.border-slate-200\/70{border-color:color-mix(in oklab, var(--color-slate-200) 70%, transparent)}}.bg-amber-50{background-color:var(--color-amber-50)}.bg-amber-500{background-color:var(--color-amber-500)}.bg-emerald-50{background-color:var(--color-emerald-50)}.bg-emerald-500{background-color:var(--color-emerald-500)}.bg-indigo-50{background-color:var(--color-indigo-50)}.bg-indigo-500{background-color:var(--color-indigo-500)}.bg-indigo-600{background-color:var(--color-indigo-600)}.bg-red-50{background-color:var(--color-red-50)}.bg-slate-50{background-color:var(--color-slate-50)}.bg-slate-100{background-color:var(--color-slate-100)}.bg-slate-900{background-color:var(--color-slate-900)}.bg-white{background-color:var(--color-white)}.bg-white\/95{background-color:#fffffff2}@supports (color:color-mix(in lab, red, red)){.bg-white\/95{background-color:color-mix(in oklab, var(--color-white) 95%, transparent)}}.bg-linear-to-br{--tw-gradient-position:to bottom right}@supports (background-image:linear-gradient(in lab, red, red)){.bg-linear-to-br{--tw-gradient-position:to bottom right in oklab}}.bg-linear-to-br{background-image:linear-gradient(var(--tw-gradient-stops))}.from-slate-50{--tw-gradient-from:var(--color-slate-50);--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.to-white{--tw-gradient-to:var(--color-white);--tw-gradient-stops:var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))}.p-2{padding:calc(var(--spacing) * 2)}.p-3{padding:calc(var(--spacing) * 3)}.p-4{padding:calc(var(--spacing) * 4)}.p-5{padding:calc(var(--spacing) * 5)}.p-6{padding:calc(var(--spacing) * 6)}.p-7{padding:calc(var(--spacing) * 7)}.px-2{padding-inline:calc(var(--spacing) * 2)}.px-3{padding-inline:calc(var(--spacing) * 3)}.px-4{padding-inline:calc(var(--spacing) * 4)}.px-5{padding-inline:calc(var(--spacing) * 5)}.py-1{padding-block:calc(var(--spacing) * 1)}.py-2{padding-block:calc(var(--spacing) * 2)}.py-3{padding-block:calc(var(--spacing) * 3)}.py-4{padding-block:calc(var(--spacing) * 4)}.py-5{padding-block:calc(var(--spacing) * 5)}.pl-5{padding-left:calc(var(--spacing) * 5)}.text-left{text-align:left}.font-mono{font-family:var(--font-mono)}.text-2xl{font-size:var(--text-2xl);line-height:var(--tw-leading,var(--text-2xl--line-height))}.text-3xl{font-size:var(--text-3xl);line-height:var(--tw-leading,var(--text-3xl--line-height))}.text-4xl{font-size:var(--text-4xl);line-height:var(--tw-leading,var(--text-4xl--line-height))}.text-base{font-size:var(--text-base);line-height:var(--tw-leading,var(--text-base--line-height))}.text-lg{font-size:var(--text-lg);line-height:var(--tw-leading,var(--text-lg--line-height))}.text-sm{font-size:var(--text-sm);line-height:var(--tw-leading,var(--text-sm--line-height))}.text-xl{font-size:var(--text-xl);line-height:var(--tw-leading,var(--text-xl--line-height))}.text-xs{font-size:var(--text-xs);line-height:var(--tw-leading,var(--text-xs--line-height))}.leading-6{--tw-leading:calc(var(--spacing) * 6);line-height:calc(var(--spacing) * 6)}.leading-7{--tw-leading:calc(var(--spacing) * 7);line-height:calc(var(--spacing) * 7)}.font-black{--tw-font-weight:var(--font-weight-black);font-weight:var(--font-weight-black)}.font-bold{--tw-font-weight:var(--font-weight-bold);font-weight:var(--font-weight-bold)}.font-semibold{--tw-font-weight:var(--font-weight-semibold);font-weight:var(--font-weight-semibold)}.tracking-\[0\.3em\]{--tw-tracking:.3em;letter-spacing:.3em}.tracking-\[0\.22em\]{--tw-tracking:.22em;letter-spacing:.22em}.tracking-\[0\.24em\]{--tw-tracking:.24em;letter-spacing:.24em}.tracking-\[0\.28em\]{--tw-tracking:.28em;letter-spacing:.28em}.tracking-\[0\.34em\]{--tw-tracking:.34em;letter-spacing:.34em}.tracking-tight{--tw-tracking:var(--tracking-tight);letter-spacing:var(--tracking-tight)}.tracking-wider{--tw-tracking:var(--tracking-wider);letter-spacing:var(--tracking-wider)}.tracking-widest{--tw-tracking:var(--tracking-widest);letter-spacing:var(--tracking-widest)}.break-words{overflow-wrap:break-word}.whitespace-pre-wrap{white-space:pre-wrap}.text-amber-950{color:var(--color-amber-950)}.text-emerald-950{color:var(--color-emerald-950)}.text-indigo-600{color:var(--color-indigo-600)}.text-indigo-700{color:var(--color-indigo-700)}.text-indigo-950{color:var(--color-indigo-950)}.text-red-950{color:var(--color-red-950)}.text-slate-500{color:var(--color-slate-500)}.text-slate-600{color:var(--color-slate-600)}.text-slate-700{color:var(--color-slate-700)}.text-slate-800{color:var(--color-slate-800)}.text-slate-900{color:var(--color-slate-900)}.text-white{color:var(--color-white)}.uppercase{text-transform:uppercase}.underline{text-decoration-line:underline}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.accent-indigo-600{accent-color:var(--color-indigo-600)}.shadow-2xl{--tw-shadow:0 25px 50px -12px var(--tw-shadow-color,#00000040);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px var(--tw-shadow-color,#0000001a), 0 4px 6px -4px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 3px 0 var(--tw-shadow-color,#0000001a), 0 1px 2px -1px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px var(--tw-shadow-color,#0000001a), 0 8px 10px -6px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.ring-1{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.shadow-indigo-600\/20{--tw-shadow-color:#4f39f633}@supports (color:color-mix(in lab, red, red)){.shadow-indigo-600\/20{--tw-shadow-color:color-mix(in oklab, color-mix(in oklab, var(--color-indigo-600) 20%, transparent) var(--tw-shadow-alpha), transparent)}}.shadow-slate-900\/20{--tw-shadow-color:#0f172b33}@supports (color:color-mix(in lab, red, red)){.shadow-slate-900\/20{--tw-shadow-color:color-mix(in oklab, color-mix(in oklab, var(--color-slate-900) 20%, transparent) var(--tw-shadow-alpha), transparent)}}.ring-indigo-100{--tw-ring-color:var(--color-indigo-100)}.ring-slate-200{--tw-ring-color:var(--color-slate-200)}.outline{outline-style:var(--tw-outline-style);outline-width:1px}.filter{filter:var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,)}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);backdrop-filter:var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,)}.transition{transition-property:color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,content-visibility,overlay,pointer-events;transition-timing-function:var(--tw-ease,var(--default-transition-timing-function));transition-duration:var(--tw-duration,var(--default-transition-duration))}.outline-none{--tw-outline-style:none;outline-style:none}@media (hover:hover){.hover\:-translate-y-1:hover{--tw-translate-y:calc(var(--spacing) * -1);translate:var(--tw-translate-x) var(--tw-translate-y)}.hover\:shadow-xl:hover{--tw-shadow:0 20px 25px -5px var(--tw-shadow-color,#0000001a), 0 8px 10px -6px var(--tw-shadow-color,#0000001a);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}}.focus\:ring-2:focus{--tw-ring-shadow:var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);box-shadow:var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)}.focus\:ring-indigo-500:focus{--tw-ring-color:var(--color-indigo-500)}@media (min-width:40rem){.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:justify-between{justify-content:space-between}.sm\:p-8{padding:calc(var(--spacing) * 8)}.sm\:px-6{padding-inline:calc(var(--spacing) * 6)}.sm\:text-3xl{font-size:var(--text-3xl);line-height:var(--tw-leading,var(--text-3xl--line-height))}.sm\:text-5xl{font-size:var(--text-5xl);line-height:var(--tw-leading,var(--text-5xl--line-height))}}@media (min-width:48rem){.md\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.md\:flex-row{flex-direction:row}.md\:items-center{align-items:center}.md\:justify-between{justify-content:space-between}}@media (min-width:64rem){.lg\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.lg\:grid-cols-\[1\.1fr_\.9fr\]{grid-template-columns:1.1fr .9fr}.lg\:grid-cols-\[1\.2fr_\.8fr\]{grid-template-columns:1.2fr .8fr}.lg\:px-8{padding-inline:calc(var(--spacing) * 8)}}@media (min-width:80rem){.xl\:grid-cols-5{grid-template-columns:repeat(5,minmax(0,1fr))}}}@property --tw-rotate-x{syntax:"*";inherits:false}@property --tw-rotate-y{syntax:"*";inherits:false}@property --tw-rotate-z{syntax:"*";inherits:false}@property --tw-skew-x{syntax:"*";inherits:false}@property --tw-skew-y{syntax:"*";inherits:false}@property --tw-space-y-reverse{syntax:"*";inherits:false;initial-value:0}@property --tw-border-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-gradient-position{syntax:"*";inherits:false}@property --tw-gradient-from{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-via{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-to{syntax:"<color>";inherits:false;initial-value:#0000}@property --tw-gradient-stops{syntax:"*";inherits:false}@property --tw-gradient-via-stops{syntax:"*";inherits:false}@property --tw-gradient-from-position{syntax:"<length-percentage>";inherits:false;initial-value:0%}@property --tw-gradient-via-position{syntax:"<length-percentage>";inherits:false;initial-value:50%}@property --tw-gradient-to-position{syntax:"<length-percentage>";inherits:false;initial-value:100%}@property --tw-leading{syntax:"*";inherits:false}@property --tw-font-weight{syntax:"*";inherits:false}@property --tw-tracking{syntax:"*";inherits:false}@property --tw-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-shadow-color{syntax:"*";inherits:false}@property --tw-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-inset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-shadow-color{syntax:"*";inherits:false}@property --tw-inset-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-ring-color{syntax:"*";inherits:false}@property --tw-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-inset-ring-color{syntax:"*";inherits:false}@property --tw-inset-ring-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-ring-inset{syntax:"*";inherits:false}@property --tw-ring-offset-width{syntax:"<length>";inherits:false;initial-value:0}@property --tw-ring-offset-color{syntax:"*";inherits:false;initial-value:#fff}@property --tw-ring-offset-shadow{syntax:"*";inherits:false;initial-value:0 0 #0000}@property --tw-outline-style{syntax:"*";inherits:false;initial-value:solid}@property --tw-blur{syntax:"*";inherits:false}@property --tw-brightness{syntax:"*";inherits:false}@property --tw-contrast{syntax:"*";inherits:false}@property --tw-grayscale{syntax:"*";inherits:false}@property --tw-hue-rotate{syntax:"*";inherits:false}@property --tw-invert{syntax:"*";inherits:false}@property --tw-opacity{syntax:"*";inherits:false}@property --tw-saturate{syntax:"*";inherits:false}@property --tw-sepia{syntax:"*";inherits:false}@property --tw-drop-shadow{syntax:"*";inherits:false}@property --tw-drop-shadow-color{syntax:"*";inherits:false}@property --tw-drop-shadow-alpha{syntax:"<percentage>";inherits:false;initial-value:100%}@property --tw-drop-shadow-size{syntax:"*";inherits:false}@property --tw-backdrop-blur{syntax:"*";inherits:false}@property --tw-backdrop-brightness{syntax:"*";inherits:false}@property --tw-backdrop-contrast{syntax:"*";inherits:false}@property --tw-backdrop-grayscale{syntax:"*";inherits:false}@property --tw-backdrop-hue-rotate{syntax:"*";inherits:false}@property --tw-backdrop-invert{syntax:"*";inherits:false}@property --tw-backdrop-opacity{syntax:"*";inherits:false}@property --tw-backdrop-saturate{syntax:"*";inherits:false}@property --tw-backdrop-sepia{syntax:"*";inherits:false}@property --tw-translate-x{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-y{syntax:"*";inherits:false;initial-value:0}@property --tw-translate-z{syntax:"*";inherits:false;initial-value:0}</style>
   <style>
     :root {
       --charcoal: #1e1e24;
@@ -29,7 +29,7 @@
     @keyframes viewIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .scanner-stage { perspective: 1100px; }
     .scanner-mesh { transform-style: preserve-3d; transition: transform .72s cubic-bezier(.2,.8,.2,1), filter .72s ease; }
-    .scanner-mesh.face-flip { transform: rotateY(180deg) scale(.98); filter: saturate(1.12); }
+    .scanner-mesh.face-flip { transform: scale(.99); filter: saturate(1.12); }
     .face-grid { display: grid; gap: 4px; padding: 7px; background: #0f172a; border-radius: 18px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 12px 28px rgba(15,23,42,.12); }
     .facelet { border: 1px solid rgba(15,23,42,.25); border-radius: 8px; min-width: 24px; min-height: 24px; aspect-ratio: 1/1; cursor: pointer; transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
     .facelet:hover, .facelet:focus-visible { transform: scale(1.08); box-shadow: 0 0 0 3px rgba(79,70,229,.22); outline: none; }
@@ -47,9 +47,9 @@
     .case-alg { overflow-wrap: anywhere; word-break: break-word; }
     html.dark .case-card, html.dark #sourceBox { background: rgba(15,23,42,.94) !important; border-color: rgba(71,85,105,.8) !important; }
     .cube-scene { perspective: 950px; width: min(72vw, 330px); height: min(72vw, 330px); max-width: 330px; max-height: 330px; margin: 0 auto; display: grid; place-items: center; }
-    .cube3d { --cubie: 40px; --gap: 1.5px; position: relative; width: calc(var(--cubie) * var(--cube-size)); height: calc(var(--cubie) * var(--cube-size)); transform-style: preserve-3d; transform: rotateX(-28deg) rotateY(38deg); transition: transform .46s cubic-bezier(.2,.8,.2,1); }
-    .cubie { --base: translate3d(0,0,0); position: absolute; left: calc(50% - var(--cubie) / 2); top: calc(50% - var(--cubie) / 2); width: var(--cubie); height: var(--cubie); transform-style: preserve-3d; transform: var(--base); transform-origin: 50% 50%; transition: transform .45s ease, filter .24s ease; }
-    .sticker3d { position: absolute; inset: var(--gap); border-radius: 6px; border: 1px solid rgba(15,23,42,.3); background: #0f172a; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 1px 2px rgba(0,0,0,.22); backface-visibility: visible; }
+    .cube3d { --cubie: 40px; --gap: 1.5px; position: relative; width: calc(var(--cubie) * var(--cube-size)); height: calc(var(--cubie) * var(--cube-size)); transform-style: preserve-3d; transform: rotateX(var(--view-x, -24deg)) rotateY(var(--view-y, -34deg)); transition: transform .46s cubic-bezier(.2,.8,.2,1); }
+    .cubie { --base: translate3d(0,0,0); position: absolute; left: calc(50% - var(--cubie) / 2); top: calc(50% - var(--cubie) / 2); width: var(--cubie); height: var(--cubie); transform-style: preserve-3d; transform: var(--base); transform-origin: 50% 50%; transition: transform var(--turn-duration, 450ms) ease, filter .24s ease; }
+    .sticker3d { position: absolute; inset: var(--gap); border-radius: 6px; border: 1px solid rgba(15,23,42,.3); background: #0f172a; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 1px 2px rgba(0,0,0,.22); backface-visibility: hidden; }
     .sticker-U { transform: rotateX(90deg) translateZ(calc(var(--cubie) / 2)); }
     .sticker-D { transform: rotateX(-90deg) translateZ(calc(var(--cubie) / 2)); }
     .sticker-F { transform: translateZ(calc(var(--cubie) / 2)); }
@@ -61,7 +61,7 @@
 
     .pyra-scene { perspective: 950px; width: min(72vw, 330px); height: min(62vw, 290px); max-width: 330px; max-height: 290px; margin: 0 auto; display: grid; place-items: center; }
     .pyra3d { position: relative; width: 210px; height: 185px; transform-style: preserve-3d; transform: rotateX(-18deg) rotateY(35deg); }
-    .pyra-piece3d { --face-transform: translateZ(0); position: absolute; left: 50%; top: 50%; width: 190px; height: 164.545px; margin-left: -95px; margin-top: -82.2725px; transform: var(--face-transform); transform-style: preserve-3d; transition: transform .45s ease; }
+    .pyra-piece3d { --face-transform: translateZ(0); position: absolute; left: 50%; top: 50%; width: 190px; height: 164.545px; margin-left: -95px; margin-top: -82.2725px; transform: var(--face-transform); transform-style: preserve-3d; transition: transform var(--turn-duration, 450ms) ease; }
     .pyra-sticker3d { position: absolute; width: 33.3334%; height: 33.3334%; clip-path: polygon(50% 0%, 100% 100%, 0% 100%); border: 1px solid rgba(15,23,42,.32); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
     .pyra-sticker3d::after { content: ''; position: absolute; inset: 1px; clip-path: inherit; background: var(--sticker-color); }
     .pyra-sticker3d.pyra-inverted { clip-path: polygon(0 0, 100% 0, 50% 100%); }
@@ -82,6 +82,103 @@
       .pyra3d { transform: scale(.8) rotateX(-18deg) rotateY(35deg); }
 
     }
+
+    .cubie-body { position:absolute; inset:0; background:#171b22; border:1px solid #0a0d12; border-radius:3px; backface-visibility:hidden; }
+    .cubie-body .sticker3d { transform:none; border:0; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); }
+    .cube-scene { width:100%; height:350px; max-width:none; max-height:none; cursor:grab; touch-action:none; }
+    .cube-scene:active { cursor:grabbing; }
+    .cube3d { transition:none; }
+    .model-toolbar { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; }
+    .model-help { font-size:12px; color:#64748b; margin:5px 0; }
+    .current-turn { margin-top:12px; padding:12px; border-radius:12px; background:#eef2ff; color:#312e81; font-size:14px; font-weight:600; min-height:66px; }
+    #modelPanel { align-self:start; position:sticky; top:16px; }
+    #visualFrame { margin:8px 0 0; padding:8px; min-height:350px; overflow:visible; }
+    #transportControls { gap:8px; }
+    #transportControls button { font-size:13px; padding:12px 8px; border-radius:12px; }
+    #lessonPanel #stepName { font-size:25px; }
+    #lessonTeaching { padding:16px; background:#f8fafc; border-color:#e2e8f0; }
+    #caseLibrary { display:flex; flex-wrap:wrap; gap:8px; }
+    #caseLibrary .case-card { flex:1; min-width:140px; padding:10px; border-radius:12px; box-shadow:none; transform:none; }
+    #caseLibrary .case-card h4 { font-size:13px; margin:0; }
+    #caseLibrary .case-card p, #caseLibrary .case-card span { display:none; }
+    #hintBox { margin-top:12px; font-size:12px; padding:10px; }
+    #lessonNavigation { gap:8px; }
+    #lessonNavigation button { font-size:12px; padding:8px; }
+    .model-plaque { letter-spacing:0; font-weight:500; box-shadow:none; border:0; background:transparent; }
+    html.dark .current-turn { background:#1e293b; color:#e0e7ff; }
+    html.dark #lessonTeaching { background:#0f172a; border-color:#334155; }
+    @media(max-width:1023px) { #modelPanel { position:static; } .cube-scene { height:300px; } #visualFrame { min-height:300px; } }
+
+    main > header { padding:10px 16px; margin-bottom:16px; }
+    main > header h1 { font-size:22px; }
+    #playbackView > div:first-child { padding:12px 16px; margin-bottom:16px; }
+    #playbackTitle { font-size:22px; }
+    #playbackWorkspace { grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); align-items:start; }
+    #stepInstructions { display:none; }
+    #algorithmPanel { padding:10px 12px; border-radius:12px; }
+    #algorithmPanel > p { display:none; }
+    #formulaDisplay { gap:6px; font-size:15px; max-height:100px; overflow:auto; }
+    #formulaDisplay .notation-pill { padding:6px 9px; border-radius:8px; }
+    .current-turn { margin-top:8px; min-height:54px; }
+    #transportControls { margin-top:8px; }
+    #playbackWorkspace .model-plaque { display:none; }
+    #lessonPanel { font-size:14px; }
+    #lessonTeaching h4 { font-size:17px; }
+    @media(max-width:1023px) { #playbackWorkspace { grid-template-columns:minmax(0,1fr); } }
+    @media(max-width:640px) {
+      main > header { flex-direction:row; align-items:center; gap:8px; }
+      main > header h1 { font-size:16px; }
+      #crumbs { display:none; }
+      main > header button { padding:8px; font-size:12px; }
+      #playbackView > div:first-child { gap:8px; }
+      #playbackTitle { font-size:18px; }
+      #playbackModeBadge { padding:6px; font-size:11px; }
+      .cube-scene { height:290px; }
+      #visualFrame { min-height:290px; }
+    }
+    #pauseMove { display:none; }
+    #transportControls { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    #visualFrame.net-view { overflow:auto; }
+    @media(max-width:640px) {
+      main > header h1 { font-size:14px; white-space:nowrap; }
+      main > header > div { gap:4px; max-width:155px; }
+      #playbackModeBadge { display:none; }
+      #playbackView > div:first-child { padding:10px 14px; }
+      #modelPanel { padding:16px; }
+      .cube-scene { height:240px; }
+      .cube3d { transform:scale(.9) rotateX(var(--view-x,-24deg)) rotateY(var(--view-y,-34deg)); }
+      #visualFrame { min-height:240px; }
+      .current-turn { padding:10px; font-size:13px; line-height:20px; }
+      #visualFrame > div { min-height:0; }
+    }
+    .puzzle-preview { position:relative; width:100%; height:176px; pointer-events:none; }
+    .preview-model { position:absolute; left:50%; top:50%; width:330px; height:370px; transform:translate(-50%,-50%) scale(.47); }
+    .preview-model .cube-scene { width:330px; height:330px; cursor:inherit; }
+    .preview-model .cube3d { transform:rotateX(-24deg) rotateY(-34deg); transition:transform .35s ease; }
+    .preview-model .pyra3d { transform:rotateX(-18deg) rotateY(35deg); transition:transform .35s ease; }
+    .preview-model .model-plaque { display:none; }
+    [data-puzzle]:hover .preview-model .cube3d, [data-puzzle]:focus-visible .preview-model .cube3d { transform:rotateX(-20deg) rotateY(-52deg); }
+    [data-puzzle]:hover .preview-model .pyra3d, [data-puzzle]:focus-visible .preview-model .pyra3d { transform:rotateX(-18deg) rotateY(55deg); }
+    .facelet.setup-piece, .pyra-cell.setup-piece, .sticker3d.setup-piece, .pyra-sticker3d.setup-piece { outline:3px solid #8b5cf6; outline-offset:-3px; }
+    .facelet.setup-slot, .pyra-cell.setup-slot, .sticker3d.setup-slot, .pyra-sticker3d.setup-slot { outline:3px dashed #0284c7; outline-offset:-3px; }
+    #setupGuide button { font-size:13px; }
+    #playbackOptions { justify-content:space-between; font-size:12px; }
+    #playbackSpeed { padding:5px 10px; }
+    #algorithmPanel { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:10px; }
+    #playbackOptions { margin:0; gap:5px; }
+    #playbackPhaseLabel { display:none; }
+    #playbackSpeed { max-width:100px; font-size:12px; }
+    @media(max-width:640px) { #playbackOptions label { display:none; } }
+    .pyra-sticker3d.setup-piece { background:#8b5cf6 !important; }
+    .pyra-sticker3d.setup-slot { background:#0284c7 !important; }
+    .pyra-sticker3d.setup-piece::after, .pyra-sticker3d.setup-slot::after { inset:4px; }
+    html.dark { color-scheme:dark; }
+    html.dark .notation-pill.active { background:#4f46e5 !important; color:#fff !important; outline:2px solid #a5b4fc; }
+    html.dark .text-indigo-600, html.dark .text-indigo-700 { color:#a5b4fc !important; }
+    html.dark .model-help { color:#94a3b8; }
+    #paletteBar { position:sticky; top:8px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-radius:20px; }
+    #paletteBar .palette-summary { gap:16px; }
+    @media(max-width:640px) { #paletteBar .palette-summary { width:100%; font-size:13px; } #palette { gap:8px; } #palette .brush { width:38px; height:38px; } }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased">
@@ -89,7 +186,7 @@
     <header class="mb-6 flex flex-col gap-4 rounded-3xl border border-slate-200/60 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
       <button id="brandHome" class="tap-target text-left" aria-label="Return to dashboard">
         <p class="text-xs font-bold uppercase tracking-[0.34em] text-indigo-600">Twisty Lab</p>
-        <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">Puzzle Solver & Learning Platform</h1>
+        <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">Learn & solve cubes</h1>
       </button>
       <div class="flex flex-wrap items-center gap-2">
         <button id="themeToggle" class="tap-target rounded-2xl bg-slate-100 px-4 py-2 text-sm font-black text-slate-700">🌙 Dark</button>
@@ -101,16 +198,16 @@
     <section id="dashboardView" class="view">
       <div class="mb-8 grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
         <div class="glass-card rounded-[2rem] p-6 sm:p-8">
-          <p class="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-indigo-600">Neo-minimal algorithm studio</p>
-          <h2 class="max-w-3xl text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">Paint, validate, solve, and study twisty puzzles in one offline interface.</h2>
-          <p class="mt-4 max-w-2xl text-base leading-7 text-slate-600">Choose a puzzle, scan its colors, animate the method, or isolate important pieces with focused study masks.</p>
+          <p class="mb-3 text-sm font-bold uppercase tracking-[0.3em] text-indigo-600">One puzzle. One step at a time.</p>
+          <h2 class="max-w-3xl text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">Learn your first solve. Then make it yours.</h2>
+          <p class="mt-4 max-w-2xl text-base leading-7 text-slate-600">Choose your puzzle below. Learn a beginner method, or enter your colors to follow a calculated solution.</p>
         </div>
         <div class="glass-card rounded-[2rem] p-6">
-          <h3 class="text-lg font-black text-slate-900">System checks</h3>
+          <h3 class="text-lg font-black text-slate-900">How to get started</h3>
           <div class="mt-4 space-y-3 text-sm text-slate-600">
-            <div class="flex items-center gap-3"><span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>Color counts and piece legality</div>
-            <div class="flex items-center gap-3"><span class="h-2.5 w-2.5 rounded-full bg-indigo-500"></span>CSS 3D playback animation</div>
-            <div class="flex items-center gap-3"><span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>4x4 / 5x5 parity subroutines</div>
+            <div class="flex items-center gap-3"><span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>1. Choose your puzzle</div>
+            <div class="flex items-center gap-3"><span class="h-2.5 w-2.5 rounded-full bg-indigo-500"></span>2. Learn a method or solve your scramble</div>
+            <div class="flex items-center gap-3"><span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>3. Follow each turn on the model</div>
           </div>
         </div>
       </div>
@@ -167,41 +264,55 @@
           <button id="solveBtn" disabled class="tap-target rounded-2xl bg-indigo-600 px-5 py-2 text-sm font-black text-white shadow-lg shadow-indigo-600/20">SOLVE</button>
         </div>
       </div>
+      <div id="paletteBar" class="z-20 mb-5 rounded-[2rem] border border-slate-200/70 bg-white/95 p-4 shadow-xl backdrop-blur">
+        <div class="palette-summary flex items-center justify-between gap-3"><h3 class="font-black text-slate-900">Color Palette</h3><span id="brushLabel" class="font-mono text-sm text-slate-600">#ffffff</span></div>
+        <div id="palette" class="flex flex-wrap gap-3"></div>
+      </div>
       <div class="scanner-stage rounded-[2rem] border border-slate-200/60 bg-white p-4 shadow-sm">
         <div id="scannerMesh" class="scanner-mesh min-h-[390px] overflow-auto rounded-[1.5rem] bg-slate-50 p-4"></div>
       </div>
-      <div class="sm:sticky sm:bottom-3 z-20 mt-5 rounded-[2rem] border border-slate-200/70 bg-white/95 p-4 shadow-xl backdrop-blur">
-        <div class="mb-3 flex items-center justify-between gap-3"><h3 class="font-black text-slate-900">Color Palette</h3><span id="brushLabel" class="font-mono text-sm text-slate-600">#ffffff</span></div>
-        <div id="palette" class="flex flex-wrap gap-3"></div>
-      </div>
+
     </section>
 
     <section id="playbackView" class="view hidden">
       <div class="mb-5 flex flex-col gap-3 rounded-3xl border border-slate-200/60 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
         <div>
           <button data-route="mode" class="tap-target text-sm font-bold text-indigo-600">← Exit playback</button>
-          <h2 id="playbackTitle" class="mt-1 text-2xl font-black text-slate-900">Performance Playback Viewer</h2>
+          <h2 id="playbackTitle" class="mt-1 text-2xl font-black text-slate-900">Puzzle workspace</h2>
         </div>
         <div id="playbackModeBadge" class="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-600">Solve Mode</div>
       </div>
-      <div class="grid gap-5 lg:grid-cols-[.9fr_1.1fr]">
-        <div class="glass-card rounded-[2rem] p-5">
-          <button id="toggleNet" class="tap-target mb-3 rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold">Show All Faces</button>
-          <p class="mb-3 text-xs text-slate-500">Use the same labeled orientation as the scanner. Clockwise means looking directly at that face.</p>
+      <div id="playbackWorkspace" class="grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
+        <div id="modelPanel" class="glass-card rounded-[2rem] p-5">
+          <div class="model-toolbar"><button id="resetCamera" class="tap-target rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold">Reset view</button><button id="toggleStudyMask" class="hidden tap-target rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold" aria-pressed="false">Show all pieces</button><button id="toggleNet" class="tap-target mb-3 rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold">Show All Faces</button></div>
+          <p class="model-help">Drag the cube to see another face. Turning the view does not turn the puzzle.</p>
+          <p id="visibleFaces" class="model-help">U = top · F = front · R = right</p>
           <div id="visualFrame" class="mb-4 overflow-auto min-h-[320px] rounded-[1.5rem] bg-linear-to-br from-slate-50 to-white p-4"></div>
-          <div id="hintBox" class="hidden rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-sm leading-6 text-indigo-950"></div>
-        </div>
-        <div class="glass-card rounded-[2rem] p-5">
-          <p class="text-xs font-bold uppercase tracking-[0.28em] text-indigo-600">Current algorithm step</p>
-          <h3 id="stepName" class="mt-2 text-3xl font-black tracking-tight text-slate-900"></h3>
-          <p id="stepInstructions" class="mt-3 text-base leading-7 text-slate-600"></p>
-          <div id="lessonTeaching" class="hidden mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-4"></div>
-          <div id="sourceBox" class="mt-4 hidden rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-600"></div>
-          <div class="mt-5 rounded-3xl bg-slate-50 p-4">
+
+          <div id="algorithmPanel" class="mt-3 rounded-3xl bg-slate-50 p-4">
             <p class="mb-3 text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Active algorithm</p>
             <p id="moveInstruction" class="mb-3 text-sm text-slate-600" role="status" aria-live="polite"></p>
             <div id="formulaDisplay" class="flex flex-wrap gap-2 font-mono text-lg text-slate-800"></div>
+          <div id="playbackOptions" class="mt-2 flex items-center gap-2 text-sm"><label for="playbackSpeed">Speed</label><select id="playbackSpeed" class="rounded-xl border border-slate-200 bg-white px-3 py-2" aria-label="Playback speed"><option value="slow">Slow</option><option value="very-slow">Very slow</option><option value="normal">Normal</option></select><span id="playbackPhaseLabel" class="text-xs text-slate-500"></span></div>
           </div>
+          <p id="currentTurn" class="current-turn" role="status" aria-live="polite"></p>
+          <div id="transportControls" class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <button id="backMove" class="tap-target rounded-2xl bg-white px-3 py-3 font-black text-slate-700 ring-1 ring-slate-200">◀ Back One Move</button>
+            <button id="pauseMove" class="tap-target rounded-2xl bg-slate-900 px-3 py-3 font-black text-white">⏸ Pause Auto-Play</button>
+            <button id="playMove" class="tap-target rounded-2xl bg-indigo-600 px-3 py-3 font-black text-white">▶ Play/Auto-Animate</button>
+            <button id="nextMove" class="tap-target rounded-2xl bg-white px-3 py-3 font-black text-slate-700 ring-1 ring-slate-200">▶▶ Next Move</button>
+          </div>
+          <div id="hintBox" class="hidden rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-sm leading-6 text-indigo-950"></div>
+        </div>
+        <div id="lessonPanel" class="glass-card rounded-[2rem] p-5">
+          <p class="text-xs font-bold uppercase tracking-[0.28em] text-indigo-600">Your next step</p>
+          <h3 id="stepName" class="mt-2 text-3xl font-black tracking-tight text-slate-900"></h3>
+          <p id="stepInstructions" class="mt-3 text-base leading-7 text-slate-600"></p>
+          <div id="setupGuide" class="hidden mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"></div>
+          <div id="lessonTeaching" class="hidden mt-4 rounded-2xl border border-indigo-100 bg-indigo-50 p-4"></div>
+          <div id="studyTaskPanel" class="hidden mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"></div>
+          <details id="sourceDetails" class="mt-4"><summary class="text-sm font-bold text-slate-600">Tutorial video &amp; references</summary><div id="sourceBox" class="mt-2 hidden rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-600"></div></details>
+
           <div id="solutionNavigation" class="hidden mt-5">
             <p id="solutionProgress" class="mb-2 text-sm font-bold text-indigo-700" role="status" aria-live="polite"></p>
             <progress id="solutionMoveProgress" class="mb-3 w-full accent-indigo-600" value="0" max="1" aria-label="Solution move progress"></progress>
@@ -223,12 +334,7 @@
           </div>
           <div id="caseLibrary" class="mt-5 grid gap-3"></div>
           <div id="parityPanel" class="mt-5 hidden rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"></div>
-          <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <button id="backMove" class="tap-target rounded-2xl bg-white px-3 py-3 font-black text-slate-700 ring-1 ring-slate-200">◀ Back One Move</button>
-            <button id="pauseMove" class="tap-target rounded-2xl bg-slate-900 px-3 py-3 font-black text-white">⏸ Pause Auto-Play</button>
-            <button id="playMove" class="tap-target rounded-2xl bg-indigo-600 px-3 py-3 font-black text-white">▶ Play/Auto-Animate</button>
-            <button id="nextMove" class="tap-target rounded-2xl bg-white px-3 py-3 font-black text-slate-700 ring-1 ring-slate-200">▶▶ Next Move</button>
-          </div>
+
         </div>
       </div>
     </section>
@@ -2437,17 +2543,21 @@ THE SOFTWARE.
   "3x3": [
     {
       "stepName": "CubeHead — Build the white cross",
-      "instructions": "Align each white edge with its matching side center.",
+      "instructions": "First build the daisy around yellow; then match side colors and move each white edge Down.",
+      "mentalNote": "This part has to be solved mentally. There is no fixed algorithm: think about where each white edge needs to go. Ignore the corners while building the daisy.",
       "cases": [
         {
-          "name": "Front edge alignment",
-          "clue": "The side color matches Front.",
-          "moves": ["F2"]
+          "name": "1. Build the daisy",
+          "clue": "Arrange four white edge petals around the yellow center on Up.",
+          "mentalStep": true,
+          "moves": [],
+          "setupMoves": ["F2", "R2", "B2", "L2"],
+          "goalSetupMoves": ["F2", "R2", "B2", "L2"]
         },
         {
-          "name": "Right edge alignment",
-          "clue": "The side color matches Right.",
-          "moves": ["R2"]
+          "name": "2. Daisy to white cross",
+          "clue": "Match each petal’s side color to its center, then turn that face twice to send white Down.",
+          "moves": ["L2", "B2", "R2", "F2"]
         }
       ],
       "videoSeconds": 53
@@ -2457,12 +2567,12 @@ THE SOFTWARE.
       "instructions": "Insert white corners using the right or left trigger.",
       "cases": [
         {
-          "name": "Right-hand insertion",
+          "name": "Righty · Right-hand insertion",
           "clue": "The destination is front-right.",
           "moves": ["R", "U", "R'", "U'"]
         },
         {
-          "name": "Left-hand insertion",
+          "name": "Lefty · Left-hand insertion",
           "clue": "The destination is front-left.",
           "moves": ["L'", "U'", "L", "U"]
         }
@@ -2474,14 +2584,14 @@ THE SOFTWARE.
       "instructions": "Insert a top edge that contains no yellow.",
       "cases": [
         {
-          "name": "Right edge insertion",
+          "name": "Right insertion — Righty, regrip, Lefty",
           "clue": "The edge belongs on the right.",
-          "moves": ["U", "R", "U'", "R'", "U'", "F'", "U", "F"]
+          "moves": ["U", "R", "U", "R'", "U'", "y", "L'", "U'", "L", "U", "y'"]
         },
         {
-          "name": "Left edge insertion",
+          "name": "Left insertion — Lefty, regrip, Righty",
           "clue": "The edge belongs on the left.",
-          "moves": ["U'", "L'", "U", "L", "U", "F", "U'", "F'"]
+          "moves": ["U'", "L'", "U'", "L", "U", "y'", "R", "U", "R'", "U'", "y"]
         }
       ],
       "videoSeconds": 289
@@ -2507,6 +2617,11 @@ THE SOFTWARE.
           "name": "Horizontal edge line",
           "clue": "Hold the two yellow edges horizontally.",
           "moves": ["F", "R", "U", "R'", "U'", "F'"]
+        },
+        {
+          "name": "Hook — two Righty triggers",
+          "clue": "Hold the yellow-edge hook at back-left; use two complete Righty triggers between Front turns.",
+          "moves": ["F", "R", "U", "R'", "U'", "R", "U", "R'", "U'", "F'"]
         }
       ],
       "videoSeconds": 426
@@ -2516,7 +2631,7 @@ THE SOFTWARE.
       "instructions": "Check side colors around the yellow cross.",
       "cases": [
         {
-          "name": "Upper-edge cycle",
+          "name": "Sune — match the upper edges",
           "clue": "Compare the three displaced edge colors.",
           "moves": ["R", "U", "R'", "U", "R", "U2", "R'"]
         }
@@ -2528,9 +2643,9 @@ THE SOFTWARE.
       "instructions": "Check corner location using all three sticker colors.",
       "cases": [
         {
-          "name": "Three-corner cycle",
-          "clue": "Position the remaining upper corners.",
-          "moves": ["U", "R", "U'", "L'", "U", "R'", "U'", "L"]
+          "name": "Niklas — correct corner at front-left",
+          "clue": "Hold a correctly placed corner at front-left; move the other three corners.",
+          "moves": ["R", "U'", "L'", "U", "R'", "U'", "L", "U"]
         }
       ],
       "videoSeconds": 577
@@ -2752,14 +2867,14 @@ THE SOFTWARE.
       "instructions": "Match both colors when inserting a base edge.",
       "cases": [
         {
-          "name": "Right insertion practice",
+          "name": "Paradox right edge helper",
           "clue": "Keep the base orientation fixed.",
-          "moves": ["R", "U'", "R'"]
+          "moves": ["R'", "L", "R", "L'"]
         },
         {
-          "name": "Left insertion practice",
+          "name": "Paradox mirrored edge helper",
           "clue": "Use the mirrored insertion.",
-          "moves": ["L'", "U", "L"]
+          "moves": ["L", "R'", "L'", "R"]
         }
       ],
       "videoSeconds": 80,
@@ -2767,17 +2882,20 @@ THE SOFTWARE.
     },
     {
       "stepName": "Pyraminx — Finish the remaining edges",
+      "caseChapterSeconds": [291,405,457,513],
       "instructions": "Inspect the last edges and repeat the appropriate insertion.",
       "cases": [
         {
-          "name": "Clockwise edge-cycle practice",
+          "name": "Case 1 — right version (video)",
           "clue": "Track the three displaced edges.",
-          "moves": ["R", "U'", "R'", "U'", "R", "U'", "R'"]
+          "moves": ["R'", "L", "R", "L'", "U'", "L'", "U", "L"],
+          "videoSeconds": 291
         },
         {
-          "name": "Counterclockwise edge-cycle practice",
+          "name": "Case 1 — left version (video)",
           "clue": "Track the cycle in reverse.",
-          "moves": ["R", "U", "R'", "U", "R", "U", "R'"]
+          "moves": ["L", "R'", "L'", "R", "U", "R", "U'", "R'"],
+          "videoSeconds": 405
         }
       ],
       "videoSeconds": 291,
@@ -2803,7 +2921,7 @@ THE SOFTWARE.
     };
     const AppState = {
       activeScreen: 'dashboard', puzzleType: '3x3', trainingProfile: null, activeStepIndex: 0, activeMoveIndex: 0,
-      selectedPaintBrush: '#ffffff', activeFace: 0, autoTimer: null, activeCaseIndex: 0, independentCaseIndex: 0, lessonPhase: 'teach',
+      selectedPaintBrush: '#ffffff', activeFace: 0, autoTimer: null, activeCaseIndex: 0, independentCaseIndex: 0, practicePhase: 'algorithm', practiceSetupMoves: [], practiceCaseState: [], setupDetails: null, playbackSpeed: 'slow', studyFocusIndices: [], studyMaskEnabled: true, studyPreviewGoal: false, studyDemonstration: false, lessonPhase: 'teach', cameraX: -24, cameraY: -34,
       playbackState: [], playbackInitialState: [], playbackHistory: [], completed: false, animating: false, solving: false, showNet: false, darkMode: false,
       colorDataMap: {
         '2x2': Array(24).fill('#e2e8f0'), '3x3': Array(54).fill('#e2e8f0'), '4x4': Array(96).fill('#e2e8f0'), '5x5': Array(150).fill('#e2e8f0'), 'pyraminx': Array(36).fill('#e2e8f0')
@@ -2812,6 +2930,7 @@ THE SOFTWARE.
     let CurrentAlgorithm = [];
     let solverWorker = null, solveRequest = 0, pendingSolve = null;
     let animationTimer = null;
+    let turnAnimations = [];
 
     const $ = (selector) => document.querySelector(selector);
     const $$ = (selector) => Array.from(document.querySelectorAll(selector));
@@ -2857,13 +2976,13 @@ THE SOFTWARE.
         ['Orient the yellow corners to finish.', 'Turn yellow Down. Reuse righty; learn the four turns before adding the Down moves.', 'Bring a twisted corner to bottom-front-right. Repeat righty until yellow faces Down. Turn only D to bring the next corner there; finish every trigger and realign D at the end.']
       ],
       '3x3': [
-        ['Make a white cross whose side colors match the centers.', 'There is no fixed cross algorithm. These half turns demonstrate sending an aligned edge to the white face.', 'Find a white edge, line up its other color with its center, then send it Down. Repeat for four edges and check the side colors.'],
+        ['Build the daisy, then make the white cross.', 'Start with four white edge petals around the yellow center. Solve this mentally, without a fixed algorithm. The daisy picture shows your first target.', 'Once the daisy is complete, match a petal’s side color to its center. Turn that face twice to send white Down. Repeat for all four petals; the example turns demonstrate the idea rather than an algorithm to memorize.'],
         ['Insert the four white corners without losing the cross.', 'Learn righty and lefty together. Righty is R U R′ U′; lefty mirrors it as L′ U′ L U. Say each turn aloud and watch the moving corner.', 'Find a white corner in the upper layer. Match its two side colors to its slot. Put it above front-right for righty, or front-left for lefty; repeat the full trigger until inserted.'],
-        ['Fill the four middle-layer edge slots.', 'Learn both insertion directions. Each sequence moves an upper edge into a side slot and restores the first layer.', 'Choose an upper edge with no yellow. Match its front sticker to the center; its upper color tells you which side it belongs on. Use the matching insertion. Eject an incorrectly placed edge first if necessary.'],
+        ['Fill the four middle-layer edge slots.', 'Move the upper edge one turn away from its slot. Use Righty or Lefty, turn the whole cube to face that side, then use the opposite trigger to restore the white corner. The last y turn returns the app to its starting view.', 'Choose an upper edge with no yellow. Match its front sticker to the center; its upper color tells you which side it belongs on. Use the matching insertion. Eject an incorrectly placed edge first if necessary.'],
         ['Identify what remains before starting the last layer.', 'No new algorithm here. Inspect the upper edges and corners separately using the all-face view.', 'Keep white Down. Find the yellow edge pattern and check side colors; the next stage works on edges before finishing corners.'],
         ['Make the yellow edge cross.', 'Learn Front, righty, Front inverse: F (R U R′ U′) F′. Complete the entire sequence.', 'Ignore yellow corners. Hold a yellow edge line horizontally, or the L at back-left. Apply the sequence, inspect again, and repeat for the new pattern if needed.'],
         ['Match the yellow cross to the side centers.', 'Learn R U R′ U R U2 R′. U2 is one half turn; it is not a cube rotation.', 'Turn U to find matching side edges. Hold adjacent matches at back and right. Apply the sequence and realign U; opposite matches need another check and repetition.'],
-        ['Move upper corners into the correct slots.', 'Learn the alternating placement sequence U R U′ L′ U R′ U′ L. Check locations before worrying about twists.', 'A corner belongs in a slot when all three colors match its surrounding centers. Hold a correct corner at front-right; apply and check again. If none is correct, apply once and inspect.'],
+        ['Move upper corners into the correct slots.', 'Learn Niklas: R U′ L′ U R′ U′ L U. Lift the right pair and move it back, do the same on the left, then restore each pair.', 'A corner belongs in a slot when all three colors match its surrounding centers. For this CubeHead Niklas grip, keep a correct corner at front-left; apply and inspect again. If none is correct, apply once and inspect.'],
         ['Twist the final corners while preserving the rest.', 'Reuse righty with yellow Down. Learn the four-turn trigger first, then watch the application combine repetitions with D turns.', 'Keep the whole cube fixed. Work on bottom-front-right until yellow faces Down, completing every trigger. Turn only D between corners; the temporarily disturbed upper pieces recover when all corners are finished.']
       ],
       '4x4': [
@@ -2893,10 +3012,10 @@ THE SOFTWARE.
       return plan.map((step,index)=> {
         const teaching=LESSON_TEACHING[AppState.puzzleType][index];
         const source=step.sourceKey==='pyraminx-easy'?LEARNING_SOURCES.pyraminx.alternatives[0]:step.source||LEARNING_SOURCES[AppState.puzzleType];
-        return {...step, goal:teaching[0], explanation:teaching[1], application:teaching[2],
+        return {...step, intuitiveNote:((AppState.puzzleType==='4x4'&&[0,1,3].includes(index))||(AppState.puzzleType==='5x5'&&[0,1,2].includes(index)))?'Center building is solved intuitively. Think through the bars and protected pieces; the displayed turns are one practice example, not a fixed algorithm for every center case.':null, goal:teaching[0], explanation:teaching[1], application:teaching[2],
           moves:parseAlgorithmMoves(step.cases?.[0]?.moves||step.moves||[]),
           cases:(step.cases||[]).map(example=>({...example,moves:parseAlgorithmMoves(example.moves),teachingMoves:step.baselineOrientation==='yellow-down'?parseAlgorithmMoves("R U R' U'"):parseAlgorithmMoves(example.moves),setupMoves:example.setupMoves?parseAlgorithmMoves(example.setupMoves):null})),
-          source:{...source,alternatives:step.sourceKey==='pyraminx-easy'?[LEARNING_SOURCES.pyraminx]:source.alternatives,note:source.note+' Practice cases are created for this app; the video teaches recognition and setup.'}
+          source:{...source,alternatives:step.sourceKey==='pyraminx-easy'?[LEARNING_SOURCES.pyraminx]:source.alternatives,note:source.note+' This is an app-prepared companion case. Use the linked chapter for the creator’s case recognition and grip.'}
         };
       });
     }
@@ -2908,12 +3027,41 @@ THE SOFTWARE.
     function buildIndependentStudyPlan() {
       const type=AppState.puzzleType, guided=buildGuidedLearningPlan();
       const stages=type==='2x2'?[0,1,2]:type==='3x3'?[0,1,4,7]:type==='pyraminx'?[0,1,2,3]:type==='4x4'?[0,2,3,5]:[0,2,3,4];
-      return stages.map((stage,index)=> {
-        const lesson=guided[stage];
-        return {...lesson, stepName:`Independent Study — ${lesson.stepName}`, moves:[], studyIndex:index,
-          instructions:'Inspect this prepared case. Nonessential stickers are masked. Next and Back select another focus case.',
-          studyMoves:lesson.cases[0].moves, focusIndices:independentFocusIndices(type,index)};
+      const plan=stages.flatMap((stage,index)=> {
+        const lesson=guided[stage], examples=type==='3x3'&&stage===0?lesson.cases:[lesson.cases[0]];
+        return examples.map(example=>({...lesson, cases:[example], stepName:`Independent Study — ${lesson.stepName}`, moves:[], studyIndex:index,
+          mentalStep:!!example.mentalStep, guidedStageIndex:stage, guidedCaseIndex:lesson.cases.indexOf(example),
+          instructions:'Earlier pieces stay visible as new pieces are introduced. Play demonstrates this case; Next and Back select a case.',
+          studySetup:example.mentalStep?'The first target is the daisy: four white petals around yellow. Build this on your own cube by thinking through the edge moves.':type==='3x3'&&stage===0?'Start from the daisy. Match each edge’s side color with its center before sending the white petal Down.':null,
+          studyTask:example.clue,
+          studySetupMoves:example.setupMoves||null,
+          studyGoalSetupMoves:example.goalSetupMoves||[],
+          studyMoves:example.moves, focusIndices:independentFocusIndices(type,index)}));
       });
+      // Carry earlier piece identities into each case's grip, including the final
+      // yellow-down grip. Never replace sticker colors to achieve the mask.
+      const earlier=[];
+      return plan.map(step=>{
+        const own=step.focusIndices.slice(), focus=new Set(own);
+        for(const previous of earlier) regripStudyFocus(type,previous.indices,previous.step,step).forEach(i=>focus.add(i));
+        if(step===plan.at(-1)) createSolvedState(type).forEach((_,i)=>focus.add(i));
+        earlier.push({step,indices:own});
+        return {...step,focusIndices:[...focus].sort((a,b)=>a-b)};
+      });
+    }
+    function regripStudyFocus(type,indices,fromStep,toStep) {
+      const source=learningSolvedState(type,fromStep), target=learningSolvedState(type,toStep);
+      if(source.join()===target.join()) return indices;
+      const identities=source.map((_,i)=>i), queue=[{state:source,identities}], seen=new Set([source.join()]);
+      for(let cursor=0;cursor<queue.length;cursor++) {
+        const frame=queue[cursor];
+        if(frame.state.join()===target.join()) return frame.identities.flatMap((identity,index)=>indices.includes(identity)?[index]:[]);
+        for(const move of ['x','y','z']) {
+          const state=simulateAlgorithm(type,frame.state,[move]), key=state.join();
+          if(!seen.has(key)) {seen.add(key);queue.push({state,identities:simulateAlgorithm(type,frame.identities,[move])});}
+        }
+      }
+      throw new Error('Study grips must describe the same puzzle color frame.');
     }
     function independentFocusIndices(type,stage) {
       if(type==='pyraminx') return PYRA_STICKERS.flatMap((s,i)=>(stage===0?s.kind==='tip':stage===1?s.kind==='center':s.kind==='edge')?[i]:[]);
@@ -2925,11 +3073,79 @@ THE SOFTWARE.
         const edge=!center&&!corner;
         let show;
         if(type==='2x2') show=stage===0?sticker.position[1]===n:stage===1?sticker.position[1]===0:sticker.position[1]===n;
-        else if(type==='3x3') show=center||(stage===0?edge&&sticker.position[1]===n:stage===1?corner:stage===2?edge&&sticker.position[1]===0:sticker.position[1]===n);
+        else if(type==='3x3') show=center||(stage===0?edge&&sticker.position[1]===n:stage===1?corner:stage===2?sticker.position[1]>0||edge:sticker.position[1]===n);
         else if(type==='4x4') show=stage===0?center:stage===1?center||edge:stage===2?center:face===0||sticker.position[1]===0;
         else show=stage===0||stage===1?center:stage===2?edge:face===0||sticker.position[1]===0;
         return show?[index]:[];
       });
+    }
+    function independentCaseFocusIndices(type,step,setup) {
+      const targets=new Set(step.focusIndices);
+      // Move source identities with the same setup as the colored stickers.
+      // The mask belongs to the target pieces, not their original slots.
+      const identities=Array.from({length:createSolvedState(type).length},(_,index)=>index);
+      return simulateAlgorithm(type,identities,setup).flatMap((identity,index)=>targets.has(identity)?[index]:[]);
+    }
+    function practiceSetupDetails(type,step,state) {
+      const baseline=learningSolvedState(type,step), cube=PUZZLES[type].kind==='cube', size=PUZZLES[type].size;
+      const groups=new Map();
+      if(cube) cubeStickerGeometry(size).forEach((g,index)=>{const key=g.position.join(',');if(!groups.has(key)) groups.set(key,{position:g.position,indices:[]});groups.get(key).indices.push(index);});
+      else PYRA_STICKERS.forEach((g,index)=>{const key=g.kind+':'+g.vertices.slice().sort().join(',');if(!groups.has(key)) groups.set(key,{kind:g.kind,position:g.vertices,indices:[]});groups.get(key).indices.push(index);});
+      const all=[...groups.values()], example=activeCaseForStep(step);
+      const kind=/center/i.test(step.stepName)?1:/corner|first layer/i.test(step.stepName)||type==='2x2'?3:2;
+      const candidates=all.filter(g=>(cube?g.indices.length===kind:g.kind===(/tip/i.test(step.stepName)?'tip':/center|base$/i.test(step.stepName)?'center':'edge'))&&g.indices.some(i=>state[i]!==baseline[i]));
+      const left=/^left/i.test(example?.name||''), bottom=/first layer|white cross/i.test(step.stepName)||step.baselineOrientation==='yellow-down';
+      if(cube) candidates.sort((a,b)=> {
+        const score=g=>(g.position[2]===size-1?8:0)+(g.position[0]===(left?0:size-1)?4:0)+(g.position[1]===(bottom?size-1:0)?2:0);
+        return score(b)-score(a);
+      });
+      const target=candidates[0]||all.find(g=>g.indices.some(i=>state[i]!==baseline[i]));
+      const signature=(g,data)=>g.indices.map(i=>data[i]).sort().join(',');
+      const matches=target?all.filter(g=>g.indices.length===target.indices.length&&(cube||g.kind===target.kind)&&signature(g,state)===signature(target,baseline)):[];
+      const piece=matches.find(g=>g.indices.some(i=>state[i]!==baseline[i]))||matches[0];
+      const place=g=>!g?'the highlighted location':cube&&g.indices.length===1?`${FACE_NAMES[Math.floor(g.indices[0]/(size*size))]} row ${Math.floor((g.indices[0]%(size*size))/size)+1}, column ${g.indices[0]%size+1}`:cube?['Left','Up','Back'].flatMap((name,axis)=>g.position[axis]===0?[name]:g.position[axis]===size-1?[['Right','Down','Front'][axis]]:[]).join('–'):`${g.kind} ${g.position.map(v=>['U','L','R','B'][v]).join('–')}`;
+      const colors=target?[...new Set(target.indices.map(i=>baseline[i]))].map(colorName).join(' / '):'highlighted';
+      return {grip:cube?`Begin the practice setup with ${colorName(baseline[0])} Up, ${colorName(baseline[2*size*size])} Front, and ${colorName(baseline[3*size*size])} Right.`:'Keep U at the top and the labeled Front face toward you. Lowercase moves turn only tips.',
+        position:piece?`Find the ${colors} piece at ${place(piece)}. Its destination is ${place(target)}.`:example?.clue||step.instructions,
+        pieceIndices:piece?.indices||[],targetIndices:target?.indices||[]};
+    }
+    function setupMarkerClass(index) {
+      if(AppState.trainingProfile!=='guided'||AppState.activeMoveIndex||AppState.practicePhase==='setup'&&!AppState.completed) return '';
+      const details=AppState.setupDetails;if(!details) return '';
+      return details.pieceIndices.includes(index)?'setup-piece':details.targetIndices.includes(index)?'setup-slot':'';
+    }
+    function watchPracticeSetup() {
+      if(AppState.trainingProfile!=='guided') return;
+      resetPracticeCase();if(!AppState.practiceSetupMoves.length) return;
+      AppState.practicePhase='setup';AppState.playbackState=learningSolvedState(AppState.puzzleType,CurrentAlgorithm[AppState.activeStepIndex]);
+      AppState.activeMoveIndex=0;AppState.completed=false;AppState.playbackHistory=[];
+      renderVisualFrame();renderUIStatusDisplay();toggleAutoPlay();
+    }
+    function beginPracticeAlgorithm(play=true) {
+      if(AppState.trainingProfile!=='guided') return;
+      resetPracticeCase();renderVisualFrame();renderUIStatusDisplay();if(play) toggleAutoPlay();
+    }
+    function renderSetupGuide(step) {
+      const panel=$('#setupGuide'), example=activeCaseForStep(step);
+      const show=AppState.trainingProfile==='guided'&&!!example?.moves.length&&!example?.mentalStep;
+      panel.classList.toggle('hidden',!show);if(!show) {panel.innerHTML='';return;}
+      const setup=AppState.practicePhase==='setup', details=AppState.setupDetails;
+      panel.innerHTML=`<p class="text-xs font-bold uppercase tracking-wider text-indigo-700">${setup?'1. Watch the practice setup':step.intuitiveNote||step.mentalNote?'Before the example: hold and arrange':'Before the algorithm: hold and arrange'}</p>
+        <p class="mt-2 text-sm leading-6 text-slate-700">${escapeHtml(details.grip)}</p>
+        <p class="mt-2 text-sm leading-6 text-slate-700">${escapeHtml(example.clue)}</p><p class="mt-2 text-sm leading-6 text-slate-700">${escapeHtml(details.position)}</p>
+        <p class="mt-2 text-xs text-slate-500">Purple marks the piece; blue marks its destination. Show All Faces to check hidden stickers.</p>
+        <div class="mt-3 flex flex-wrap gap-2"><button id="watchPracticeSetup" class="tap-target rounded-xl bg-white px-3 py-2 text-sm font-bold text-indigo-700" ${AppState.animating?'disabled':''}>Watch setup slowly</button>
+        <button id="startPracticeAlgorithm" class="tap-target rounded-xl bg-indigo-600 px-3 py-2 text-sm font-bold text-white" ${AppState.animating?'disabled':''}>${setup&&!AppState.completed?'Use prepared case':step.intuitiveNote||step.mentalNote?'Play example turns slowly':'Play algorithm slowly'}</button></div>
+        <p class="mt-2 text-xs text-slate-500">Setup starts from a solved practice cube. Its reverse moves create this example; they are not the solving algorithm.</p>`;
+      $('#watchPracticeSetup').addEventListener('click',watchPracticeSetup);
+      $('#startPracticeAlgorithm').addEventListener('click',()=>beginPracticeAlgorithm(true));
+    }
+    function independentGoalState(type,step) {
+      return simulateAlgorithm(type,learningSolvedState(type,step),step.studyGoalSetupMoves||[]);
+    }
+    function mentalNoteHtml(step) {
+      const note=step.mentalNote||step.intuitiveNote;
+      return note?`<aside data-mental-note class="mt-3 rounded-xl border border-indigo-100 bg-indigo-50 p-3 text-sm leading-6 text-indigo-950"><strong>Solve this mentally</strong><p>${escapeHtml(note)}</p></aside>`:'';
     }
     function learningSolvedState(type,step=null) {
       if(type==='pyraminx') return createSolvedState(type).map(color=>color==='#ffffff'?'#ff0000':color);
@@ -2941,13 +3157,17 @@ THE SOFTWARE.
     }
     function resetPracticeCase() {
       stopAutoPlay(); cancelAnimation();
-      AppState.activeMoveIndex=0; AppState.playbackHistory=[]; AppState.completed=false;
+      AppState.activeMoveIndex=0; AppState.playbackHistory=[]; AppState.completed=false; AppState.studyPreviewGoal=false;AppState.studyDemonstration=false;AppState.practicePhase='algorithm';
       const step=CurrentAlgorithm[AppState.activeStepIndex];
       const moves=AppState.trainingProfile==='independent'?step.studyMoves:activeMovesForStep(step);
       const turns=moves.filter(isTurnMove);
       const activeCase=activeCaseForStep(step);
-      const setup=AppState.trainingProfile!=='independent'&&activeCase?.setupMoves&&!turns.length?activeCase.setupMoves:turns.slice().reverse().map(inverseMove);
+      const setup=AppState.trainingProfile==='independent'&&step.studySetupMoves?step.studySetupMoves:activeCase?.setupMoves&&!turns.length?activeCase.setupMoves:turns.slice().reverse().map(inverseMove);
       AppState.playbackState=simulateAlgorithm(AppState.puzzleType,learningSolvedState(AppState.puzzleType,step),setup);
+      AppState.practiceSetupMoves=setup.slice();AppState.practiceCaseState=AppState.playbackState.slice();
+      AppState.setupDetails=AppState.trainingProfile==='guided'&&turns.length?practiceSetupDetails(AppState.puzzleType,step,AppState.playbackState):null;
+      AppState.studyFocusIndices=AppState.trainingProfile==='independent'?independentCaseFocusIndices(AppState.puzzleType,step,setup):[];
+      if(AppState.trainingProfile==='independent') {AppState.cameraX=defaultCameraTilt();AppState.cameraY=-34;}
       if(!turns.length) AppState.completed=true;
     }
 
@@ -2960,9 +3180,14 @@ THE SOFTWARE.
       return cases.length ? cases[Math.min(AppState.activeCaseIndex, cases.length - 1)] : null;
     }
 
-    function activeMovesForStep(step) {
+    function lessonMovesForStep(step) {
       const example=activeCaseForStep(step);
       return (AppState.trainingProfile==='guided' && AppState.lessonPhase==='teach' ? example?.teachingMoves : null) || example?.moves || step?.moves || [];
+    }
+
+    function activeMovesForStep(step) {
+      if(AppState.trainingProfile==='independent') return step.studyMoves;
+      return AppState.trainingProfile==='guided'&&AppState.practicePhase==='setup'?AppState.practiceSetupMoves:lessonMovesForStep(step);
     }
 
     const THREE_BY_THREE_CORNERS = [
@@ -3074,11 +3299,12 @@ THE SOFTWARE.
     }
 
     function setView(viewName) {
+      $('#toastLayer').replaceChildren();
       ['dashboardView', 'modeView', 'learnView', 'scannerView', 'playbackView'].forEach(id => $('#' + id).classList.add('hidden'));
       $('#' + viewName + 'View').classList.remove('hidden');
       AppState.activeScreen = viewName;
       if(viewName==='learn') renderTutorialLibrary();
-      const labels = { dashboard: 'Dashboard Hub', mode: PUZZLES[AppState.puzzleType].label + ' / Mode Selection', learn: 'Learning Tracks', scanner: 'Interactive Scanner', playback: 'Performance Playback' };
+      const labels = { dashboard: 'Dashboard Hub', mode: PUZZLES[AppState.puzzleType].label + ' / Mode Selection', learn: 'Learning Tracks', scanner: 'Interactive Scanner', playback: 'Puzzle workspace' };
       $('#crumbs').textContent = labels[viewName] || 'Twisty Lab';
       stopAutoPlay(); cancelAnimation();
       if(viewName!=='scanner' && AppState.solving) cancelSolve();
@@ -3097,12 +3323,9 @@ THE SOFTWARE.
     }
 
     function renderPuzzleIcon(key) {
-      if (key === 'pyraminx') {
-        return `<svg class="shape-svg" width="170" height="145" viewBox="0 0 170 145" aria-hidden="true"><polygon points="85,8 158,132 12,132" fill="#f8fafc" stroke="#0f172a" stroke-width="4"/><polygon points="85,8 85,132 12,132" fill="#00ff00" opacity=".88"/><polygon points="85,8 158,132 85,132" fill="#0000ff" opacity=".82"/><polygon points="48,70 122,70 85,132" fill="#ffff00" opacity=".88"/><path d="M85 8 85 132M48 70h74M30 101h110" stroke="#0f172a" stroke-width="3" opacity=".9"/></svg>`;
-      }
-      const n = PUZZLES[key].size;
-      const lines = Array.from({length:n+1}, (_,i)=>`<path d="M${35+i*85/n} 38 L${118+i*85/n} 18 L${118+i*85/n} 101 L${35+i*85/n} 122Z" stroke="#0f172a" stroke-width="1.5" opacity=".25"/>`).join('');
-      return `<svg class="shape-svg" width="178" height="150" viewBox="0 0 178 150" aria-hidden="true"><polygon points="35,38 93,18 143,38 86,60" fill="#ffffff" stroke="#0f172a" stroke-width="3"/><polygon points="35,38 86,60 86,124 35,101" fill="#00ff00" stroke="#0f172a" stroke-width="3"/><polygon points="86,60 143,38 143,101 86,124" fill="#ff0000" stroke="#0f172a" stroke-width="3"/>${lines}<text x="89" y="143" text-anchor="middle" font-size="14" font-weight="900" fill="#475569">${n} × ${n}</text></svg>`;
+      const puzzle=PUZZLES[key], state=createSolvedState(key);
+      const model=puzzle.kind==='cube'?renderCube3D(puzzle.size,state,true):renderPyraminx3D(state,true);
+      return `<div class="puzzle-preview" aria-hidden="true"><div class="preview-model">${model}</div></div>`;
     }
 
     function buildPalette() {
@@ -3140,7 +3363,7 @@ THE SOFTWARE.
         const cells = Array.from({length: faceSize}, (_, i) => {
           const idx = start + i;
           const color = options.mask && !focusSet.has(idx) ? COLORS.mask : state[idx];
-          return `<button aria-label="${FACE_NAMES[faceIndex]} sticker ${i+1}, ${colorName(color)}" class="${buttonClass}" ${options.readOnly?'disabled':''} data-index="${idx}" style="background:${color}; width:${cellSize}" title="${FACE_NAMES[faceIndex]} ${i + 1}"></button>`;
+          return `<button aria-label="${FACE_NAMES[faceIndex]} sticker ${i+1}, ${colorName(color)}" class="${buttonClass} ${options.readOnly?setupMarkerClass(idx):''}" ${options.readOnly?'disabled':''} data-index="${idx}" style="background:${color}; width:${cellSize}" title="${FACE_NAMES[faceIndex]} ${i + 1}"></button>`;
         }).join('');
         return `<div class="flex flex-col items-center gap-2"><span class="text-xs font-black uppercase tracking-widest text-slate-500">${FACE_NAMES[faceIndex]}</span><div class="face-grid" style="grid-template-columns:repeat(${size}, ${cellSize})">${cells}</div></div>`;
       };
@@ -3151,7 +3374,7 @@ THE SOFTWARE.
       const positions = [[100/3,0],[100/6,100/3],[100/3,100/3],[50,100/3],[0,200/3],[100/6,200/3],[100/3,200/3],[50,200/3],[200/3,200/3]];
       const face = (faceIndex) => {
         const start = faceIndex * 9;
-        return `<div class="flex flex-col items-center gap-2"><span class="text-xs font-black uppercase tracking-widest text-slate-500">${PYRA_FACE_NAMES[faceIndex]}</span><div class="pyra-face">${positions.map((pos, i) => `<button aria-label="${PYRA_FACE_NAMES[faceIndex]} sticker ${i+1}, ${colorName(state[start+i])}" class="${readOnly?'':'paintable '}pyra-cell" ${readOnly?'disabled':''} data-index="${start+i}" style="left:${pos[0]}%; top:${pos[1]}%; background:${state[start+i]}" title="${PYRA_FACE_NAMES[faceIndex]} ${i+1}"></button>`).join('')}</div></div>`;
+        return `<div class="flex flex-col items-center gap-2"><span class="text-xs font-black uppercase tracking-widest text-slate-500">${PYRA_FACE_NAMES[faceIndex]}</span><div class="pyra-face">${positions.map((pos, i) => `<button aria-label="${PYRA_FACE_NAMES[faceIndex]} sticker ${i+1}, ${colorName(state[start+i])}" class="${readOnly?'':'paintable '}pyra-cell ${readOnly?setupMarkerClass(start+i):''}" ${readOnly?'disabled':''} data-index="${start+i}" style="left:${pos[0]}%; top:${pos[1]}%; background:${state[start+i]}" title="${PYRA_FACE_NAMES[faceIndex]} ${i+1}"></button>`).join('')}</div></div>`;
       };
       return `<div class="grid min-w-max grid-cols-2 gap-4 p-2 md:grid-cols-4">${[0,1,2,3].map(face).join('')}</div>`;
     }
@@ -3236,8 +3459,8 @@ THE SOFTWARE.
     async function startPlayback(profile = AppState.trainingProfile) {
       stopAutoPlay(); cancelAnimation();
       if(!profile && !validateAndUpdate()) { showToast(buildValidationHint(AppState.colorDataMap[AppState.puzzleType]),'error',5200); return; }
-      AppState.trainingProfile=profile;
-      AppState.lessonPhase='teach'; AppState.activeStepIndex=0; AppState.activeMoveIndex=0; AppState.activeCaseIndex=0; AppState.independentCaseIndex=0;
+      AppState.trainingProfile=profile;AppState.playbackSpeed=profile?'slow':'normal';
+      AppState.studyMaskEnabled=true;AppState.cameraX=-24;AppState.cameraY=-34;AppState.showNet=false;$('#toggleNet').textContent='Show All Faces';AppState.lessonPhase='teach'; AppState.activeStepIndex=0; AppState.activeMoveIndex=0; AppState.activeCaseIndex=0; AppState.independentCaseIndex=0;
       AppState.playbackHistory=[]; AppState.completed=false;
       if(profile) {
         cancelSolve(); CurrentAlgorithm=prepareAlgorithm(profile); resetPracticeCase();
@@ -3257,7 +3480,7 @@ THE SOFTWARE.
         }
       }
       $('#playbackModeBadge').textContent=profile==='guided'?'Guided Practice':profile==='independent'?'Independent Study':'Verified Solve';
-      $('#hintBox').classList.toggle('hidden',!profile);
+      $('#hintBox').classList.toggle('hidden',profile!=='independent');
       renderVisualFrame(); renderUIStatusDisplay(); setView('playback');
     }
     function calculateInWorker(type,state) {
@@ -3286,44 +3509,84 @@ THE SOFTWARE.
     }
     function cancelAnimation() {
       if(animationTimer) clearTimeout(animationTimer);
+      turnAnimations.forEach(animation=>animation.cancel());
+      turnAnimations=[];
       animationTimer=null; AppState.animating=false;
     }
 
     function renderVisualFrame() {
+      $('#visualFrame').classList.toggle('net-view',AppState.showNet);
       if (AppState.trainingProfile === 'independent') { renderIndependentStudy(); return; }
       const puzzle = PUZZLES[AppState.puzzleType];
+      updateModelHelp();
       if(AppState.showNet) { $('#visualFrame').innerHTML=puzzle.kind==='cube'?renderCubeNet(puzzle.size,AppState.playbackState,{readOnly:true}):renderPyraminxNet(AppState.playbackState,true); return; }
       $('#visualFrame').innerHTML = puzzle.kind === 'cube' ? renderCube3D(puzzle.size, AppState.playbackState) : renderPyraminx3D(AppState.playbackState);
     }
 
-    function renderCube3D(size, state) {
-      const cubie = size===2?60:size >= 5 ? 28 : size === 4 ? 33 : 40;
+    function defaultCameraTilt() {
+      const step=CurrentAlgorithm[AppState.activeStepIndex];
+      if(AppState.trainingProfile!=='independent'||!step||PUZZLES[AppState.puzzleType].kind!=='cube') return -24;
+      const size=PUZZLES[AppState.puzzleType].size, geometry=cubeStickerGeometry(size);
+      const focus=AppState.studyPreviewGoal?independentCaseFocusIndices(AppState.puzzleType,step,step.studyGoalSetupMoves):AppState.studyFocusIndices;
+      const bottom=focus.filter(i=>geometry[i].position[1]===size-1).length, top=focus.filter(i=>geometry[i].position[1]===0).length;
+      return bottom>top?24:-24;
+    }
+    function updateModelHelp() {
+      const cube=PUZZLES[AppState.puzzleType].kind==='cube';
+      $('#toggleStudyMask').classList.toggle('hidden',AppState.trainingProfile!=='independent');
+      $('#toggleStudyMask').textContent=AppState.studyMaskEnabled?'Show all pieces':'Focus pieces only';
+      $('#toggleStudyMask').setAttribute('aria-pressed',String(!AppState.studyMaskEnabled));
+      $('#resetCamera').disabled=!cube||AppState.showNet;
+      $('.model-help').textContent=AppState.showNet?'Each face is viewed directly from outside. Follow the labeled orientation.':cube?'Drag to look around. The view does not change your puzzle.':'Follow the labeled vertices: U top, L left, R right, B back.';
+      $('#visibleFaces').textContent=cube?(AppState.cameraX>0?'D = bottom · F = front · R = right':'U = top · F = front · R = right'):'Lowercase moves turn a small tip; uppercase moves turn the vertex layer.';
+    }
+    function updateCamera() {
+      const cube=$('#cube3d');
+      if(cube) {cube.style.setProperty('--view-x',AppState.cameraX+'deg');cube.style.setProperty('--view-y',AppState.cameraY+'deg');}
+      $('#visibleFaces').textContent=`${AppState.cameraX>0?'D = bottom':'U = top'} · F = front · R = right${AppState.cameraX!==defaultCameraTilt()||AppState.cameraY!==-34?' · View rotated; Reset view restores the teaching grip.':''}`;
+    }
+    function wireModelOrbit() {
+      const frame=$('#visualFrame');let drag=null;
+      frame.addEventListener('pointerdown',event=>{
+        if(!event.target.closest('.cube-scene')||AppState.animating||event.button!==0) return;
+        drag={x:event.clientX,y:event.clientY,rx:AppState.cameraX,ry:AppState.cameraY};frame.setPointerCapture(event.pointerId);
+      });
+      frame.addEventListener('pointermove',event=>{
+        if(!drag) return;
+        AppState.cameraX=Math.max(-80,Math.min(80,drag.rx-(event.clientY-drag.y)*.4));
+        AppState.cameraY=drag.ry+(event.clientX-drag.x)*.4;updateCamera();
+      });
+      const end=()=>{drag=null;};frame.addEventListener('pointerup',end);frame.addEventListener('pointercancel',end);
+    }
+
+    function renderCube3D(size, state, preview=false) {
+      const cubie = 210 / size;
       const half = (size - 1) / 2;
       const idx = (face, row, col) => face * size * size + row * size + col;
-      const sticker = (face, color) => `<span class="sticker3d sticker-${face}" style="background:${color || '#111827'}"></span>`;
+      const sticker = (face, color, index) => `<span class="cubie-body sticker-${face}"><span data-sticker-index="${index}" data-face="${face}" class="sticker3d ${!preview?setupMarkerClass(index):''}" style="background:${color || '#111827'}" aria-label="${face} sticker ${index}: ${colorName(color)}"></span></span>`;
       const cubies = [];
       for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
           for (let z = 0; z < size; z++) {
             if (x > 0 && x < size - 1 && y > 0 && y < size - 1 && z > 0 && z < size - 1) continue;
             const faces = [];
-            if (y === 0) faces.push(sticker('U', state[idx(0, z, x)]));
-            if (x === 0) faces.push(sticker('L', state[idx(1, y, z)]));
-            if (z === size - 1) faces.push(sticker('F', state[idx(2, y, x)]));
-            if (x === size - 1) faces.push(sticker('R', state[idx(3, y, size - 1 - z)]));
-            if (z === 0) faces.push(sticker('B', state[idx(4, y, size - 1 - x)]));
-            if (y === size - 1) faces.push(sticker('D', state[idx(5, size - 1 - z, x)]));
+            if (y === 0) faces.push(sticker('U', state[idx(0, z, x)], idx(0, z, x)));
+            if (x === 0) faces.push(sticker('L', state[idx(1, y, z)], idx(1, y, z)));
+            if (z === size - 1) faces.push(sticker('F', state[idx(2, y, x)], idx(2, y, x)));
+            if (x === size - 1) faces.push(sticker('R', state[idx(3, y, size - 1 - z)], idx(3, y, size - 1 - z)));
+            if (z === 0) faces.push(sticker('B', state[idx(4, y, size - 1 - x)], idx(4, y, size - 1 - x)));
+            if (y === size - 1) faces.push(sticker('D', state[idx(5, size - 1 - z, x)], idx(5, size - 1 - z, x)));
             const tx = (x - half) * cubie;
             const ty = (y - half) * cubie;
             const tz = (z - half) * cubie;
-            cubies.push(`<div class="cubie" data-x="${x}" data-y="${y}" data-z="${z}" style="--base:translate3d(${tx}px, ${ty}px, ${tz}px);">${faces.join('')}</div>`);
+            cubies.push(`<div class="cubie" data-x="${x}" data-y="${y}" data-z="${z}" style="--base:translate3d(${tx}px, ${ty}px, ${tz}px);">${['U','L','F','R','B','D'].map(face=>faces.find(surface=>surface.includes(`cubie-body sticker-${face}`))||`<span class="cubie-body sticker-${face}"></span>`).join('')}</div>`);
           }
         }
       }
-      return `<div class="flex h-full min-h-[300px] flex-col items-center justify-center"><div class="cube-scene"><div id="cube3d" class="cube3d puzzle-model-${size}x${size}" data-size="${size}" style="--cube-size:${size}; --cubie:${cubie}px">${cubies.join('')}</div></div><div class="cube-shadow"></div><div class="model-plaque">${size}×${size} physical cubie model</div></div>`;
+      return `<div class="flex h-full min-h-[300px] flex-col items-center justify-center"><div class="cube-scene"><div ${preview?'data-preview-model="cube"':'id="cube3d"'} class="cube3d puzzle-model-${size}x${size}" data-size="${size}" style="--cube-size:${size}; --cubie:${cubie}px;--view-x:${AppState.cameraX}deg;--view-y:${AppState.cameraY}deg;--turn-duration:${playbackTiming().turn}ms">${cubies.join('')}</div></div><div class="cube-shadow"></div><div class="model-plaque">${size}×${size} · Drag to look around</div></div>`;
     }
 
-    function renderPyraminx3D(state) {
+    function renderPyraminx3D(state, preview=false) {
       const positions = [[100/3,0],[100/6,100/3],[100/3,100/3],[50,100/3],[0,200/3],[100/6,200/3],[100/3,200/3],[50,200/3],[200/3,200/3]];
       const height=190*Math.sqrt(3)/2;
       const vertices=[[0,-190*Math.sqrt(2/3),0],[-95,0,190/(2*Math.sqrt(3))],[95,0,190/(2*Math.sqrt(3))],[0,0,-190/Math.sqrt(3)]];
@@ -3336,17 +3599,21 @@ THE SOFTWARE.
         return `matrix3d(${[...x,0,...y,0,...z,0,...center,1].join(',')})`;
       });
       const stickers=PYRA_FACE_VERTICES.flatMap((_,face)=>positions.map((pos,i)=>
-        `<div class="pyra-piece3d" data-pyra-index="${face*9+i}" style="--face-transform:${transforms[face]}"><span class="pyra-sticker3d ${[2,5,7].includes(i)?'pyra-inverted':''}" style="left:${pos[0]}%; top:${pos[1]}%; --sticker-color:${state[face*9+i]||COLORS.blank};background:#0f172a"></span></div>`
+        `<div class="pyra-piece3d" data-pyra-index="${face*9+i}" style="--face-transform:${transforms[face]}"><span class="pyra-sticker3d ${[2,5,7].includes(i)?'pyra-inverted':''} ${!preview?setupMarkerClass(face*9+i):''}" style="left:${pos[0]}%; top:${pos[1]}%; --sticker-color:${state[face*9+i]||COLORS.blank};background:#0f172a"></span></div>`
       )).join('');
-      return `<div class="flex h-full min-h-[300px] flex-col items-center justify-center"><div class="pyra-scene"><div id="pyra3d" class="pyra3d puzzle-model-pyraminx">${stickers}</div></div><div class="cube-shadow"></div><div class="model-plaque">Pyraminx tetrahedral sticker model</div></div>`;
+      return `<div class="flex h-full min-h-[300px] flex-col items-center justify-center"><div class="pyra-scene"><div ${preview?'data-preview-model="pyraminx"':'id="pyra3d"'} class="pyra3d puzzle-model-pyraminx" style="--turn-duration:${playbackTiming().turn}ms">${stickers}</div></div><div class="cube-shadow"></div><div class="model-plaque">Pyraminx tetrahedral sticker model</div></div>`;
     }
 
     function renderIndependentStudy() {
-      const step=CurrentAlgorithm[AppState.activeStepIndex], focusSet=new Set(step.focusIndices);
-      const masked=AppState.playbackState.map((color,index)=>focusSet.has(index)?color:COLORS.mask);
+      updateModelHelp();
+      const step=CurrentAlgorithm[AppState.activeStepIndex];
+      if(!AppState.studyPreviewGoal) AppState.studyFocusIndices=independentCaseFocusIndices(AppState.puzzleType,step,[...AppState.practiceSetupMoves,...step.studyMoves.slice(0,AppState.activeMoveIndex)]);
+      const focusSet=new Set(AppState.studyPreviewGoal?independentCaseFocusIndices(AppState.puzzleType,step,step.studyGoalSetupMoves):AppState.studyFocusIndices);
+      const viewState=AppState.studyPreviewGoal?independentGoalState(AppState.puzzleType,step):AppState.playbackState;
+      const masked=viewState.map((color,index)=>!AppState.studyMaskEnabled||focusSet.has(index)?color:COLORS.mask);
       const puzzle=PUZZLES[AppState.puzzleType];
       $('#visualFrame').innerHTML=AppState.showNet?(puzzle.kind==='cube'?renderCubeNet(puzzle.size,masked,{readOnly:true}):renderPyraminxNet(masked,true)):(puzzle.kind==='cube'?renderCube3D(puzzle.size,masked):renderPyraminx3D(masked));
-      $('#hintBox').textContent='Focus on the visible pieces. The mask affects only the display; the underlying practice state is intact.';
+      $('#hintBox').textContent=AppState.studyPreviewGoal?(step.mentalStep?'Daisy target reference. Your practice state is saved unchanged.':'Completed target on a solved reference cube. The exercise state is saved unchanged.'):AppState.studyMaskEnabled?'Pieces from earlier steps stay colored alongside this step’s pieces, including while they move.':'All pieces are visible. Focus pieces only restores the mask without moving or recoloring anything.';
     }
 
     function isTurnMove(move) {
@@ -3866,9 +4133,9 @@ THE SOFTWARE.
       return moves.reduce((next,move)=>simulateMoveOnPuzzleState(type,next,move),state.slice());
     }
 
-    function advancePlaybackState(direction) {
+    function advancePlaybackState(direction,studyTurn=false) {
       if(!CurrentAlgorithm.length || AppState.animating) return;
-      if(AppState.trainingProfile==='independent') {
+      if(AppState.trainingProfile==='independent'&&!studyTurn) {
         stopAutoPlay();
         const next=AppState.activeStepIndex+(direction==='BACK'?-1:1);
         if(next<0||next>=CurrentAlgorithm.length) return;
@@ -3886,17 +4153,17 @@ THE SOFTWARE.
       triggerVisualPuzzleTurnAnimation(move);
       if(AppState.completed) {
         const solved=isSolvedPuzzleState(AppState.puzzleType,AppState.playbackState);
-        showToast(solved?'Puzzle solved.':AppState.trainingProfile?'Practice sequence complete.':'Solution verification failed.',solved||AppState.trainingProfile?'success':'error');
+        if(!AppState.trainingProfile) showToast(solved?'Puzzle solved.':'Solution verification failed.',solved?'success':'error');
       }
       AppState.animating=true;
-      animationTimer=setTimeout(()=> { AppState.animating=false;animationTimer=null;renderVisualFrame();renderUIStatusDisplay(); },480);
+      animationTimer=setTimeout(()=> { cancelAnimation();renderVisualFrame();renderUIStatusDisplay(); },playbackTiming().turn+30);
       renderUIStatusDisplay();
     }
     function executeNextPlaybackMove() {
       if(AppState.completed) return false;
       const step=CurrentAlgorithm[AppState.activeStepIndex], moves=activeMovesForStep(step), move=moves[AppState.activeMoveIndex];
       if(!move) {AppState.completed=true;stopAutoPlay();return false;}
-      AppState.playbackHistory.push({playbackState:AppState.playbackState.slice(),activeStepIndex:AppState.activeStepIndex,activeMoveIndex:AppState.activeMoveIndex,activeCaseIndex:AppState.activeCaseIndex,completed:false});
+      AppState.playbackHistory.push({playbackState:AppState.playbackState.slice(),activeStepIndex:AppState.activeStepIndex,activeMoveIndex:AppState.activeMoveIndex,activeCaseIndex:AppState.activeCaseIndex,practicePhase:AppState.practicePhase,completed:false});
       applyMoveToPlaybackState(move);AppState.activeMoveIndex++;
       if(AppState.activeMoveIndex>=moves.length) {AppState.completed=true;stopAutoPlay();}
       return true;
@@ -3916,6 +4183,21 @@ THE SOFTWARE.
       AppState.completed=!CurrentAlgorithm[0].moves.length;
       renderVisualFrame();renderUIStatusDisplay();
     }
+    function shortMoveInstruction(move,type) {
+      if(!move) return 'Inspect the pieces.';
+      const direction=move.endsWith('2')?'a half turn':move.endsWith("'")?'counterclockwise':'clockwise';
+      if(type==='pyraminx') {
+        const vertex={u:'top',l:'left',r:'right',b:'back'}[move[0].toLowerCase()];
+        return `Turn ${move[0]===move[0].toLowerCase()?'only the small':'the larger'} ${vertex} ${move[0]===move[0].toLowerCase()?'tip':'vertex layer'} ${direction}.`;
+      }
+      const rotation=/^([xyz])/.exec(move);
+      if(rotation) return `Rotate the whole cube ${direction}, like a ${{x:'Right',y:'Up',z:'Front'}[rotation[1]]} turn.`;
+      const match=/^(\d+)?([URFDLB])(w)?/.exec(move);
+      if(!match) return describeMove(move,type);
+      const face={U:'Up',R:'Right',F:'Front',D:'Down',L:'Left',B:'Back'}[match[2]];
+      return match[3]?`Turn ${match[1]||'both'} ${face.toLowerCase()} layers together ${direction}.`:match[1]?`Turn only layer ${match[1]} from ${face} ${direction}.`:`Turn the ${face} face ${direction}.`;
+    }
+
     function describeMove(move,type) {
       if(!move) return 'No turn is pending.';
       if(type==='pyraminx') {
@@ -3932,9 +4214,9 @@ THE SOFTWARE.
       return `Turn ${layer} ${suffix==='2'?'by 180°':suffix==="'"?'counterclockwise by 90°':'clockwise by 90°'}, looking directly at ${name}.`;
     }
 
-    function renderMoveWindow(moves) {
-      const start=Math.max(0,Math.min(AppState.activeMoveIndex-6,moves.length-21)), end=Math.min(moves.length,start+21);
-      const pill=(move,index)=>`<span title="Move ${index+1}" class="notation-pill ${index===AppState.activeMoveIndex?'active':''} rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">${escapeHtml(move)}</span>`;
+    function renderMoveWindow(moves, cursor=AppState.activeMoveIndex, maxVisible=21) {
+      const start=Math.max(0,Math.min(cursor-Math.floor(maxVisible/3),moves.length-maxVisible)), end=Math.min(moves.length,start+maxVisible);
+      const pill=(move,index)=>`<span title="Move ${index+1}" class="notation-pill ${index===cursor?'active':''} rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">${escapeHtml(move)}</span>`;
       return (start?'<span class="text-slate-500">…</span>':'')+moves.slice(start,end).map((move,index)=>pill(move,start+index)).join('')+(end<moves.length?'<span class="text-slate-500">…</span>':'');
     }
 
@@ -3945,6 +4227,16 @@ THE SOFTWARE.
       AppState.lessonPhase='teach'; AppState.activeStepIndex=next; AppState.activeCaseIndex=0; resetPracticeCase(); renderVisualFrame();renderUIStatusDisplay();
     }
 
+    function animatePuzzlePiece(piece, rotation, base) {
+      // Matching rotation functions keep translation inside the rotation throughout
+      // interpolation. Matrix interpolation instead slides cubies through the cube.
+      // Explicit keyframes also work before a newly rendered case's first paint.
+      turnAnimations.push(piece.animate([
+        {transform:`${rotation(0)} ${base}`},
+        {transform:`${rotation(1)} ${base}`}
+      ],{duration:playbackTiming().turn,easing:'ease-in-out',fill:'forwards'}));
+    }
+
     function triggerVisualPuzzleTurnAnimation(move) {
       const cube=$('#cube3d');
       if(!cube) {
@@ -3952,11 +4244,11 @@ THE SOFTWARE.
           const vertex={U:0,L:1,R:2,B:3}[move[0].toUpperCase()], height=190*Math.sqrt(2/3);
           const axes=[[0,-height*3/4,0],[-95,height/4,190/(2*Math.sqrt(3))],[95,height/4,190/(2*Math.sqrt(3))],[0,height/4,-190/Math.sqrt(3)]];
           const permutation=pyraminxMovePermutation(move), angle=move.endsWith("'")?-120:120;
-          $$('.pyra-piece3d').forEach(piece=> {
+          $('#pyra3d').querySelectorAll('.pyra-piece3d').forEach(piece=> {
             const index=Number(piece.dataset.pyraIndex);
-            if(permutation[index]!==index) piece.style.transform=`rotate3d(${axes[vertex].join(',')},${angle}deg) ${piece.style.getPropertyValue('--face-transform')}`;
+            if(permutation[index]!==index) animatePuzzlePiece(piece,t=>`rotate3d(${axes[vertex].join(',')},${t*angle}deg)`,piece.style.getPropertyValue('--face-transform'));
           });
-        } else $('#visualFrame').animate([{opacity:1},{opacity:.5},{opacity:1}],{duration:450});
+        } else turnAnimations.push($('#visualFrame').animate([{opacity:1},{opacity:.5},{opacity:1}],{duration:playbackTiming().turn}));
         return;
       }
       const rotation=/^([xyz])(2|')?$/.exec(move);
@@ -3966,35 +4258,47 @@ THE SOFTWARE.
       const axis={R:'x',L:'x',U:'y',D:'y',F:'z',B:'z'}[face], positive=['R','D','F'].includes(face);
       const width=rotation?size:wide?Number(prefix||2):1, layer=prefix&&!wide?Number(prefix)-1:null;
       const degrees=(positive?1:-1)*(suffix==="'"?-1:1)*(suffix==='2'?180:90);
-      $$('.cubie').forEach(cubie=> {
+      cube.querySelectorAll('.cubie').forEach(cubie=> {
         const coordinate=Number(cubie.dataset[axis]);
-        if(layer!==null?coordinate===(positive?size-1-layer:layer):(positive?coordinate>=size-width:coordinate<width)) cubie.style.transform=`rotate${axis.toUpperCase()}(${degrees}deg) ${cubie.style.getPropertyValue('--base')}`;
+        if(layer!==null?coordinate===(positive?size-1-layer:layer):(positive?coordinate>=size-width:coordinate<width)) animatePuzzlePiece(cubie,t=>`rotate${axis.toUpperCase()}(${t*degrees}deg)`,cubie.style.getPropertyValue('--base'));
       });
     }
 
     function renderUIStatusDisplay() {
       const step = CurrentAlgorithm[AppState.activeStepIndex];
       if (!step) return;
-      const moves = AppState.trainingProfile==='independent'?[]:activeMovesForStep(step);
-      $('#moveInstruction').textContent=AppState.trainingProfile==='independent'?'Inspect the visible pieces.':describeMove(moves[AppState.activeMoveIndex],AppState.puzzleType);
+      const independent=AppState.trainingProfile==='independent', showingStudyTask=independent&&(!AppState.studyDemonstration||AppState.studyPreviewGoal);
+      const moves = activeMovesForStep(step);
+      const displayIndex=AppState.animating?Math.max(0,AppState.activeMoveIndex-1):AppState.activeMoveIndex;
+      $('#currentTurn').textContent=showingStudyTask?(AppState.studyPreviewGoal?'Completed target reference. Return to the exercise to see its starting position.':step.mentalStep?'Build the daisy mentally, then choose Next Case.':step.studyTask||'Inspect the highlighted pieces.'):AppState.completed&&!AppState.animating?(AppState.practicePhase==='setup'?'Setup complete. Choose Play algorithm to watch the solving moves.':moves.length?independent?'Demonstration complete. Replay it or choose Next Case.':'Sequence complete. Continue with the lesson.':activeCaseForStep(step)?.mentalStep?'Build the daisy mentally: four white petals around yellow.':'Inspect this example, then continue.'): `${AppState.practicePhase==='setup'&&AppState.trainingProfile==='guided'?'Setup · ':''}${AppState.animating?'Turning':'Next'}: ${moves[displayIndex]||'Inspect'} · ${shortMoveInstruction(moves[displayIndex],AppState.puzzleType)}`;
+      if(!AppState.trainingProfile&&AppState.completed&&!AppState.animating) $('#currentTurn').textContent='Solved. Back undoes a move; Restart returns to your scan.';
+      $('#moveInstruction').textContent=showingStudyTask?'Inspect the visible pieces.':describeMove(moves[displayIndex],AppState.puzzleType);
       $('#backMove').disabled=AppState.animating || (AppState.trainingProfile==='independent'?AppState.activeStepIndex===0:!AppState.playbackHistory.length);
       $('#nextMove').disabled=AppState.animating || (AppState.trainingProfile==='independent'?AppState.activeStepIndex===CurrentAlgorithm.length-1:AppState.completed);
-      $('#playMove').disabled=AppState.animating || AppState.completed || AppState.trainingProfile==='independent';
+      const setupReady=AppState.trainingProfile==='guided'&&AppState.practicePhase==='setup'&&AppState.completed&&!AppState.animating;
+      $('#playMove').disabled=(AppState.animating&&!AppState.autoTimer)||!moves.length;
+      $('#playMove').textContent=AppState.autoTimer?'Pause':!moves.length?(activeCaseForStep(step)?.mentalStep?'Mental step':'Inspect this step'):setupReady?'Play algorithm':AppState.completed?'Replay':independent?'Play demonstration':'Play';
+      $('#playbackSpeed').value=AppState.playbackSpeed;
+      $('#algorithmPanel').classList.toggle('hidden',independent&&!moves.length);
+      $('#playbackPhaseLabel').textContent=AppState.trainingProfile==='guided'?(AppState.practicePhase==='setup'?'Practice setup':step.intuitiveNote||step.mentalNote?'Example turn demonstration':'Algorithm demonstration'):'';
       $('#pauseMove').disabled=!AppState.autoTimer;
       $('#nextMove').textContent=AppState.trainingProfile==='independent'?'Next Case':'Next Move';
       $('#backMove').textContent=AppState.trainingProfile==='independent'?'Previous Case':'Back One Move';
-      $('#playbackTitle').textContent=AppState.completed&&AppState.trainingProfile!=='independent'?(moves.length?'Playback Complete':'Puzzle Status'):PUZZLES[AppState.puzzleType].label+' Playback';
+      $('#playbackTitle').textContent=PUZZLES[AppState.puzzleType].label+(AppState.trainingProfile==='guided'?' · Learn to solve':AppState.trainingProfile==='independent'?' · Focus practice':' · Your solution');
       $('#lessonNavigation').classList.toggle('hidden',!AppState.trainingProfile || AppState.trainingProfile==='independent');
       $('#previousLesson').disabled=AppState.activeStepIndex===0;
       $('#nextLesson').disabled=AppState.activeStepIndex===CurrentAlgorithm.length-1;
       $('#lessonProgress').textContent=`Lesson ${AppState.activeStepIndex+1} of ${CurrentAlgorithm.length}`;
       $('#solutionNavigation').classList.toggle('hidden',!!AppState.trainingProfile);
+      $('#sourceDetails').classList.toggle('hidden',AppState.trainingProfile!=='guided');
       renderLessonTeaching(step);
+      renderSetupGuide(step);
+      renderIndependentTask(step);
       if (!AppState.trainingProfile && step.calculationOnly) {
         const pureMoves = moves.filter(isTurnMove);
         $('#stepName').textContent = step.stepName;
         $('#stepInstructions').textContent = step.instructions;
-        $('#formulaDisplay').innerHTML=renderMoveWindow(pureMoves);
+        $('#formulaDisplay').innerHTML=renderMoveWindow(pureMoves,displayIndex);
         const phases=step.phases||[], current=phases.find(phase=>AppState.activeMoveIndex>=phase.start&&AppState.activeMoveIndex<phase.end)||phases.at(-1);
         $('#solutionProgress').textContent=(AppState.completed?'Complete':`Move ${AppState.activeMoveIndex+1} of ${moves.length}`)+(current?' · '+current.name:'');
         $('#solutionMoveProgress').max=Math.max(moves.length,1);$('#solutionMoveProgress').value=AppState.completed?Math.max(moves.length,1):AppState.activeMoveIndex;
@@ -4011,7 +4315,7 @@ THE SOFTWARE.
       }
       $('#stepName').textContent = step.stepName;
       $('#stepInstructions').textContent = step.instructions;
-      $('#formulaDisplay').innerHTML = moves.map((move, i) => `<span class="notation-pill ${i === AppState.activeMoveIndex ? 'active' : ''} rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">${escapeHtml(move)}</span>`).join('');
+      $('#formulaDisplay').innerHTML = moves.length>7?renderMoveWindow(moves,displayIndex,7):moves.map((move, i) => `<span class="notation-pill ${i === displayIndex ? 'active' : ''} rounded-xl bg-white px-3 py-2 ring-1 ring-slate-200">${escapeHtml(move)}</span>`).join('');
       renderSourceBox(step);
       renderCaseLibrary(step);
       if (AppState.trainingProfile === 'guided') {
@@ -4028,7 +4332,7 @@ THE SOFTWARE.
       resetPracticeCase(); renderVisualFrame(); renderUIStatusDisplay();
     }
     function continueLesson() {
-      if(AppState.trainingProfile!=='guided' || !AppState.completed) return;
+      if(AppState.trainingProfile!=='guided' || !AppState.completed||AppState.practicePhase==='setup') return;
       const step=CurrentAlgorithm[AppState.activeStepIndex];
       if(AppState.activeCaseIndex<step.cases.length-1) {
         AppState.activeCaseIndex++; resetPracticeCase(); renderVisualFrame(); renderUIStatusDisplay();
@@ -4039,23 +4343,45 @@ THE SOFTWARE.
       const panel=$('#lessonTeaching');
       panel.classList.toggle('hidden',AppState.trainingProfile!=='guided');
       if(AppState.trainingProfile!=='guided') {panel.innerHTML='';return;}
-      const teach=AppState.lessonPhase==='teach', example=activeCaseForStep(step), moves=activeMovesForStep(step);
+      const expanded=['lessonExplanation','moveBreakdown','stageList','lessonFullAlgorithm'].filter(id=>$('#'+id)?.open);
+      const teach=AppState.lessonPhase==='teach', example=activeCaseForStep(step), moves=lessonMovesForStep(step);
       const lastCase=AppState.activeCaseIndex===step.cases.length-1;
       const final=lastCase&&!teach&&AppState.activeStepIndex===CurrentAlgorithm.length-1;
-      panel.innerHTML=`<p class="text-xs font-bold uppercase tracking-wider text-indigo-700" role="status">Stage ${AppState.activeStepIndex+1} · ${teach?'1. Learn the moves':'2. Use the algorithm'}</p>
+      const settingUp=AppState.practicePhase==='setup';
+      panel.innerHTML=`<p class="text-xs font-bold uppercase tracking-wider text-indigo-700" role="status">Stage ${AppState.activeStepIndex+1} · ${example?.mentalStep?'Think it through':teach?'1. Learn the moves':'2. Use the algorithm'}</p>
         <h4 class="mt-2 text-lg font-black text-slate-900">${escapeHtml(step.goal)}</h4>
-        <p class="mt-2 text-sm leading-6 text-slate-700">${escapeHtml(teach?step.explanation:step.application)}</p>
+        <p id="lessonPrompt" class="mt-2 text-sm leading-6 text-slate-700">${escapeHtml(example?.mentalStep?example.clue:teach?(moves.length?"Watch each highlighted turn, then repeat the sequence.":"Inspect the upper edges and corners before continuing."):example?.clue||step.instructions)}</p>${mentalNoteHtml(step)}
+        <details id="lessonExplanation" class="mt-3 text-sm text-slate-700"><summary class="cursor-pointer font-bold">${step.mentalNote?"How to think through this part":teach?"How this algorithm works":"When and how to use it"}</summary><p class="mt-2 leading-6">${escapeHtml(teach?step.explanation:step.application)}</p></details>
         <p class="mt-2 text-sm font-bold text-indigo-700">${escapeHtml(example?.name||'Inspection')} · ${AppState.activeCaseIndex+1} of ${step.cases.length}</p>
-        ${teach&&moves.length?`<details class="mt-3 text-sm text-slate-700"><summary class="cursor-pointer font-bold">Every move explained</summary><ol class="mt-2 list-decimal pl-5">${moves.map(move=>`<li class="mb-2"><strong>${escapeHtml(move)}</strong> — ${escapeHtml(describeMove(move,AppState.puzzleType))}</li>`).join('')}</ol></details>`:''}
-        <p class="mt-2 text-sm text-slate-600">${teach?'Use Next Move or Play to learn the sequence. Then continue through the related algorithms before applying them.':'Inspect the prepared example using Show All Faces, then play the algorithm and check the result.'}</p>
+        ${moves.length>7?`<details id="lessonFullAlgorithm" class="mt-3 text-sm text-slate-700"><summary class="cursor-pointer font-bold">Complete solving sequence</summary><p class="mt-2 font-mono case-alg">${escapeHtml(moves.join(' '))}</p></details>`:''}
+        ${teach&&moves.length?`<details id="moveBreakdown" class="mt-3 text-sm text-slate-700"><summary class="cursor-pointer font-bold">Every move explained</summary><ol class="mt-2 list-decimal pl-5">${moves.map(move=>`<li class="mb-2"><strong>${escapeHtml(move)}</strong> — ${escapeHtml(describeMove(move,AppState.puzzleType))}</li>`).join('')}</ol></details>`:''}
+
         <div class="mt-3 flex flex-wrap gap-3">
-          ${!teach?'<button id="reviewAlgorithm" class="tap-target rounded-xl bg-white px-3 py-2 font-bold text-indigo-700">Review the algorithms</button>':''}
-          <button id="continueLesson" class="tap-target rounded-xl bg-indigo-600 px-3 py-2 font-bold text-white" ${!AppState.completed||final?'disabled':''}>${final?(AppState.completed?'Learning complete':'Finish this application'):!lastCase?(teach?'Learn next algorithm':'Try next application'):teach?'Show how to use it':'Start next stage'}</button>
+          ${!teach?`<button id="reviewAlgorithm" class="tap-target rounded-xl bg-white px-3 py-2 font-bold text-indigo-700">${step.mentalNote?'Review this step':'Review the algorithms'}</button>`:''}
+          <button id="continueLesson" class="tap-target rounded-xl bg-indigo-600 px-3 py-2 font-bold text-white" ${!AppState.completed||final||settingUp?'disabled':''}>${final?(AppState.completed?'Learning complete':'Finish this application'):!lastCase?(step.mentalNote?'Next: daisy to white cross':teach?'Learn next algorithm':'Try next application'):teach?'Show how to use it':'Start next stage'}</button>
         </div>
-        <details class="mt-3 text-sm"><summary class="cursor-pointer font-bold text-slate-700">All solve stages</summary><div class="mt-2 grid gap-2">${CurrentAlgorithm.map((lesson,index)=>`<button data-lesson-index="${index}" class="tap-target rounded-xl bg-white px-3 py-2 text-left text-slate-700" ${index===AppState.activeStepIndex?'aria-current="step"':''}>${index+1}. ${escapeHtml(lesson.goal)}</button>`).join('')}</div></details>`;
+        <details id="stageList" class="mt-3 text-sm"><summary class="cursor-pointer font-bold text-slate-700">All solve stages</summary><div class="mt-2 grid gap-2">${CurrentAlgorithm.map((lesson,index)=>`<button data-lesson-index="${index}" class="tap-target rounded-xl bg-white px-3 py-2 text-left text-slate-700" ${index===AppState.activeStepIndex?'aria-current="step"':''}>${index+1}. ${escapeHtml(lesson.goal)}</button>`).join('')}</div></details>`;
+      expanded.forEach(id=>{if($('#'+id)) $('#'+id).open=true;});
       $('#continueLesson').addEventListener('click',continueLesson);
       $('#reviewAlgorithm')?.addEventListener('click',()=>setLessonPhase('teach'));
       $$('[data-lesson-index]').forEach(button=>button.addEventListener('click',()=>selectLessonStep(Number(button.dataset.lessonIndex)-AppState.activeStepIndex)));
+    }
+
+    function renderIndependentTask(step) {
+      const panel=$('#studyTaskPanel');
+      panel.classList.toggle('hidden',AppState.trainingProfile!=='independent');
+      if(AppState.trainingProfile!=='independent') {panel.innerHTML='';return;}
+      panel.innerHTML=`<p class="text-xs font-bold uppercase tracking-wider text-indigo-700">${step.mentalStep?'First target: the daisy':AppState.studyPreviewGoal?'Completed target reference':'Practice starting position'}</p>
+        <h4 class="mt-2 text-lg font-bold text-slate-900">${escapeHtml(step.goal)}</h4>
+        <p class="mt-2 text-sm leading-6 text-slate-700">${AppState.studyPreviewGoal?'This shows where the highlighted pieces belong. Your practice cube has not been changed.':escapeHtml(step.studySetup||'The target pieces start unsolved. Compare this setup with the completed target, then work out the moves.')}</p>
+        ${mentalNoteHtml(step)}
+        ${step.studyMoves.length?'<button id="watchStudyDemo" class="tap-target mt-3 rounded-xl bg-white px-3 py-2 font-bold text-indigo-700">Watch setup and moves slowly</button>':''}
+        <button id="restartStudyCase" class="tap-target mt-3 rounded-xl bg-white px-3 py-2 font-bold text-indigo-700">Restart this case</button>
+        <button id="previewStudyGoal" class="tap-target mt-3 rounded-xl bg-indigo-600 px-3 py-2 font-bold text-white" aria-pressed="${AppState.studyPreviewGoal}">${AppState.studyPreviewGoal?'Return to exercise':'Preview completed target'}</button>
+        <details class="mt-3 text-sm text-slate-700"><summary class="cursor-pointer font-bold">How to place the pieces</summary><p class="mt-2 leading-6">${escapeHtml(step.application)}</p><p class="mt-2 font-mono">${escapeHtml(step.studyMoves.join(' '))}</p></details>`;
+      $('#watchStudyDemo')?.addEventListener('click',async()=>{const stage=step.guidedStageIndex,example=step.guidedCaseIndex;await startPlayback('guided');AppState.activeStepIndex=stage;AppState.activeCaseIndex=example;AppState.lessonPhase='apply';resetPracticeCase();renderVisualFrame();renderUIStatusDisplay();});
+      $('#restartStudyCase').addEventListener('click',()=>{resetPracticeCase();renderVisualFrame();renderUIStatusDisplay();});
+      $('#previewStudyGoal').addEventListener('click',()=>{stopAutoPlay();cancelAnimation();AppState.studyPreviewGoal=!AppState.studyPreviewGoal;AppState.cameraX=defaultCameraTilt();renderVisualFrame();renderUIStatusDisplay();});
     }
 
     function renderTutorialLibrary() {
@@ -4096,7 +4422,7 @@ THE SOFTWARE.
             <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">${index === AppState.activeCaseIndex ? 'Active' : 'Use'}</span>
           </div>
           <p class="mt-2 text-sm leading-6 text-slate-600">${escapeHtml(studyCase.clue)}</p>
-          <p class="case-alg mt-3 font-mono text-sm font-black text-slate-800">${escapeHtml((AppState.lessonPhase==='teach'?(studyCase.teachingMoves||studyCase.moves):studyCase.moves).join(' '))}</p>
+
         </button>`).join('');
       $$('[data-case-index]').forEach(button => button.addEventListener('click', () => {
         AppState.activeCaseIndex = Number(button.dataset.caseIndex);
@@ -4109,6 +4435,7 @@ THE SOFTWARE.
     function guidedHint(step, move) {
       const activeCase = activeCaseForStep(step);
       if(AppState.trainingProfile==='guided' && AppState.lessonPhase==='teach' && activeCase?.moves.length) return `Learn ${activeCase.name}. ${describeMove(move,AppState.puzzleType)} Complete the demonstration, then continue to learn how to use it.`;
+      if(activeCase?.mentalStep) return `${activeCase.clue} Solve this mentally, then continue to make the white cross.`;
       if(activeCase&&!activeCase.moves.length) return `${activeCase.clue} Inspect the pieces, then choose Next Lesson.`;
       if (activeCase) return `${activeCase.clue} Selected case algorithm: ${activeCase.moves.join(' ')}. Current move: ${move || 'inspect the case first'}.`;
       if (/White Cross/.test(step.stepName)) return `Track the white edge, line its side color with the center, then use ${move} without losing orientation.`;
@@ -4118,13 +4445,31 @@ THE SOFTWARE.
       return `Say the notation aloud as you turn: ${move}. Watch the highlighted slice and keep the puzzle orientation fixed.`;
     }
 
-    function toggleAutoPlay() {
-      if(AppState.completed || AppState.trainingProfile==='independent') return;
-      if (AppState.autoTimer) { stopAutoPlay(); renderUIStatusDisplay(); return; }
-      AppState.autoTimer = setInterval(() => advancePlaybackState('NEXT'), 1050);
-      renderUIStatusDisplay(); showToast('Auto-play started.', 'info', 1400);
+    function playbackTiming() {
+      const speeds={normal:{turn:450,pause:600},slow:{turn:1600,pause:900},'very-slow':{turn:2800,pause:1200}};
+      const timing=speeds[AppState.playbackSpeed]||speeds.normal;
+      return typeof matchMedia!=='undefined'&&matchMedia('(prefers-reduced-motion: reduce)').matches?{turn:20,pause:timing.pause}:timing;
     }
-    function stopAutoPlay() { if (AppState.autoTimer) { clearInterval(AppState.autoTimer); AppState.autoTimer = null; } }
+    function toggleAutoPlay() {
+      if(AppState.autoTimer) {stopAutoPlay();renderUIStatusDisplay();return;}
+      if(AppState.trainingProfile==='guided'&&AppState.practicePhase==='setup'&&AppState.completed) beginPracticeAlgorithm(false);
+      if(AppState.animating||!activeMovesForStep(CurrentAlgorithm[AppState.activeStepIndex]).length) return;
+      if(AppState.completed) {
+        if(AppState.trainingProfile) {resetPracticeCase();renderVisualFrame();}
+        else restartSolvePlayback();
+      }
+      if(AppState.trainingProfile==='independent') {
+        AppState.studyDemonstration=true;AppState.studyPreviewGoal=false;
+        renderVisualFrame();
+      }
+      const tick=()=> {
+        if(!AppState.autoTimer||AppState.activeScreen!=='playback') {stopAutoPlay();return;}
+        advancePlaybackState('NEXT',AppState.trainingProfile==='independent');
+        if(AppState.autoTimer&&!AppState.completed) AppState.autoTimer=setTimeout(tick,playbackTiming().turn+playbackTiming().pause);
+      };
+      AppState.autoTimer=setTimeout(tick,150);renderUIStatusDisplay();
+    }
+    function stopAutoPlay() {if(AppState.autoTimer) {clearTimeout(AppState.autoTimer);AppState.autoTimer=null;}}
 
     function showToast(message, type = 'info', duration = 3600) {
       const color = type === 'error' ? 'border-red-200 bg-red-50 text-red-950' : type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-950' : 'border-indigo-200 bg-indigo-50 text-indigo-950';
@@ -4162,7 +4507,7 @@ THE SOFTWARE.
       const move = activeMovesForStep(active)[AppState.activeMoveIndex] || 'no active move';
       if (/2r|inner/.test(q)) return '2R turns only the second layer from Right. Rw turns the outer layer and the second layer together. A suffix 2 means a half-turn; an apostrophe reverses the turn.';
       if (/rw|wide|slice/.test(q)) return 'Rw means turn the right outer layer plus the adjacent inner slice together. Big-cube beginner reduction uses wide turns for centers, edge pairing, and parity.';
-      if (/black|mask|hidden|independent/.test(q)) return 'Black pieces are intentionally masked. Each Independent Study case shows its own relevant pieces. Next and Back change the case without changing your selected puzzle.';
+      if (/black|mask|hidden|independent/.test(q)) return 'Independent Study keeps pieces from earlier steps colored as new pieces are introduced. Play demonstration animates the current case. Mental steps have no fixed move sequence. Next and Back change the case without changing your selected puzzle.';
       if (/next|move|what.*do/.test(q)) return `Current step: ${active?.stepName || 'none'}. The highlighted move is ${move}. Keep the same cube orientation and turn only the indicated layer.`;
       if (/parity/.test(q)) return '4x4 can have OLL or PLL parity after reduction. On 5x5, last-two-edge pairing may need a wing correction; a fully reduced 5x5 does not have 4x4 PLL parity. Watch whether the notation specifies wide or inner-only slices.';
       if (/validate|color|scan/.test(q)) return 'The scanner checks color counts and piece legality on every puzzle. Big cubes also check wing identity, center-orbit counts, corner twists, and the 5x5 middle-edge core. Each solution is replayed internally before being shown.';
@@ -4178,6 +4523,10 @@ THE SOFTWARE.
     function wireEvents() {
       $('#brandHome').addEventListener('click', () => setView('dashboard'));
       $('#themeToggle').addEventListener('click', toggleTheme);
+      $('#playbackSpeed').addEventListener('change',event=>{stopAutoPlay();cancelAnimation();AppState.playbackSpeed=event.target.value;renderVisualFrame();renderUIStatusDisplay();});
+      $('#toggleStudyMask').addEventListener('click',()=>{AppState.studyMaskEnabled=!AppState.studyMaskEnabled;renderVisualFrame();});
+      $('#resetCamera').addEventListener('click',()=>{AppState.cameraX=defaultCameraTilt();AppState.cameraY=-34;updateCamera();});
+      wireModelOrbit();
       $('#chatToggle').addEventListener('click', () => toggleChat(true));
       $('#chatClose').addEventListener('click', () => toggleChat(false));
       $('#chatForm').addEventListener('submit', (event) => { event.preventDefault(); const question = $('#chatInput').value.trim(); if (!question) return; addChatMessage(question, 'user'); $('#chatInput').value = ''; addChatMessage(answerCoachQuestion(question), 'bot'); });
@@ -4191,7 +4540,7 @@ THE SOFTWARE.
       $('#validateBtn').addEventListener('click', () => { validateAndUpdate() ? showToast('Validation passed. SOLVE is unlocked.', 'success') : showToast(buildValidationHint(AppState.colorDataMap[AppState.puzzleType]), 'error', 5200); });
       $('#resetPaintBtn').addEventListener('click', resetPaint);
       $('#solveBtn').addEventListener('click', () => startPlayback(AppState.trainingProfile));
-      $('#toggleNet').addEventListener('click',()=>{ cancelAnimation(); AppState.showNet=!AppState.showNet;$('#toggleNet').textContent=AppState.showNet?'Show 3D Model':'Show All Faces';renderVisualFrame();renderUIStatusDisplay(); });
+      $('#toggleNet').addEventListener('click',()=>{ stopAutoPlay();cancelAnimation(); AppState.showNet=!AppState.showNet;$('#toggleNet').textContent=AppState.showNet?'Show 3D Model':'Show All Faces';renderVisualFrame();renderUIStatusDisplay(); });
       $('#finishSolve').addEventListener('click',showSolvedResult);
       $('#restartSolve').addEventListener('click',restartSolvePlayback);
       $('#previousLesson').addEventListener('click',()=>selectLessonStep(-1));

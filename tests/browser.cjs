@@ -17,6 +17,248 @@ const { chromium } = require('playwright');
     const settle=()=>page.waitForFunction(()=>!AppState.animating);
     const choose=async type=>{await page.click('#brandHome');await page.click(`[data-puzzle="${type}"]`);};
     assert.equal(await page.locator('[data-puzzle]').count(),5);
+    assert.equal(await page.locator('#puzzleCards [data-preview-model="cube"]').count(),4);
+    assert.equal(await page.locator('#puzzleCards [data-preview-model="pyraminx"]').count(),1);
+    assert.equal(await page.locator('#puzzleCards svg').count(),0);
+    assert.equal(await page.locator('#cube3d, #pyra3d').count(),0,'Homepage previews must not reuse playback IDs');
+    if(process.argv.includes('--study-play')) {
+      for(const type of ['2x2','3x3','4x4','5x5','pyraminx']) {
+        await choose(type);await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');
+        while(!await read(()=>CurrentAlgorithm[AppState.activeStepIndex].studyMoves.length)) {
+          assert.equal(await page.locator('#playMove').innerText(),'Mental step');
+          assert(await page.locator('#playMove').isDisabled());await page.click('#nextMove');
+        }
+        const stage=await read(()=>AppState.activeStepIndex),prepared=await read(()=>AppState.playbackState.join('|'));
+        assert(await page.locator('#playMove').isEnabled());
+        await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);
+        assert.equal(await read(()=>AppState.trainingProfile),'independent');
+        assert.equal(await read(()=>AppState.activeStepIndex),stage,'Play must turn pieces, not advance the case');
+        assert((await page.locator('#currentTurn').innerText()).startsWith('Turning:'));
+        assert(await page.locator('#algorithmPanel').isVisible());
+        await page.click('#playMove');assert(!await read(()=>AppState.autoTimer));await settle();
+        assert.equal(await read(()=>AppState.activeMoveIndex),1);
+        assert.notEqual(await read(()=>AppState.playbackState.join('|')),prepared);
+        assert(await read(()=>{
+          const step=CurrentAlgorithm[AppState.activeStepIndex];
+          const expected=independentCaseFocusIndices(AppState.puzzleType,step,[...AppState.practiceSetupMoves,...step.studyMoves.slice(0,AppState.activeMoveIndex)]);
+          return expected.join()===AppState.studyFocusIndices.join();
+        }),'The cumulative mask must move with the actual pieces');
+        await page.click('#restartStudyCase');assert.equal(await read(()=>AppState.playbackState.join('|')),prepared);
+        await page.click('#nextMove');
+        assert.equal(await read(()=>AppState.activeStepIndex),stage+1);
+        await page.click('#backMove');assert.equal(await read(()=>AppState.playbackState.join('|')),prepared);
+      }
+      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');await page.click('#nextMove');
+      await page.selectOption('#playbackSpeed','normal');await page.click('#playMove');
+      await page.waitForFunction(()=>AppState.completed&&!AppState.animating,{},{timeout:15000});
+      assert.equal(await page.locator('#playMove').innerText(),'Replay');assert(await page.locator('#playMove').isEnabled());
+      assert(await read(()=>isSolvedPuzzleState('3x3',AppState.playbackState)));
+      await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);assert.equal(await read(()=>AppState.activeMoveIndex),1);
+      await page.click('#brandHome');assert(!await read(()=>AppState.animating||AppState.autoTimer));
+      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#continueLesson');
+      await page.selectOption('#playbackSpeed','normal');await page.click('#playMove');
+      await page.waitForFunction(()=>AppState.completed&&!AppState.animating,{},{timeout:15000});
+      assert.equal(await page.locator('#playMove').innerText(),'Replay');await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);
+      await page.click('#brandHome');assert.deepEqual(errors,[]);assert.equal(external.length,0);
+      console.log('browser: ok — independent Play/Pause and in-place moves on all five puzzles, moving cumulative masks, case navigation, reset, completion/replay, guided replay and navigation cancellation');return;
+    }
+    if(process.argv.includes('--motion')) {
+      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+      // Start in the same task as rendering: CSS transitions used to skip this turn.
+      await page.evaluate(()=>{beginPracticeAlgorithm(false);advancePlaybackState('NEXT');});
+      const moving=page.locator('#cube3d .cubie[data-x="2"][data-y="0"][data-z="2"]');
+      const first=await moving.evaluate(n=>getComputedStyle(n).transform);
+      await page.waitForTimeout(350);
+      assert.notEqual(await moving.evaluate(n=>getComputedStyle(n).transform),first,'The visible piece must move between frames');
+      assert.equal(await moving.evaluate(n=>n.getAnimations().length),1);
+      await page.screenshot({path:path.join(os.tmpdir(),'twisty-turn-in-progress.png')});
+      await settle();await page.click('#backMove');
+      assert.equal(await read(()=>AppState.activeMoveIndex),0);
+      const failures=await page.evaluate(()=>{
+        stopAutoPlay();cancelAnimation();const failures=[];
+        for(const size of [2,3,4,5]) {
+          AppState.puzzleType=`${size}x${size}`;
+          const moves=['R',"R'",'U','D','F','B','L','R2','x',"y'",'z2',...(size>2?['Rw',"Uw'",'2R2']:[]),...(size===5?["3Rw'"]:[])];
+          for(const move of moves) {
+            $('#visualFrame').innerHTML=renderCube3D(size,createSolvedState(AppState.puzzleType));
+            triggerVisualPuzzleTurnAnimation(move);
+            const geometry=cubeStickerGeometry(size),permutation=cubeMovePermutation(move,size),scale=210/size,half=(size-1)/2;
+            const pieces=[...$('#cube3d').querySelectorAll('.cubie')],initial=pieces.map(n=>new DOMMatrix(getComputedStyle(n).transform));
+            const animations=turnAnimations.slice();animations.forEach(a=>a.pause());
+            for(const fraction of [.25,.5,.75,1]) {
+              animations.forEach(a=>a.currentTime=playbackTiming().turn*fraction);
+              pieces.forEach((piece,index)=>{
+                const m=new DOMMatrix(getComputedStyle(piece).transform),before=initial[index];
+                if(Math.abs(Math.hypot(m.m41,m.m42,m.m43)-Math.hypot(before.m41,before.m42,before.m43))>.02) failures.push(`${size} ${move}: piece left its circular orbit`);
+                if(fraction===1) piece.querySelectorAll('[data-sticker-index]').forEach(sticker=>{
+                  const source=Number(sticker.dataset.stickerIndex),target=geometry[permutation[source]],normal=geometry[source].normal;
+                  const p=[m.m41,m.m42,m.m43],n=m.transformPoint(new DOMPoint(...normal,0));
+                  if(p.some((v,i)=>Math.abs(v-(target.position[i]-half)*scale)>.02)||[n.x,n.y,n.z].some((v,i)=>Math.abs(v-target.normal[i])>.001)) failures.push(`${size} ${move}: visual endpoint differs from move engine`);
+                });
+              });
+            }
+            cancelAnimation();
+          }
+        }
+        AppState.puzzleType='pyraminx';AppState.showNet=false;
+        $('#visualFrame').innerHTML=renderPyraminx3D(createSolvedState('pyraminx'));
+        triggerVisualPuzzleTurnAnimation('R');
+        if(turnAnimations.length!==12) failures.push('Pyraminx body turn must animate 12 stickers');
+        const animation=turnAnimations[0],piece=animation.effect.target;animation.pause();animation.currentTime=200;
+        const before=getComputedStyle(piece).transform;animation.currentTime=800;
+        if(getComputedStyle(piece).transform===before) failures.push('Pyraminx must visibly rotate');
+        cancelAnimation();if(piece.getAnimations().length) failures.push('Canceled turns must stop');
+        return failures;
+      });
+      assert.deepEqual(failures,[]);
+      await page.emulateMedia({reducedMotion:'reduce'});
+      assert.equal(await read(()=>playbackTiming().turn),20,'Respect reduced-motion preference');
+      assert.deepEqual(errors,[]);assert.equal(external.length,0);
+      console.log('browser: ok — actual frame movement, first-paint playback, rigid circular turns and exact engine endpoints for all cube sizes, wide/inner/whole rotations, Pyraminx, undo/cancellation/reduced motion');return;
+    }
+    if(process.argv.includes('--scanner-review')) {
+      for(const type of ['2x2','3x3','4x4','5x5','pyraminx']) {
+        await choose(type);await page.click('[data-mode="solve"]');
+        const perFace=await read(()=>faceletCountFor()), total=await page.locator('#scannerMesh .paintable').count();
+        for(let i=0;i<perFace;i++) await page.locator(`#scannerMesh [data-index="${i}"]`).click();
+        assert(await page.locator('#scannerMesh').evaluate(n=>new DOMMatrix(getComputedStyle(n).transform).m11>0),'Completion cue must not mirror the net');
+        await page.locator(`#scannerMesh [data-index="${total-1}"]`).click();
+        assert.equal(await read(()=>AppState.colorDataMap[AppState.puzzleType].at(-1)),'#ffffff');
+        await page.click('#autoFillBtn');assert((await page.locator('#validationText').innerText()).includes('legality passed'));
+        await page.click('#brandHome');assert.equal(await page.locator('#toastLayer .toast').count(),0);
+      }
+      await page.setViewportSize({width:390,height:844});await choose('3x3');await page.click('[data-mode="solve"]');
+      await page.locator('#scannerMesh [data-index="53"]').click();assert.equal(await read(()=>AppState.colorDataMap['3x3'][53]),'#ffffff');
+      assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+      await page.screenshot({path:path.join(os.tmpdir(),'twisty-scanner-reviewed.png'),fullPage:true,animations:'disabled'});
+      assert.deepEqual(errors,[]);console.log('browser: ok — all scanner palettes keep Down stickers accessible, completion cue does not mirror, validation text and stale notices fixed');return;
+    }
+    if(process.argv.includes('--lesson-player')) {
+      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+      assert.equal(await read(()=>AppState.playbackSpeed),'slow');
+      const prepared=await read(()=>AppState.playbackState.join('|'));
+      assert((await page.locator('#setupGuide').innerText()).includes('white Up')===false);
+      assert((await page.locator('#setupGuide').innerText()).includes('yellow Up'));
+      assert.equal(await page.locator('#cube3d .setup-piece').count(),3);
+      assert.equal(await page.locator('#cube3d .setup-slot').count(),3);
+      await page.click('#toggleNet');assert.equal(await page.locator('#visualFrame .setup-piece').count(),3);await page.click('#toggleNet');
+      await page.click('#watchPracticeSetup');await page.waitForFunction(()=>AppState.animating);
+      assert.equal(await read(()=>AppState.practicePhase),'setup');
+      assert((await page.locator('#currentTurn').innerText()).startsWith('Setup'));
+      assert((await page.locator('#cube3d .cubie').first().evaluate(n=>getComputedStyle(n).transitionDuration)).includes('1.6s'));
+      await page.waitForFunction(()=>AppState.completed&&!AppState.animating,{},{timeout:20000});
+      assert.equal(await read(()=>AppState.playbackState.join('|')),prepared);
+      assert(await page.locator('#continueLesson').isDisabled());assert(await page.locator('#playMove').isEnabled());
+      await page.click('#startPracticeAlgorithm');await page.waitForFunction(()=>AppState.animating);
+      assert.equal(await read(()=>AppState.practicePhase),'algorithm');
+      await page.waitForTimeout(550);assert(await read(()=>AppState.animating),'Slow motion must slow the turn itself');
+      assert(await page.locator('#cube3d .cubie').evaluateAll(nodes=>nodes.some(n=>n.getAnimations().some(a=>a.currentTime>100&&a.currentTime<1500))),'Slow playback must animate visible pieces');
+      await page.click('#playMove');assert(!await read(()=>AppState.autoTimer));await settle();
+      assert.equal(await read(()=>AppState.activeMoveIndex),1);
+      await page.click('#backMove');assert.equal(await read(()=>AppState.playbackState.join('|')),prepared);
+      await page.selectOption('#playbackSpeed','very-slow');
+      assert((await page.locator('#cube3d .cubie').first().evaluate(n=>getComputedStyle(n).transitionDuration)).includes('2.8s'));
+      await page.click('#nextMove');await page.waitForTimeout(400);assert(await read(()=>AppState.animating));
+      await page.click('#brandHome');assert(!await read(()=>AppState.animating||AppState.autoTimer));
+      await choose('pyraminx');await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');
+      for(let i=0;i<3;i++) await page.click('#nextMove');
+      await page.click('#watchStudyDemo');assert.equal(await read(()=>AppState.trainingProfile),'guided');assert.equal(await read(()=>AppState.activeStepIndex),3);
+      assert.equal(await read(()=>activeMovesForStep(CurrentAlgorithm[3]).join(' ')),"R' L R L' U' L' U L");
+      assert(await page.locator('#setupGuide').isVisible());
+      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');await page.click('#nextLesson');
+      assert.equal(await read(()=>AppState.setupDetails.targetIndices.join(',')),'23,30');
+      assert((await page.locator('#setupGuide').innerText()).includes('green / orange'));
+      await page.click('#themeToggle');
+      assert.equal(await page.locator('#formulaDisplay .active').evaluate(n=>getComputedStyle(n).backgroundColor),'rgb(79, 70, 229)');
+      await page.screenshot({path:path.join(os.tmpdir(),'twisty-slow-setup.png'),fullPage:true,animations:'disabled'});
+      assert.equal(external.length,0);assert.deepEqual(errors,[]);console.log('browser: ok — setup before algorithm, actual slow/very-slow turns, piece/slot markers, pause/undo/cancellation, independent demo links');return;
+    }
+    if(process.argv.includes('--daisy')) {
+      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      assert((await page.locator('#stepName').innerText()).includes('white cross'));
+      assert(await read(()=>[1,3,5,7].every(i=>AppState.playbackState[i]==='#ffffff')&&AppState.playbackState[4]==='#ffff00'));
+      assert((await page.locator('#lessonTeaching [data-mental-note]').innerText()).includes('solved mentally'));
+      assert(await page.locator('#playMove').isDisabled());
+      await page.screenshot({path:path.join(os.tmpdir(),'twisty-daisy-guided.png'),fullPage:true,animations:'disabled'});
+      await page.click('#continueLesson');assert.equal(await read(()=>AppState.activeCaseIndex),1);
+      while(!await read(()=>AppState.completed)) {await page.click('#nextMove');await settle();}
+      assert(await read(()=>[46,48,50,52].every(i=>AppState.playbackState[i]==='#ffffff')));
+      assert(await read(()=>isSolvedPuzzleState('3x3',AppState.playbackState)));
+      assert.deepEqual(errors,[]);assert.equal(external.length,0);console.log('browser: ok — White Cross opens with the daisy, visible mental note, then four-petal conversion');return;
+    }
+    if(process.argv.includes('--study')) {
+      for(const type of ['2x2','3x3','4x4','5x5','pyraminx']) {
+        await choose(type);await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');
+        const count=await read(()=>CurrentAlgorithm.length);
+        for(let stage=0;stage<count;stage++) {
+          const before=await read(()=>AppState.playbackState.join('|'));
+          const focus=await read(()=>AppState.studyFocusIndices.join(','));
+          const matches=()=>page.evaluate(()=>{
+            const step=CurrentAlgorithm[AppState.activeStepIndex], state=AppState.studyPreviewGoal?independentGoalState(AppState.puzzleType,step):AppState.playbackState;
+            const targets=new Set(AppState.studyPreviewGoal?independentCaseFocusIndices(AppState.puzzleType,step,step.studyGoalSetupMoves):AppState.studyFocusIndices), cube=PUZZLES[AppState.puzzleType].kind==='cube';
+            return Array.from(document.querySelectorAll(cube?'#visualFrame [data-sticker-index]':'#visualFrame [data-pyra-index]')).every(element=>{
+              const index=Number(cube?element.dataset.stickerIndex:element.dataset.pyraIndex);
+              const expected=!AppState.studyMaskEnabled||targets.has(index)?state[index]:COLORS.mask;
+              const swatch=document.createElement('span');swatch.style.backgroundColor=expected;
+              const color=cube?element.style.backgroundColor:element.querySelector('.pyra-sticker3d').style.getPropertyValue('--sticker-color');
+              const actual=document.createElement('span');actual.style.backgroundColor=color;return actual.style.backgroundColor===swatch.style.backgroundColor;
+            });
+          });
+          assert(await matches());
+          if(type==='3x3'&&stage===0) {
+            assert(await read(()=>[1,3,5,7].every(i=>AppState.playbackState[i]==='#ffffff')&&AppState.playbackState[4]==='#ffff00'));
+            assert((await page.locator('#studyTaskPanel [data-mental-note]').innerText()).includes('solved mentally'));
+            assert.equal(await read(()=>AppState.cameraX),-24);
+          }
+          await page.click('#previewStudyGoal');assert(await read(()=>AppState.studyPreviewGoal));assert(await matches());
+          assert.equal(await read(()=>AppState.playbackState.join('|')),before);
+          if(type==='3x3'&&stage===0) {
+            assert(await page.locator('#cube3d [data-sticker-index]').evaluateAll(nodes=>[1,3,5,7].every(i=>nodes.find(n=>Number(n.dataset.stickerIndex)===i).style.backgroundColor==='rgb(255, 255, 255)')));
+            await page.screenshot({path:path.join(os.tmpdir(),'twisty-white-cross-goal.png'),fullPage:true,animations:'disabled'});
+          }
+          await page.click('#previewStudyGoal');assert(!await read(()=>AppState.studyPreviewGoal));assert(await matches());
+          assert.equal(await read(()=>AppState.playbackState.join('|')),before);
+          if(type==='3x3'&&stage===0) assert(await read(()=>AppState.studyFocusIndices.some(i=>i<9&&AppState.playbackState[i]==='#ffffff')));
+          await page.click('#toggleStudyMask');assert(!await read(()=>AppState.studyMaskEnabled));assert(await matches());
+          assert.equal(await read(()=>AppState.playbackState.join('|')),before);
+          await page.click('#toggleNet');
+          assert(await page.locator('#visualFrame button').evaluateAll(nodes=>nodes.every(n=>n.style.backgroundColor!=='rgb(30, 30, 36)')));
+          await page.click('#toggleStudyMask');
+          assert.equal(await page.locator('#visualFrame button').evaluateAll(nodes=>nodes.filter(n=>n.style.backgroundColor==='rgb(30, 30, 36)').length),await read(()=>AppState.playbackState.length-AppState.studyFocusIndices.length));
+          await page.click('#toggleNet');assert(await matches());assert.equal(await read(()=>AppState.playbackState.join('|')),before);
+          if(type==='3x3'&&stage===0) await page.screenshot({path:path.join(os.tmpdir(),'twisty-study-targets.png'),fullPage:true,animations:'disabled'});
+          if(stage<count-1) {
+            await page.click('#nextMove');await page.click('#backMove');
+            assert.equal(await read(()=>AppState.playbackState.join('|')),before);assert.equal(await read(()=>AppState.studyFocusIndices.join(',')),focus);await page.click('#nextMove');
+          }
+        }
+      }
+      assert.deepEqual(errors,[]);assert.equal(external.length,0);
+      console.log('browser: ok — all independent cases follow target pieces, full/masked 3D and net comparison, exact case navigation');return;
+    }
+    if(process.argv.includes('--homepage')) {
+      await page.screenshot({path:path.join(os.tmpdir(),'twisty-home-3d.png'),fullPage:true,animations:'disabled'});
+      for(const type of ['2x2','3x3','4x4','5x5','pyraminx']) {
+        const card=page.locator(`[data-puzzle="${type}"]`);
+        assert.equal(await card.locator('.sticker3d, .pyra-sticker3d').count(),type==='pyraminx'?36:6*Number(type[0])**2);
+        await card.click();assert.equal(await read(()=>AppState.activeScreen),'mode');await page.click('#brandHome');
+      }
+      await page.setViewportSize({width:390,height:844});
+      assert(await read(()=>document.documentElement.scrollWidth<=innerWidth));
+      await page.screenshot({path:path.join(os.tmpdir(),'twisty-home-3d-mobile.png'),fullPage:true,animations:'disabled'});
+      await page.setViewportSize({width:1280,height:900});await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#continueLesson');
+      const previewTransforms=await page.locator('#puzzleCards .cubie').evaluateAll(nodes=>nodes.map(n=>n.style.transform));
+      await page.click('#nextMove');await settle();
+      assert.deepEqual(await page.locator('#puzzleCards .cubie').evaluateAll(nodes=>nodes.map(n=>n.style.transform)),previewTransforms,'Playback must not turn homepage previews');
+      assert.equal(await page.locator('#cube3d').count(),1);
+      await choose('pyraminx');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      const tipPreview=await page.locator('#puzzleCards .pyra-piece3d').evaluateAll(nodes=>nodes.map(n=>n.style.transform));
+      await page.click('#nextMove');await settle();
+      assert.deepEqual(await page.locator('#puzzleCards .pyra-piece3d').evaluateAll(nodes=>nodes.map(n=>n.style.transform)),tipPreview);
+      assert.equal(external.length,0);assert.deepEqual(errors,[]);
+      console.log('browser: ok — five real 3D homepage previews, mobile layout, puzzle selection, isolated playback');return;
+    }
+
     if(process.argv.includes('--palette')) {
       await choose('pyraminx');await page.click('[data-mode="solve"]');
       assert.equal(await page.locator('[data-brush]').count(),5);
@@ -58,6 +300,7 @@ const { chromium } = require('playwright');
       assert(await read(()=>!isSolvedPuzzleState(AppState.puzzleType,AppState.playbackState)));
       if(type==='2x2') await page.screenshot({path:path.join(os.tmpdir(),'twisty-2x2.png'),fullPage:true});
       if(type==='pyraminx') await page.screenshot({path:path.join(os.tmpdir(),'twisty-pyraminx.png'),fullPage:true});
+      if(type==='3x3') {assert(await page.locator('#nextMove').isDisabled());await page.click('#continueLesson');}
       const baseline=await read(()=>AppState.playbackState.join('|'));
       await page.click('#nextMove');await settle();await page.click('#backMove');
       assert.equal(await read(()=>AppState.playbackState.join('|')),baseline);
@@ -69,6 +312,37 @@ const { chromium } = require('playwright');
       await page.click('#nextMove');assert.equal(await read(()=>AppState.activeStepIndex),1);
       await page.click('#backMove');assert.equal(await read(()=>AppState.playbackState.join('|')),independent);
     }
+    // Solid cubies use the exact solver geometry, with no duplicate or hidden stickers.
+    for(const type of ['2x2','3x3','4x4','5x5']) {
+      await choose(type);await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      assert(await read(()=>{
+        const geometry=cubeStickerGeometry(PUZZLES[AppState.puzzleType].size), stickers=Array.from(document.querySelectorAll('#cube3d [data-sticker-index]'));
+        return stickers.length===geometry.length && new Set(stickers.map(s=>s.dataset.stickerIndex)).size===geometry.length && stickers.every(sticker=>{
+          const index=Number(sticker.dataset.stickerIndex), cubie=sticker.closest('.cubie'), color=document.createElement('span');color.style.backgroundColor=AppState.playbackState[index];
+          return [cubie.dataset.x,cubie.dataset.y,cubie.dataset.z].map(Number).join()===geometry[index].position.join() && sticker.style.backgroundColor===color.style.backgroundColor && getComputedStyle(sticker.parentElement).backfaceVisibility==='hidden';
+        }) && Array.from(document.querySelectorAll('#cube3d .cubie')).every(c=>c.querySelectorAll('.cubie-body').length===6);
+      }));
+    }
+    await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+    const orbitState=await read(()=>AppState.playbackState.join('|'));
+    const modelBox=await page.locator('#visualFrame .cube-scene').boundingBox();
+    await page.mouse.move(modelBox.x+modelBox.width/2,modelBox.y+modelBox.height/2);await page.mouse.down();await page.mouse.move(modelBox.x+modelBox.width/2+70,modelBox.y+modelBox.height/2+20,{steps:8});await page.mouse.up();
+    assert(await read(()=>AppState.cameraY!==-34));assert.equal(await read(()=>AppState.playbackState.join('|')),orbitState);
+    await page.click('#resetCamera');assert.deepEqual(await read(()=>[AppState.cameraX,AppState.cameraY]),[-24,-34]);
+    await page.click('#nextMove');
+    assert((await page.locator('#currentTurn').innerText()).startsWith('Turning: R'));
+    assert.equal(await page.locator('#formulaDisplay .active').innerText(),'R');
+    await settle();assert((await page.locator('#currentTurn').innerText()).startsWith('Next: U'));
+    await page.click('#backMove');assert.equal(await read(()=>AppState.playbackState.join('|')),orbitState);
+    const controls=await page.locator('#transportControls').boundingBox();assert(controls.y+controls.height<=900,'Cube controls must fit in the desktop viewport');
+    assert(!await page.locator('#sourceDetails').evaluate(d=>d.open));
+    assert(!await page.locator('#lessonExplanation').evaluate(d=>d.open));
+    await page.setViewportSize({width:390,height:844});
+    assert(await read(()=>document.documentElement.scrollWidth<=innerWidth),'Mobile learning must not overflow');
+    const mobileControls=await page.locator('#transportControls').boundingBox();assert(mobileControls.y+mobileControls.height<=844,'Mobile learning controls must fit with the cube');
+    await page.screenshot({path:path.join(os.tmpdir(),'twisty-learning-mobile.png'),fullPage:true});
+    await page.click('#toggleNet');assert(await read(()=>document.documentElement.scrollWidth<=innerWidth),'The all-face net must scroll inside its own panel');await page.click('#toggleNet');
+    await page.setViewportSize({width:1280,height:900});
     // A real calculation crosses the Worker boundary, then physical turns reach solved.
     for(const type of ['2x2','3x3','pyraminx','4x4','5x5']) {
       await choose(type);await page.click('[data-mode="solve"]');
@@ -88,9 +362,9 @@ const { chromium } = require('playwright');
     // A stage teaches both related algorithms before introducing their applications.
     await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
     assert.equal(await read(()=>AppState.lessonPhase),'teach');
-    assert((await page.locator('#lessonTeaching').innerText()).includes('righty and lefty'));
+    assert((await page.locator('#lessonExplanation').textContent()).includes('righty and lefty'));
     assert(await page.locator('#continueLesson').isDisabled());
-    await page.locator('#lessonTeaching summary').first().click();
+    await page.locator('#moveBreakdown summary').click();
     assert.equal(await page.locator('#lessonTeaching li').count(),4);
     const finishPractice=async()=>page.evaluate(()=>{while(executeNextPlaybackMove()){}renderVisualFrame();renderUIStatusDisplay();});
     await finishPractice();assert(!await page.locator('#continueLesson').isDisabled());
@@ -98,7 +372,7 @@ const { chromium } = require('playwright');
     assert.equal(await read(()=>AppState.lessonPhase),'teach');assert.equal(await read(()=>AppState.playbackHistory.length),0);
     await finishPractice();await page.click('#continueLesson');
     assert.equal(await read(()=>AppState.lessonPhase),'apply');assert.equal(await read(()=>AppState.activeCaseIndex),0);
-    assert((await page.locator('#lessonTeaching').innerText()).includes('Match its two side colors'));
+    assert((await page.locator('#lessonExplanation').textContent()).includes('Match its two side colors'));
     await page.click('#nextMove');await settle();assert.equal(await read(()=>AppState.playbackHistory.length),1);
     await page.click('#reviewAlgorithm');assert.equal(await read(()=>AppState.lessonPhase),'teach');
     assert.equal(await read(()=>AppState.playbackHistory.length),0);assert.equal(await read(()=>AppState.activeMoveIndex),0);
@@ -167,7 +441,7 @@ const { chromium } = require('playwright');
 
     // Autoplay stops at the end, typing in the coach doesn't trigger playback.
     await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
-    await page.click('#playMove');await page.waitForFunction(()=>AppState.completed&&!AppState.autoTimer);
+    await page.click('#continueLesson');await page.click('#playMove');await page.waitForFunction(()=>AppState.completed&&!AppState.autoTimer);
     await page.click('#backMove');await page.click('#chatToggle');
     const cursor=await read(()=>AppState.activeMoveIndex);
     await page.locator('#chatInput').fill('what does Rw mean?');await page.keyboard.press('ArrowRight');await page.keyboard.press('Space');

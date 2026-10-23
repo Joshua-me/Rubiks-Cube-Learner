@@ -14,7 +14,7 @@ const api = vm.runInContext(`({AppState, COLORS, PUZZLES, Cube, PuzzleValidators
   getPuzzleValidation, analyzeThreeByThreeCubies, analyzeTwoByTwoCorners, LEARNING_SOURCES, GuidedLearningLibrary, parseAlgorithmMoves, cubeFaceletString, isSolvedPuzzleState,
   simulateAlgorithm, simulateMoveOnPuzzleState, inverseMove, cubeMovePermutation, pyraminxMovePermutation,
   buildCalculatedSolvePlan, reducedCubeState, buildPyraTables, bigCubeModel, cycleTable, threeCycleMoves, validateBigCubeState, permuteState, compactSolutionMoves, buildGuidedLearningPlan, buildIndependentStudyPlan,
-  independentFocusIndices, learningSolvedState, advancePlaybackState,
+  independentFocusIndices, independentCaseFocusIndices, regripStudyFocus, independentGoalState, practiceSetupDetails, PYRA_STICKERS, learningSolvedState, advancePlaybackState,
   executeNextPlaybackMove, showSolvedResult, restartSolvePlayback,
   select: type => { AppState.puzzleType=type; },
   setupPlayback: (type,state,plan) => {
@@ -219,13 +219,57 @@ for (const type of Object.keys(api.PUZZLES)) {
   }
   const independent=api.buildIndependentStudyPlan();
   assert(independent.length>=3);
+  assert.equal(independent.at(-1).focusIndices.length,api.createSolvedState(type).length,`${type}: the final step must reveal the complete puzzle`);
   for(const step of independent) {
     const indices=step.focusIndices;
-    assert(indices.length>0 && indices.length<api.createSolvedState(type).length);
+    assert(indices.length>0 && indices.length<=api.createSolvedState(type).length);
     assert.equal(new Set(indices).size,indices.length);
     assert(indices.every(i=>i>=0&&i<api.createSolvedState(type).length));
+    for(const previous of independent.slice(0,independent.indexOf(step))) {
+      const carried=api.regripStudyFocus(type,previous.focusIndices,previous,step);
+      assert(carried.every(i=>indices.includes(i)),`${type}: an earlier piece was hidden in a later step or regrip`);
+    }
+    const baseline=api.learningSolvedState(type,step), setup=step.studySetupMoves||step.studyMoves.slice().reverse().map(api.inverseMove);
+    const prepared=api.simulateAlgorithm(type,baseline,setup), focus=api.independentCaseFocusIndices(type,step,setup);
+    assert.equal(focus.length,indices.length);
+    // Target sticker colors must be conserved as those pieces move out of their solved slots.
+    assert.equal(focus.map(i=>prepared[i]).sort().join(','),indices.map(i=>baseline[i]).sort().join(','), `${type}: study mask lost or substituted target stickers`);
+    assert(api.PuzzleValidators[type](prepared), `${type}: independent case must remain legal`);
+    if(type==='3x3'&&step.studyIndex===0) {
+      assert([1,3,5,7].every(i=>prepared[i]==='#ffffff'),'White-cross starts with all four daisy petals on Up');
+      assert.equal(prepared[4],'#ffff00','Daisy has a yellow center');
+      const goal=api.independentGoalState(type,step);
+      if(step.mentalStep) assert([1,3,5,7].every(i=>goal[i]==='#ffffff'));
+      else assert([46,48,50,52].every(i=>goal[i]==='#ffffff'));
+      assert(step.mentalNote.includes('mentally'));
+
+    }
+
   }
 }
+// Creator algorithm contracts and independently observable piece effects.
+const niklas=api.GuidedLearningLibrary['3x3'][6].cases[0].moves;
+assert.equal(niklas.join(' '),"R U' L' U R' U' L U");
+api.select('3x3');
+const niklasBase=api.learningSolvedState('3x3'), niklasResult=api.simulateAlgorithm('3x3',niklasBase,niklas);
+for(const i of [6,11,18]) assert.equal(niklasResult[i],niklasBase[i],'CubeHead Niklas must keep the front-left corner fixed');
+for(const example of api.GuidedLearningLibrary['3x3'][2].cases) {
+  const result=api.simulateAlgorithm('3x3',niklasBase,example.moves);
+  for(const i of [45,46,47,48,49,50,51,52,53,15,16,17,24,25,26,33,34,35,42,43,44]) assert.equal(result[i],niklasBase[i],'Middle-layer insertion must preserve the whole white first layer');
+}
+api.select('3x3');const middleLessons=api.buildGuidedLearningPlan()[2];
+for(const [index,expected] of [[0,'23,30'],[1,'14,21']]) {
+  api.AppState.activeCaseIndex=index;const example=middleLessons.cases[index], state=api.simulateAlgorithm('3x3',niklasBase,example.moves.slice().reverse().map(api.inverseMove));
+  assert.equal(api.practiceSetupDetails('3x3',middleLessons,state).targetIndices.join(','),expected,'Choose the insertion side from its case, not the opposite trigger in its title');
+}
+api.AppState.activeCaseIndex=0;
+const pyraRight=api.GuidedLearningLibrary.pyraminx[3].cases[0].moves,pyraLeft=api.GuidedLearningLibrary.pyraminx[3].cases[1].moves;
+assert.equal(pyraRight.join(' '),"R' L R L' U' L' U L");assert.equal(pyraLeft.join(' '),"L R' L' R U R U' R'");
+for(const moves of [pyraRight,pyraLeft]) assert.equal(api.simulateAlgorithm('pyraminx',api.createSolvedState('pyraminx'),moves).slice(0,9).join(),api.createSolvedState('pyraminx').slice(0,9).join(),'Paradox Case 1 preserves the complete base');
+api.select('pyraminx');
+const centerLesson=api.buildGuidedLearningPlan()[1], centerPrepared=api.simulateAlgorithm('pyraminx',api.learningSolvedState('pyraminx',centerLesson),centerLesson.cases[0].moves.slice().reverse().map(api.inverseMove));
+const centerSetup=api.practiceSetupDetails('pyraminx',centerLesson,centerPrepared);
+assert(centerSetup.pieceIndices.every(i=>api.PYRA_STICKERS[i].kind==='center'),'Center setup must highlight axial centers, not same-colored tips');
 assert(api.LEARNING_SOURCES['3x3'].url.endsWith('PW2J8IblczM'));
 assert(api.LEARNING_SOURCES['4x4'].url.endsWith('KWOZHbDdOeo'));
 assert(api.LEARNING_SOURCES['5x5'].url.endsWith('d1I-jJlVwB4'));
