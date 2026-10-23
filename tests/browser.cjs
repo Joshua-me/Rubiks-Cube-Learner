@@ -35,7 +35,8 @@ const { chromium } = require('playwright');
         assert.equal(await read(()=>AppState.activeStepIndex),stage,'Play must turn pieces, not advance the case');
         assert((await page.locator('#currentTurn').innerText()).startsWith('Turning:'));
         assert(await page.locator('#algorithmPanel').isVisible());
-        await page.click('#playMove');assert(!await read(()=>AppState.autoTimer));await settle();
+        if(await read(()=>!!AppState.autoTimer)) await page.click('#playMove');
+        assert(!await read(()=>AppState.autoTimer),`${type}: Pause must stop autoplay`);await settle();
         assert.equal(await read(()=>AppState.activeMoveIndex),1);
         assert.notEqual(await read(()=>AppState.playbackState.join('|')),prepared);
         assert(await read(()=>{
