@@ -202,6 +202,18 @@ for (const type of Object.keys(api.PUZZLES)) {
   api.select(type);
   const guided=api.buildGuidedLearningPlan();
   if(type==='3x3') assert.equal(guided.length,8);
+  for(const step of guided) {
+    assert(step.algorithmCases.length,'Every stage needs a separate teaching group');
+    assert.notEqual(step.algorithmCases,step.cases,'Teaching and applications must have separate case lists');
+    const algorithms=step.algorithmCases.map(example=>example.teachingMoves.join(' '));
+    assert.equal(new Set(algorithms).size,algorithms.length,'Do not reteach the same trigger for every application');
+    for(const example of step.algorithmCases) {
+      const moves=example.teachingMoves,baseline=api.learningSolvedState(type,step);
+      const prepared=api.simulateAlgorithm(type,baseline,moves.slice().reverse().map(api.inverseMove));
+      assert(api.PuzzleValidators[type](prepared));
+      assert.equal(api.simulateAlgorithm(type,prepared,moves).join(),baseline.join());
+    }
+  }
   for (const step of guided) for (const example of step.cases) {
     assert(step.goal && step.explanation && step.application, `${type}: both teaching and application instructions are required`);
     const teaching=example.teachingMoves;
@@ -263,6 +275,26 @@ for(const [index,expected] of [[0,'23,30'],[1,'14,21']]) {
   assert.equal(api.practiceSetupDetails('3x3',middleLessons,state).targetIndices.join(','),expected,'Choose the insertion side from its case, not the opposite trigger in its title');
 }
 api.AppState.activeCaseIndex=0;
+api.select('3x3');
+const crossLesson=api.buildGuidedLearningPlan()[0],crossCase=crossLesson.cases[1],crossBase=api.learningSolvedState('3x3',crossLesson);
+let crossState=api.simulateAlgorithm('3x3',crossBase,crossCase.moves.slice().reverse().map(api.inverseMove));
+assert([1,3,5,7].every(i=>crossState[i]==='#ffffff'),'The complete cross application must start with four daisy petals');
+assert(crossCase.moves.includes('U')&&crossCase.moves.filter(m=>m==='F2').length===4,'Teach alignment, not four already-aligned side turns');
+crossCase.moves.forEach(move=>{
+  if(move==='F2') assert(crossState[7]==='#ffffff'&&crossState[19]===crossState[22],'Never insert a petal before its side sticker matches the front center');
+  crossState=api.simulateAlgorithm('3x3',crossState,[move]);
+});
+assert.equal(crossState.join(),crossBase.join());
+const firstLayer=api.buildGuidedLearningPlan()[1];
+assert.equal(firstLayer.algorithmCases.length,2);assert.equal(firstLayer.cases.length,6);
+for(const example of firstLayer.cases) {
+  const state=api.simulateAlgorithm('3x3',crossBase,example.moves.slice().reverse().map(api.inverseMove));
+  const left=example.name.startsWith('Left'),face=example.name.split('faces ')[1];
+  const index=face==='up'?(left?6:8):face==='front'?(left?18:20):left?11:27;
+  assert.equal(state[index],'#ffffff',`${example.name}: the model must match its stated white-sticker direction`);
+  for(const i of [46,25,48,16,50,34,52,43]) assert.equal(state[i],crossBase[i],`${example.name}: retain the solved white cross`);
+  assert(example.hold&&example.recognize&&example.place&&example.use);
+}
 const pyraRight=api.GuidedLearningLibrary.pyraminx[3].cases[0].moves,pyraLeft=api.GuidedLearningLibrary.pyraminx[3].cases[1].moves;
 assert.equal(pyraRight.join(' '),"R' L R L' U' L' U L");assert.equal(pyraLeft.join(' '),"L R' L' R U R U' R'");
 for(const moves of [pyraRight,pyraLeft]) assert.equal(api.simulateAlgorithm('pyraminx',api.createSolvedState('pyraminx'),moves).slice(0,9).join(),api.createSolvedState('pyraminx').slice(0,9).join(),'Paradox Case 1 preserves the complete base');

@@ -17,6 +17,10 @@ Checked on 2026-10-22 against the selected creators' tutorial pages, chapter des
 | Yellow corner placement | Niklas: `R U' L' U R' U' L U`, with a correct corner at **front-left**. This differs in grip from J Perm's 2x2 placement sequence. |
 | Final corner twists | Yellow Down; repeat Righty at bottom-front-right. Finish every four-turn trigger and use only D to advance between corners. |
 
+The cross teaching group first shows the mental daisy, then a one-petal alignment example. Its U count is illustrative. The complete application rotates only U until a petal’s side sticker matches the front center, then F2; whole-cube y regrips bring other centers to the front. The engine verifies the match before every F2. There is no universal `L2 B2 R2 F2` cross algorithm.
+
+The first-layer teaching group presents Righty and Lefty before its six application cases. Locally generated examples place white on Right/Left (one matching trigger), Up (three), or Front (regrip to the other side and use the opposite trigger once), with a separate front-right/front-left grip. Final y/y′ turns restore the example grip. These repetitions and regrips describe the prepared cases. Each full trigger preserves the white cross; recognition is checked against the actual sticker orientation.
+
 The middle-layer notation is expanded into the named triggers and regrips:
 
 - Right: `U (R U R' U') y (L' U' L U) y'`.
@@ -67,4 +71,4 @@ The video shows the two-flip and three-cycle continuations at 7:37 and 8:33 usin
 
 ## Validation
 
-`verify.js` checks exact source identities, chapter order, algorithm strings, prepared-case legality, solved replay, the fixed front-left Niklas corner, the protected first layer after middle insertions, and the preserved Pyraminx base. Browser checks verify setup/algorithm separation, actual CSS slow-turn duration, pause/undo/cancellation, markers, and independent-to-guided case selection. Runtime remains offline; video links open externally only when chosen.
+`verify.js` checks exact source identities, chapter order, algorithm strings, prepared-case legality, solved replay, the fixed front-left Niklas corner, the protected first layer after middle insertions, and the preserved Pyraminx base. Browser checks verify setup/algorithm separation, actual piece-animation duration, pause/undo/cancellation, markers, and independent-to-guided case selection. Runtime remains offline; video links open externally only when chosen.

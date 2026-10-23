@@ -21,6 +21,47 @@ const { chromium } = require('playwright');
     assert.equal(await page.locator('#puzzleCards [data-preview-model="pyraminx"]').count(),1);
     assert.equal(await page.locator('#puzzleCards svg').count(),0);
     assert.equal(await page.locator('#cube3d, #pyra3d').count(),0,'Homepage previews must not reuse playback IDs');
+    if(process.argv.includes('--curriculum')) {
+      const finish=()=>page.evaluate(()=>{while(executeNextPlaybackMove()) {}renderVisualFrame();renderUIStatusDisplay();});
+      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      await page.click('#continueLesson');
+      assert.equal(await read(()=>activeMovesForStep(CurrentAlgorithm[0]).join(' ')),'U F2');
+      for(const label of ['1. Hold:','2. Find:','3. Position:','4. Use:']) assert((await page.locator('#setupGuide').innerText()).includes(label));
+      assert((await page.locator('#setupGuide').innerText()).includes('zero, one, two, or three'));
+      await page.selectOption('#playbackSpeed','normal');await page.click('#playMove');
+      await page.waitForFunction(()=>AppState.completed&&!AppState.animating);
+      await page.click('#continueLesson');assert.equal(await read(()=>AppState.lessonPhase),'apply');
+      assert.equal(await read(()=>AppState.activeCaseIndex),1,'Do not repeat the mental daisy after teaching alignment');
+      assert(await read(()=>[1,3,5,7].every(i=>AppState.playbackState[i]==='#ffffff')));
+      assert(await read(()=>activeMovesForStep(CurrentAlgorithm[0]).includes('U')));
+      assert(!await read(()=>activeMovesForStep(CurrentAlgorithm[0]).includes('L2')));
+      assert((await page.locator('#setupGuide').innerText()).includes('do not memorize'));
+      while(!await read(()=>AppState.completed)) {
+        assert(await read(()=>activeMovesForStep(CurrentAlgorithm[0])[AppState.activeMoveIndex]!=='F2'||AppState.playbackState[7]==='#ffffff'&&AppState.playbackState[19]===AppState.playbackState[22]));
+        await page.click('#nextMove');await settle();
+      }
+      assert(await read(()=>isSolvedPuzzleState('3x3',AppState.playbackState)));
+      await page.click('#continueLesson');assert.equal(await read(()=>AppState.activeStepIndex),1);
+      assert((await page.locator('#relatedAlgorithms').innerText()).includes('Righty'));
+      assert((await page.locator('#relatedAlgorithms').innerText()).includes('Lefty'));
+      assert(!(await page.locator('#setupGuide').innerText()).includes('3. Position:'),'Teach the trigger before application placement');
+      assert.equal(await page.locator('[data-case-index]').count(),2);
+      await finish();await page.click('#continueLesson');assert.equal(await read(()=>AppState.lessonPhase),'teach');
+      await finish();await page.click('#continueLesson');assert.equal(await read(()=>AppState.lessonPhase),'apply');
+      assert.equal(await page.locator('[data-case-index]').count(),6);
+      assert((await page.locator('#setupGuide').innerText()).includes('3. Position:'));
+      for(let index=0;index<6;index++) {
+        assert.equal(await read(()=>AppState.activeCaseIndex),index);
+        assert((await page.locator('#setupGuide').innerText()).includes('Turn only U'));
+        assert((await page.locator('#setupGuide').innerText()).includes('Finish all four moves'));
+        if(index===2) await page.screenshot({path:path.join(os.tmpdir(),'twisty-white-up-case.png'),fullPage:true,animations:'disabled'});
+        await finish();assert(await read(()=>isSolvedPuzzleState('3x3',AppState.playbackState)));
+        await page.click('#continueLesson');
+      }
+      assert.equal(await read(()=>AppState.activeStepIndex),2);assert.equal(await read(()=>AppState.lessonPhase),'teach');
+      assert.deepEqual(errors,[]);assert.equal(external.length,0);
+      console.log('browser: ok — petal alignment before every F2, actual cross playback, Righty/Lefty teaching group, six separate corner applications, clear side guidance, correct phase/case transitions');return;
+    }
     if(process.argv.includes('--study-play')) {
       for(const type of ['2x2','3x3','4x4','5x5','pyraminx']) {
         await choose(type);await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');
@@ -51,7 +92,7 @@ const { chromium } = require('playwright');
       }
       await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');await page.click('#nextMove');
       await page.selectOption('#playbackSpeed','normal');await page.click('#playMove');
-      await page.waitForFunction(()=>AppState.completed&&!AppState.animating,{},{timeout:15000});
+      await page.waitForFunction(()=>AppState.completed&&!AppState.animating,{},{timeout:40000});
       assert.equal(await page.locator('#playMove').innerText(),'Replay');assert(await page.locator('#playMove').isEnabled());
       assert(await read(()=>isSolvedPuzzleState('3x3',AppState.playbackState)));
       await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);assert.equal(await read(()=>AppState.activeMoveIndex),1);
@@ -139,7 +180,7 @@ const { chromium } = require('playwright');
       assert.equal(await read(()=>AppState.playbackSpeed),'slow');
       const prepared=await read(()=>AppState.playbackState.join('|'));
       assert((await page.locator('#setupGuide').innerText()).includes('white Up')===false);
-      assert((await page.locator('#setupGuide').innerText()).includes('yellow Up'));
+      assert((await page.locator('#setupGuide').innerText()).includes('yellow on top'));
       assert.equal(await page.locator('#cube3d .setup-piece').count(),3);
       assert.equal(await page.locator('#cube3d .setup-slot').count(),3);
       await page.click('#toggleNet');assert.equal(await page.locator('#visualFrame .setup-piece').count(),3);await page.click('#toggleNet');
@@ -373,13 +414,14 @@ const { chromium } = require('playwright');
     assert.equal(await read(()=>AppState.lessonPhase),'teach');assert.equal(await read(()=>AppState.playbackHistory.length),0);
     await finishPractice();await page.click('#continueLesson');
     assert.equal(await read(()=>AppState.lessonPhase),'apply');assert.equal(await read(()=>AppState.activeCaseIndex),0);
-    assert((await page.locator('#lessonExplanation').textContent()).includes('Match its two side colors'));
+    assert((await page.locator('#lessonExplanation').textContent()).includes('Find the slot between the centers'));
     await page.click('#nextMove');await settle();assert.equal(await read(()=>AppState.playbackHistory.length),1);
     await page.click('#reviewAlgorithm');assert.equal(await read(()=>AppState.lessonPhase),'teach');
     assert.equal(await read(()=>AppState.playbackHistory.length),0);assert.equal(await read(()=>AppState.activeMoveIndex),0);
     await finishPractice();await page.click('#continueLesson');await finishPractice();await page.click('#continueLesson');
     await finishPractice();await page.click('#continueLesson');assert.equal(await read(()=>AppState.activeCaseIndex),1);
-    await finishPractice();await page.click('#continueLesson');assert.equal(await read(()=>AppState.activeStepIndex),2);
+    while(await read(()=>AppState.activeStepIndex===1)) {await finishPractice();await page.click('#continueLesson');}
+    assert.equal(await read(()=>AppState.activeStepIndex),2);
     assert.equal(await read(()=>AppState.lessonPhase),'teach');
     // Final twisting teaches the reusable trigger before the full application.
     await page.evaluate(()=>selectLessonStep(5));
