@@ -16,11 +16,50 @@ const { chromium } = require('playwright');
     const read=fn=>page.evaluate(fn);
     const settle=()=>page.waitForFunction(()=>!AppState.animating);
     const choose=async type=>{await page.click('#brandHome');await page.click(`[data-puzzle="${type}"]`);};
+    const openIndependent=async()=>{await page.click('[data-learn="independent"]');await page.click('#dismissStudyIntro');};
     assert.equal(await page.locator('[data-puzzle]').count(),5);
     assert.equal(await page.locator('#puzzleCards [data-preview-model="cube"]').count(),4);
     assert.equal(await page.locator('#puzzleCards [data-preview-model="pyraminx"]').count(),1);
     assert.equal(await page.locator('#puzzleCards svg').count(),0);
     assert.equal(await page.locator('#cube3d, #pyra3d').count(),0,'Homepage previews must not reuse playback IDs');
+    if(process.argv.includes('--study-onboarding')) {
+      for(const type of ['2x2','3x3','4x4','5x5','pyraminx']) {
+        await choose(type);await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');
+        assert(await page.locator('#studyIntroDialog').isVisible());
+        assert.equal(await read(()=>document.activeElement.id),'dismissStudyIntro');
+        assert.equal(await page.locator('#studyIntroPuzzle').innerText(),await read(()=>PUZZLES[AppState.puzzleType].label));
+        const before=await read(()=>JSON.stringify([AppState.playbackState,AppState.activeMoveIndex,AppState.studyFocusIndices]));
+        await page.locator('#studyIntroDialog').evaluate(n=>{n.tabIndex=-1;n.focus();});
+        await page.keyboard.press('ArrowRight');await page.keyboard.press('Space');
+        assert.equal(await read(()=>JSON.stringify([AppState.playbackState,AppState.activeMoveIndex,AppState.studyFocusIndices])),before);
+        await page.keyboard.press('Escape');assert(await page.locator('#studyIntroDialog').isHidden());
+        assert.equal(await page.locator('#toggleStudyMask').getAttribute('role'),'switch');
+        assert.equal(await page.locator('#toggleStudyMask').getAttribute('aria-checked'),'false');
+        await page.click('#toggleStudyMask');assert.equal(await page.locator('#toggleStudyMask').getAttribute('aria-checked'),'true');
+        assert.equal(await read(()=>JSON.stringify([AppState.playbackState,AppState.activeMoveIndex,AppState.studyFocusIndices])),before);
+        await page.click('#toggleNet');
+        assert(await page.locator('#visualFrame button').evaluateAll(nodes=>nodes.length>0&&nodes.every(n=>n.style.backgroundColor!=='rgb(30, 30, 36)')));
+        await page.click('#toggleStudyMask');
+        assert(await page.locator('#visualFrame button').evaluateAll(nodes=>nodes.some(n=>n.style.backgroundColor==='rgb(30, 30, 36)')));
+        await page.click('#studyMaskHelp');assert(await page.locator('#studyIntroDialog').isVisible());await page.click('#dismissStudyIntro');
+        await page.click('#nextMove');assert(await page.locator('#studyIntroDialog').isHidden(),'Case navigation must not repeat onboarding');
+      }
+      await page.click('#toggleNet');
+      await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);
+      const moving=await read(()=>JSON.stringify([AppState.playbackState,AppState.activeMoveIndex]));
+      await page.click('#toggleStudyMask');
+      assert(!await read(()=>AppState.animating||AppState.autoTimer));
+      assert.equal(await read(()=>JSON.stringify([AppState.playbackState,AppState.activeMoveIndex])),moving);
+      await page.setViewportSize({width:375,height:812});
+      await page.evaluate(()=>document.documentElement.classList.add('dark'));
+      await page.click('#studyMaskHelp');
+      const box=await page.locator('#studyIntroDialog').boundingBox();assert(box.x>=0&&box.x+box.width<=375&&box.y>=0&&box.y+box.height<=812);
+      await page.screenshot({path:path.join(os.tmpdir(),'twisty-study-onboarding.png'),fullPage:true});
+      await page.click('#dismissStudyIntro');await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      assert(await page.locator('#studyIntroDialog').isHidden());assert(await page.locator('#toggleStudyMask').isHidden());assert(await page.locator('#studyMaskHelp').isHidden());
+      assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
+      console.log('Independent onboarding, keyboard isolation, mask switch, playback pause, mobile and offline checks passed.');return;
+    }
     if(process.argv.includes('--parity-banner')) {
       await choose('4x4');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
       for(let i=0;i<5;i++) await page.click('#nextLesson');
@@ -134,7 +173,7 @@ const { chromium } = require('playwright');
       await settle();assert(!await read(()=>workspaceCameraLocked()));
       await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);await page.click('#restartCase');
       assert(!await read(()=>workspaceCameraLocked()));assert.equal(await read(()=>AppState.activeMoveIndex),0);
-      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');await page.click('#nextMove');
+      await choose('3x3');await page.click('[data-mode="learn"]');await openIndependent();await page.click('#nextMove');
       await drag();await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);
       assert.deepEqual(await read(()=>[AppState.cameraX,AppState.cameraY]),[-24,-34]);assert(await page.locator('#resetCamera').isDisabled());
       await page.click('#brandHome');assert(!await read(()=>workspaceCameraLocked()));
@@ -184,7 +223,7 @@ const { chromium } = require('playwright');
     }
     if(process.argv.includes('--study-play')) {
       for(const type of ['2x2','3x3','4x4','5x5','pyraminx']) {
-        await choose(type);await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');
+        await choose(type);await page.click('[data-mode="learn"]');await openIndependent();
         while(!await read(()=>CurrentAlgorithm[AppState.activeStepIndex].studyMoves.length)) {
           assert.equal(await page.locator('#playMove').innerText(),'Mental step');
           assert(await page.locator('#playMove').isDisabled());await page.click('#nextMove');
@@ -210,7 +249,7 @@ const { chromium } = require('playwright');
         assert.equal(await read(()=>AppState.activeStepIndex),stage+1);
         await page.click('#backMove');assert.equal(await read(()=>AppState.playbackState.join('|')),prepared);
       }
-      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');await page.click('#nextMove');
+      await choose('3x3');await page.click('[data-mode="learn"]');await openIndependent();await page.click('#nextMove');
       await page.selectOption('#playbackSpeed','normal');await page.click('#playMove');
       await page.waitForFunction(()=>AppState.completed&&!AppState.animating,{},{timeout:40000});
       assert.equal(await page.locator('#playMove').innerText(),'Replay');assert(await page.locator('#playMove').isEnabled());
@@ -322,7 +361,7 @@ const { chromium } = require('playwright');
       assert((await page.locator('#cube3d .cubie').first().evaluate(n=>getComputedStyle(n).transitionDuration)).includes('2.8s'));
       await page.click('#nextMove');await page.waitForTimeout(400);assert(await read(()=>AppState.animating));
       await page.click('#brandHome');assert(!await read(()=>AppState.animating||AppState.autoTimer));
-      await choose('pyraminx');await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');
+      await choose('pyraminx');await page.click('[data-mode="learn"]');await openIndependent();
       for(let i=0;i<3;i++) await page.click('#nextMove');
       await page.click('#watchStudyDemo');assert.equal(await read(()=>AppState.trainingProfile),'guided');assert.equal(await read(()=>AppState.activeStepIndex),3);
       assert.equal(await read(()=>activeMovesForStep(CurrentAlgorithm[3]).join(' ')),"R' L R L' U' L' U L");
@@ -350,7 +389,7 @@ const { chromium } = require('playwright');
     }
     if(process.argv.includes('--study')) {
       for(const type of ['2x2','3x3','4x4','5x5','pyraminx']) {
-        await choose(type);await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');
+        await choose(type);await page.click('[data-mode="learn"]');await openIndependent();
         const count=await read(()=>CurrentAlgorithm.length);
         for(let stage=0;stage<count;stage++) {
           const before=await read(()=>AppState.playbackState.join('|'));
@@ -468,7 +507,7 @@ const { chromium } = require('playwright');
       assert.equal(await read(()=>AppState.playbackState.join('|')),baseline);
       await page.click('#nextLesson');assert.equal(await read(()=>AppState.activeStepIndex),1);
       await page.click('#restartCase');assert.equal(await read(()=>AppState.activeMoveIndex),0);
-      await choose(type);await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');
+      await choose(type);await page.click('[data-mode="learn"]');await openIndependent();
       assert.equal(await read(()=>AppState.puzzleType),type);
       const independent=await read(()=>AppState.playbackState.join('|'));
       await page.click('#nextMove');assert.equal(await read(()=>AppState.activeStepIndex),1);

@@ -94,6 +94,18 @@
     #visualFrame.view-locked .cube-scene { cursor:default; }
     .cube3d { transition:none; }
     .model-toolbar { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; }
+    .mask-switch { display:inline-flex; align-items:center; gap:8px; }
+    .mask-switch.hidden, #studyMaskHelp.hidden { display:none; }
+    .mask-switch-track { width:34px; height:20px; padding:3px; border-radius:20px; background:#64748b; flex-shrink:0; }
+    .mask-switch-track::after { content:''; display:block; width:14px; height:14px; border-radius:50%; background:white; }
+    .mask-switch[aria-checked="true"] .mask-switch-track { background:#4f46e5; }
+    .mask-switch[aria-checked="true"] .mask-switch-track::after { transform:translateX(14px); }
+    #studyIntroDialog { width:min(420px,calc(100% - 32px)); max-height:calc(100dvh - 32px); overflow:auto; margin:auto; padding:24px; border:1px solid #cbd5e1; border-radius:20px; background:white; color:#0f172a; box-shadow:0 20px 70px #0005; }
+    #studyIntroDialog::backdrop { background:rgba(15,23,42,.65); }
+    #studyIntroDialog h2 { font-size:22px; font-weight:800; margin:6px 0 12px; }
+    #studyIntroDialog p { margin-bottom:14px; line-height:1.6; }
+    .mask-swatch { display:inline-block; width:16px; height:16px; border-radius:4px; background:#1e1e24; vertical-align:middle; margin-right:5px; }
+    html.dark #studyIntroDialog { background:#0f172a; color:#e2e8f0; border-color:#475569; }
     .model-help { font-size:12px; color:#64748b; margin:5px 0; }
     .current-turn { margin-top:12px; padding:12px; border-radius:12px; background:#eef2ff; color:#312e81; font-size:14px; font-weight:600; min-height:66px; }
     #modelPanel { align-self:start; position:sticky; top:16px; }
@@ -301,7 +313,7 @@
       </div>
       <div id="playbackWorkspace" class="grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
         <div id="modelPanel" class="glass-card rounded-[2rem] p-5">
-          <div class="model-toolbar"><button id="resetCamera" class="tap-target rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold">Reset view</button><button id="toggleStudyMask" class="hidden tap-target rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold" aria-pressed="false">Show all pieces</button><button id="toggleNet" class="tap-target mb-3 rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold">Show All Faces</button></div>
+          <div class="model-toolbar"><button id="resetCamera" class="tap-target rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold">Reset view</button><button id="toggleStudyMask" class="hidden mask-switch tap-target rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold" role="switch" aria-checked="false"><span class="mask-switch-track" aria-hidden="true"></span><span>Peek behind mask</span></button><button id="studyMaskHelp" class="hidden tap-target rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold" aria-haspopup="dialog">About the mask</button><button id="toggleNet" class="tap-target mb-3 rounded-xl bg-slate-100 px-3 py-2 text-sm font-bold">Show All Faces</button></div>
           <p class="model-help">Drag the cube to see another face. Turning the view does not turn the puzzle.</p>
           <p id="visibleFaces" class="model-help">U = top · F = front · R = right</p>
           <div id="visualFrame" class="mb-4 overflow-auto min-h-[320px] rounded-[1.5rem] bg-linear-to-br from-slate-50 to-white p-4"></div>
@@ -357,6 +369,13 @@
     </section>
   </main>
 
+  <dialog id="studyIntroDialog" aria-labelledby="studyIntroTitle" aria-describedby="studyIntroDescription">
+    <p class="text-sm font-bold">Track B · Independent Study · <span id="studyIntroPuzzle"></span></p>
+    <h2 id="studyIntroTitle">Focus on a few pieces</h2>
+    <p id="studyIntroDescription"><span class="mask-swatch" aria-hidden="true"></span>Matte charcoal hides pieces outside the current task. Pieces from earlier steps stay colored as you progress.</p>
+    <p>Turn on <strong>Peek behind mask</strong> beside the puzzle to see all sticker colors, then turn it off to focus again. Peeking never moves or recolors your puzzle.</p>
+    <button id="dismissStudyIntro" class="tap-target rounded-xl bg-indigo-600 px-4 py-3 font-bold text-white" autofocus>Got it — start drill</button>
+  </dialog>
   <div id="toastLayer" role="status" aria-live="polite" class="fixed inset-x-0 bottom-5 z-50 mx-auto flex max-w-xl flex-col gap-3 px-4 pointer-events-none"></div>
   <section id="chatPanel" class="chat-panel fixed bottom-5 right-5 z-40 hidden rounded-[2rem] border border-slate-200/70 bg-white p-4 shadow-2xl">
     <div class="mb-3 flex items-center justify-between gap-3">
@@ -3709,6 +3728,7 @@ THE SOFTWARE.
     }
 
     function setView(viewName) {
+      if($('#studyIntroDialog').open) $('#studyIntroDialog').close();
       $('#toastLayer').replaceChildren();
       ['dashboardView', 'modeView', 'learnView', 'scannerView', 'playbackView'].forEach(id => $('#' + id).classList.add('hidden'));
       $('#' + viewName + 'View').classList.remove('hidden');
@@ -4032,6 +4052,13 @@ THE SOFTWARE.
       $('#playbackModeBadge').textContent=profile==='guided'?'Guided Practice':profile==='independent'?'Independent Study':'Verified Solve';
       $('#hintBox').classList.toggle('hidden',profile!=='independent');
       renderVisualFrame(); renderUIStatusDisplay(); setView('playback');
+      if(profile==='independent') openStudyIntro();
+    }
+    function openStudyIntro() {
+      if(AppState.activeScreen!=='playback'||AppState.trainingProfile!=='independent') return;
+      stopAutoPlay();cancelAnimation();renderVisualFrame();renderUIStatusDisplay();
+      $('#studyIntroPuzzle').textContent=PUZZLES[AppState.puzzleType].label;
+      if(!$('#studyIntroDialog').open) $('#studyIntroDialog').showModal();
     }
     function calculateInWorker(type,state) {
       if(!solverWorker) {
@@ -4085,8 +4112,8 @@ THE SOFTWARE.
       const cube=PUZZLES[AppState.puzzleType].kind==='cube';
       const locked=workspaceCameraLocked();
       $('#toggleStudyMask').classList.toggle('hidden',AppState.trainingProfile!=='independent');
-      $('#toggleStudyMask').textContent=AppState.studyMaskEnabled?'Show all pieces':'Focus pieces only';
-      $('#toggleStudyMask').setAttribute('aria-pressed',String(!AppState.studyMaskEnabled));
+      $('#studyMaskHelp').classList.toggle('hidden',AppState.trainingProfile!=='independent');
+      $('#toggleStudyMask').setAttribute('aria-checked',String(!AppState.studyMaskEnabled));
       $('#resetCamera').disabled=!cube||AppState.showNet||locked;
       $('#visualFrame').classList.toggle('view-locked',locked);
       $('#visualFrame').dataset.cameraLocked=String(locked);
@@ -4180,7 +4207,7 @@ THE SOFTWARE.
       const masked=viewState.map((color,index)=>!AppState.studyMaskEnabled||focusSet.has(index)?color:COLORS.mask);
       const puzzle=PUZZLES[AppState.puzzleType];
       $('#visualFrame').innerHTML=AppState.showNet?(puzzle.kind==='cube'?renderCubeNet(puzzle.size,masked,{readOnly:true}):renderPyraminxNet(masked,true)):(puzzle.kind==='cube'?renderCube3D(puzzle.size,masked):renderPyraminx3D(masked));
-      $('#hintBox').textContent=AppState.studyPreviewGoal?(step.mentalStep?'Daisy target reference. Your practice state is saved unchanged.':'Completed target on a solved reference cube. The exercise state is saved unchanged.'):AppState.studyMaskEnabled?'Pieces from earlier steps stay colored alongside this step’s pieces, including while they move.':'All pieces are visible. Focus pieces only restores the mask without moving or recoloring anything.';
+      $('#hintBox').textContent=AppState.studyPreviewGoal?(step.mentalStep?'Daisy target reference. Your practice state is saved unchanged.':'Completed target on a solved reference cube. The exercise state is saved unchanged.'):AppState.studyMaskEnabled?'Pieces from earlier steps stay colored alongside this step’s pieces, including while they move.':'Peek is on: all pieces are visible. Turn off Peek behind mask to focus again without changing the puzzle.';
     }
 
     function isTurnMove(move) {
@@ -5158,7 +5185,10 @@ THE SOFTWARE.
       $('#brandHome').addEventListener('click', () => setView('dashboard'));
       $('#themeToggle').addEventListener('click', toggleTheme);
       $('#playbackSpeed').addEventListener('change',event=>{stopAutoPlay();cancelAnimation();AppState.playbackSpeed=event.target.value;renderVisualFrame();renderUIStatusDisplay();});
-      $('#toggleStudyMask').addEventListener('click',()=>{AppState.studyMaskEnabled=!AppState.studyMaskEnabled;renderVisualFrame();});
+      $('#toggleStudyMask').addEventListener('click',()=>{stopAutoPlay();cancelAnimation();AppState.studyMaskEnabled=!AppState.studyMaskEnabled;renderVisualFrame();renderUIStatusDisplay();});
+      $('#studyMaskHelp').addEventListener('click',openStudyIntro);
+      $('#dismissStudyIntro').addEventListener('click',()=>$('#studyIntroDialog').close());
+      $('#studyIntroDialog').addEventListener('close',()=>{if(AppState.activeScreen==='playback'&&AppState.trainingProfile==='independent') $('#toggleStudyMask').focus({preventScroll:true});});
       $('#resetCamera').addEventListener('click',resetWorkspaceCamera);
       wireModelOrbit();
       $('#chatToggle').addEventListener('click', () => toggleChat(true));
@@ -5185,7 +5215,7 @@ THE SOFTWARE.
       $('#playMove').addEventListener('click', toggleAutoPlay);
       $('#pauseMove').addEventListener('click', () => { stopAutoPlay(); showToast('Auto-play paused.', 'info', 1200); renderUIStatusDisplay(); });
       document.addEventListener('keydown', (e) => {
-        if (AppState.activeScreen !== 'playback' || /INPUT|TEXTAREA|SELECT|BUTTON/.test(e.target.tagName) || e.target.isContentEditable) return;
+        if ($('#studyIntroDialog').open || AppState.activeScreen !== 'playback' || /INPUT|TEXTAREA|SELECT|BUTTON/.test(e.target.tagName) || e.target.isContentEditable) return;
         if (e.key === 'ArrowRight') advancePlaybackState('NEXT');
         if (e.key === 'ArrowLeft') advancePlaybackState('BACK');
         if (e.key === ' ') { e.preventDefault(); toggleAutoPlay(); }
