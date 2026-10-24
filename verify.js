@@ -231,6 +231,19 @@ for (const type of Object.keys(api.PUZZLES)) {
   }
   const independent=api.buildIndependentStudyPlan();
   assert(independent.length>=3);
+  if(type==='3x3') {
+    assert.deepEqual(Array.from(new Set(independent.map(step=>step.guidedStageIndex))),[0,1,2,3,4,5,6,7], 'Independent 3x3 must cover all eight source stages in order');
+    assert.equal(independent.length,guided.reduce((sum,lesson)=>sum+lesson.cases.length,0), 'Every 3x3 application case must be available without Guided Learning');
+    guided.forEach((lesson,stage)=>{
+      const cases=independent.filter(step=>step.guidedStageIndex===stage);
+      assert.deepEqual(Array.from(cases,step=>step.studyCaseName),Array.from(lesson.cases,example=>example.name));
+      cases.forEach((step,index)=>{
+        assert.equal(step.studyStageCount,8);assert.equal(step.studyCaseIndex,index);assert.equal(step.studyCaseCount,cases.length);
+        assert.equal(step.studyMoves.join(' '),lesson.cases[index].moves.join(' '));
+      });
+    });
+  }
+
   assert.equal(independent.at(-1).focusIndices.length,api.createSolvedState(type).length,`${type}: the final step must reveal the complete puzzle`);
   for(const step of independent) {
     const indices=step.focusIndices;

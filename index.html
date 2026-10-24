@@ -3448,14 +3448,14 @@ THE SOFTWARE.
 
     function buildIndependentStudyPlan() {
       const type=AppState.puzzleType, guided=buildGuidedLearningPlan();
-      const stages=type==='2x2'?[0,1,2]:type==='3x3'?[0,1,4,7]:type==='pyraminx'?[0,1,2,3]:type==='4x4'?[0,2,3,5]:[0,2,3,4];
+      const stages=type==='2x2'?[0,1,2]:type==='3x3'?guided.map((_,index)=>index):type==='pyraminx'?[0,1,2,3]:type==='4x4'?[0,2,3,5]:[0,2,3,4];
       const plan=stages.flatMap((stage,index)=> {
-        const lesson=guided[stage], examples=type==='3x3'&&stage===0?lesson.cases:[lesson.cases[0]];
+        const lesson=guided[stage], examples=type==='3x3'?lesson.cases:[lesson.cases[0]];
         return examples.map(example=>({...lesson, cases:[example], stepName:`Independent Study — ${lesson.stepName}`, moves:[], studyIndex:index,
           mentalStep:!!example.mentalStep, guidedStageIndex:stage, guidedCaseIndex:lesson.cases.indexOf(example),
           instructions:'Earlier pieces stay visible as new pieces are introduced. Play demonstrates this case; Next and Back select a case.',
           studySetup:example.mentalStep?'The first target is the daisy: four white petals around yellow. Build this on your own cube by thinking through the edge moves.':type==='3x3'&&stage===0?'Start from the daisy. Match each edge’s side color with its center before sending the white petal Down.':null,
-          studyTask:example.clue,
+          studyTask:example.clue, studyCaseName:example.name, studyStageCount:stages.length, studyCaseCount:examples.length, studyCaseIndex:examples.indexOf(example),
           studySetupMoves:example.setupMoves||null,
           studyGoalSetupMoves:example.goalSetupMoves||[],
           studyMoves:example.moves,moveNotes:example.moveNotes||[], focusIndices:independentFocusIndices(type,index)}));
@@ -3495,7 +3495,7 @@ THE SOFTWARE.
         const edge=!center&&!corner;
         let show;
         if(type==='2x2') show=stage===0?sticker.position[1]===n:stage===1?sticker.position[1]===0:sticker.position[1]===n;
-        else if(type==='3x3') show=center||(stage===0?edge&&sticker.position[1]===n:stage===1?corner:stage===2?sticker.position[1]>0||edge:sticker.position[1]===n);
+        else if(type==='3x3') show=center||(stage===0?edge&&sticker.position[1]===n:stage===1?corner&&sticker.position[1]===n:stage===2?edge&&sticker.position[1]===1:stage<=5?edge&&sticker.position[1]===0:corner&&sticker.position[1]===0);
         else if(type==='4x4') show=stage===0?center:stage===1?center||edge:stage===2?center:face===0||sticker.position[1]===0;
         else show=stage===0||stage===1?center:stage===2?edge:face===0||sticker.position[1]===0;
         return show?[index]:[];
@@ -5019,7 +5019,10 @@ THE SOFTWARE.
       panel.classList.toggle('hidden',AppState.trainingProfile!=='independent');
       if(AppState.trainingProfile!=='independent') {panel.innerHTML='';return;}
       const example=activeCaseForStep(step),details=AppState.setupDetails;
-      panel.innerHTML=`<p class="text-xs font-bold uppercase tracking-wider text-indigo-700">${step.mentalStep?'First target: the daisy':AppState.studyPreviewGoal?'Completed target reference':'Practice starting position'}</p>
+      const stageListOpen=$('#studyStageList')?.open;
+      panel.innerHTML=`<p id="studyProgress" class="text-xs font-bold uppercase tracking-wider text-indigo-700">Stage ${step.studyIndex+1} of ${step.studyStageCount} · Case ${step.studyCaseIndex+1} of ${step.studyCaseCount}</p>
+        <p class="mt-2 text-sm font-bold text-indigo-700">${escapeHtml(step.studyCaseName)}</p>
+        <p class="mt-2 text-xs font-bold uppercase tracking-wider text-indigo-700">${step.mentalStep?'First target: the daisy':AppState.studyPreviewGoal?'Completed target reference':'Practice starting position'}</p>
         <h4 class="mt-2 text-lg font-bold text-slate-900">${escapeHtml(step.goal)}</h4>
         <p class="mt-2 text-sm leading-6 text-slate-700">${AppState.studyPreviewGoal?'This shows where the highlighted pieces belong. Your practice cube has not been changed.':escapeHtml(step.studySetup||'The target pieces start unsolved. Compare this setup with the completed target, then work out the moves.')}</p>
         ${mentalNoteHtml(step)}
@@ -5027,7 +5030,9 @@ THE SOFTWARE.
         ${step.studyMoves.length?'<button id="watchStudyDemo" class="hidden tap-target mt-3 rounded-xl bg-white px-3 py-2 font-bold text-indigo-700">Watch setup and moves slowly</button>':''}
         <button id="restartStudyCase" class="tap-target mt-3 rounded-xl bg-white px-3 py-2 font-bold text-indigo-700">Restart this case</button>
         <button id="previewStudyGoal" class="tap-target mt-3 rounded-xl bg-indigo-600 px-3 py-2 font-bold text-white" aria-pressed="${AppState.studyPreviewGoal}">${AppState.studyPreviewGoal?'Return to exercise':'Preview completed target'}</button>
-        <details class="mt-3 text-sm text-slate-700"><summary class="cursor-pointer font-bold">How to place the pieces</summary><p class="mt-2 leading-6">${escapeHtml(step.application)}</p><p class="mt-2 font-mono">${escapeHtml(step.studyMoves.join(' '))}</p></details>`;
+        <details class="mt-3 text-sm text-slate-700"><summary class="cursor-pointer font-bold">How to place the pieces</summary><p class="mt-2 leading-6">${escapeHtml(step.application)}</p><p class="mt-2 font-mono">${escapeHtml(step.studyMoves.join(' '))}</p></details>
+        <details id="studyStageList" class="mt-3 text-sm text-slate-700" ${stageListOpen?'open':''}><summary class="cursor-pointer font-bold">All ${step.studyStageCount} solve stages</summary><div class="mt-2 grid gap-2">${CurrentAlgorithm.map((entry,index)=>`${index===0||entry.studyIndex!==CurrentAlgorithm[index-1].studyIndex?`<p class="mt-2 font-bold">${entry.studyIndex+1}. ${escapeHtml(entry.goal)}</p>`:''}<button data-study-case-index="${index}" class="tap-target rounded-xl bg-white px-3 py-2 text-left text-slate-700" ${workspaceCameraLocked()?'disabled':''} ${index===AppState.activeStepIndex?'aria-current="step"':''}>${escapeHtml(entry.studyCaseName)}</button>`).join('')}</div></details>`;
+      $$('[data-study-case-index]').forEach(button=>button.addEventListener('click',()=>selectLessonStep(Number(button.dataset.studyCaseIndex)-AppState.activeStepIndex)));
       $('#watchStudyDemo')?.addEventListener('click',async()=>{const stage=step.guidedStageIndex,example=step.guidedCaseIndex;await startPlayback('guided');AppState.activeStepIndex=stage;AppState.activeCaseIndex=example;AppState.lessonPhase='apply';resetPracticeCase();renderVisualFrame();renderUIStatusDisplay();});
       $('#restartStudyCase').addEventListener('click',()=>{resetPracticeCase();renderVisualFrame();renderUIStatusDisplay();});
       $('#previewStudyGoal').addEventListener('click',()=>{stopAutoPlay();cancelAnimation();AppState.studyPreviewGoal=!AppState.studyPreviewGoal;AppState.cameraX=defaultCameraTilt();renderVisualFrame();renderUIStatusDisplay();});

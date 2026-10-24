@@ -24,6 +24,36 @@ const { chromium } = require('playwright');
     assert.equal(await page.locator('#puzzleCards [data-preview-model="pyraminx"]').count(),1);
     assert.equal(await page.locator('#puzzleCards svg').count(),0);
     assert.equal(await page.locator('#cube3d, #pyra3d').count(),0,'Homepage previews must not reuse playback IDs');
+    if(process.argv.includes('--study-curriculum')) {
+      await choose('3x3');await page.click('[data-mode="learn"]');
+      assert(await page.locator('[data-learn="guided"]').isHidden());await openIndependent();
+      const cases=await read(()=>CurrentAlgorithm.map(step=>({stage:step.guidedStageIndex,caseIndex:step.studyCaseIndex,count:step.studyCaseCount,name:step.studyCaseName})));
+      assert.deepEqual([...new Set(cases.map(entry=>entry.stage))],[0,1,2,3,4,5,6,7]);
+      assert.equal(cases.length,16);assert.equal(cases.filter(entry=>entry.stage===1).length,6);assert.equal(cases.filter(entry=>entry.stage===2).length,2);
+      for(let index=0;index<cases.length;index++) {
+        assert.equal(await read(()=>AppState.activeStepIndex),index);
+        assert((await page.locator('#studyProgress').textContent()).includes(`Stage ${cases[index].stage+1} of 8`));
+        assert((await page.locator('#studyTaskPanel').innerText()).includes(cases[index].name));
+        assert(await read(()=>getPuzzleValidation('3x3',AppState.playbackState).valid));
+        const before=await read(()=>AppState.playbackState.join('|'));
+        if(index>0) {await page.click('#backMove');await page.click('#nextMove');assert.equal(await read(()=>AppState.playbackState.join('|')),before);}
+        if(index<cases.length-1) await page.click('#nextMove');
+      }
+      assert(await page.locator('#nextMove').isDisabled());
+      await page.click('#studyStageList > summary');assert.equal(await page.locator('[data-study-case-index]').count(),16);
+      await page.click('[data-study-case-index="8"]');assert.equal(await read(()=>CurrentAlgorithm[AppState.activeStepIndex].guidedStageIndex),2);
+      await page.selectOption('#playbackSpeed','normal');await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);
+      assert(await page.locator('[data-study-case-index="0"]').isDisabled());
+      await page.evaluate(()=>selectLessonStep(-AppState.activeStepIndex));assert.equal(await read(()=>AppState.activeStepIndex),8);
+      await page.click('#playMove');await settle();
+      assert(await page.locator('[data-study-case-index="0"]').isEnabled());
+      await page.click('[data-study-case-index="0"]');assert.equal(await read(()=>AppState.activeStepIndex),0);
+      assert(await page.locator('#studyStageList').evaluate(node=>node.open));
+      await page.setViewportSize({width:375,height:812});assert(await read(()=>document.documentElement.scrollWidth<=innerWidth));
+      await page.screenshot({path:path.join(os.tmpdir(),'twisty-complete-3x3-study.png'),fullPage:true});
+      assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
+      console.log('Complete 3x3 study: eight stages, sixteen cases, exact navigation, stage picker locks, mobile and offline passed.');return;
+    }
     if(process.argv.includes('--study-onboarding')) {
       for(const type of ['2x2','3x3','4x4','5x5','pyraminx']) {
         await choose(type);await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');
