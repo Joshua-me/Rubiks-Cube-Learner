@@ -4,6 +4,10 @@
 
 Maintain an offline puzzle solver and learning playground in a single runtime file, `index.html`. Support 2x2, 3x3, Pyraminx, 4x4, and 5x5 with a white/slate interface, editable sticker nets, verified move playback, guided practice, and independent study masks. Development scripts and tests may live outside the HTML; running the app must not require a server, build, CDN, account, or network connection.
 
+## Temporarily hidden features
+
+Guided Learning (Track A / Guided Practice), its Independent Study setup shortcut, and the Puzzle Coach button are hidden from the public interface. Keep their existing code for future updates. They will be reintroduced after AI support is implemented; do not expose these entry points until that update is requested. Independent Study (Track B), its in-place move playback, and calculation mode remain available. The retained coach currently uses local rules, not AI. The app remains offline; adding AI or network dependencies requires a separate requested change.
+
 ## Actual solver capabilities
 
 | Puzzle | Implemented calculation | Limits |
@@ -67,7 +71,7 @@ A triangular face has rows of 1, 3, and 5 cells, numbered row-major. Tips are 0/
 - Independent Study retains the selected puzzle and renders a prepared case with a cumulative mask. Keep every earlier target piece visible in later cases, reorienting its sticker identities into the new lesson grip. Play animates the current case in place; Pause stops autoplay and Replay restores the prepared case before repeating it. Label mental/inspection steps instead of presenting an unexplained disabled Play button. Move the target sticker identities through the case setup and applied demonstration turns so masks follow the pieces instead of staying on solved slots. Mask only the rendered copy; never overwrite actual sticker colors. On entry to Track B, show a dismissible, keyboard-accessible masking introduction for the selected puzzle. About the mask reopens it. The Peek behind mask switch reveals all stickers for comparison without changing the state; pause and settle any active demonstration before changing the display. Clearly distinguish the unsolved practice start from the completed target. Preview completed target renders a separate solved reference with the baseline mask and never mutates the practice state. Give each study case a specific task; face the target layer in the initial camera view. Next/Back navigate study cases.
 - Provide all-face net inspection as well as the 3D view. Scanner completion animation is a cue, not an instruction to mirror the net or guess a rotation.
 - Keyboard shortcuts must ignore inputs, editable text, and focused buttons. Provide disabled controls, accessible sticker labels, live validation, focus indication, and reduced-motion CSS.
-- The Puzzle Coach is a local rule-based helper, not an external AI service. Its text must match current solver limits and validation behavior.
+- The Puzzle Coach button is temporarily hidden pending future AI updates. Its retained implementation is a local rule-based helper, not an external AI service. Keep its text consistent with current solver limits and validation behavior.
 
 ## Tutorial sources
 

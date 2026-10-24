@@ -16,6 +16,8 @@ const { chromium } = require('playwright');
     const read=fn=>page.evaluate(fn);
     const settle=()=>page.waitForFunction(()=>!AppState.animating);
     const choose=async type=>{await page.click('#brandHome');await page.click(`[data-puzzle="${type}"]`);};
+    // Guided UI is hidden pending AI support; retain coverage through its internal entry point.
+    const openGuided=()=>page.evaluate(()=>startPlayback('guided'));
     const openIndependent=async()=>{await page.click('[data-learn="independent"]');await page.click('#dismissStudyIntro');};
     assert.equal(await page.locator('[data-puzzle]').count(),5);
     assert.equal(await page.locator('#puzzleCards [data-preview-model="cube"]').count(),4);
@@ -55,13 +57,13 @@ const { chromium } = require('playwright');
       await page.click('#studyMaskHelp');
       const box=await page.locator('#studyIntroDialog').boundingBox();assert(box.x>=0&&box.x+box.width<=375&&box.y>=0&&box.y+box.height<=812);
       await page.screenshot({path:path.join(os.tmpdir(),'twisty-study-onboarding.png'),fullPage:true});
-      await page.click('#dismissStudyIntro');await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      await page.click('#dismissStudyIntro');await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();
       assert(await page.locator('#studyIntroDialog').isHidden());assert(await page.locator('#toggleStudyMask').isHidden());assert(await page.locator('#studyMaskHelp').isHidden());
       assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
       console.log('Independent onboarding, keyboard isolation, mask switch, playback pause, mobile and offline checks passed.');return;
     }
     if(process.argv.includes('--parity-banner')) {
-      await choose('4x4');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      await choose('4x4');await page.click('[data-mode="learn"]');await openGuided();
       for(let i=0;i<5;i++) await page.click('#nextLesson');
       assert.equal(await page.locator('#parityPanel').evaluate(n=>n.previousElementSibling.textContent.trim()),'Your next step');
       assert((await page.locator('#parityPanel').innerText()).includes('4×4 OLL parity'));
@@ -77,7 +79,7 @@ const { chromium } = require('playwright');
       await page.click('#restartCase');await page.click('#playMove');assert(await page.locator('#resumeParity').isVisible());
       await page.click('[data-case-index="1"]');assert((await page.locator('#parityPanel').innerText()).includes('4×4 PLL parity'));
       await page.click('[data-case-index="2"]');assert(await page.locator('#parityPanel').isHidden(),'A stage mentioning parity must not label ordinary cases as parity');
-      await choose('5x5');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      await choose('5x5');await page.click('[data-mode="learn"]');await openGuided();
       for(let i=0;i<3;i++) await page.click('#nextLesson');await page.click('[data-case-index="2"]');
       assert((await page.locator('#parityPanel').innerText()).includes('5×5 last-edge parity'));
       assert((await page.locator('#parityPanel').innerText()).includes('does not have 4×4 PLL parity'));
@@ -107,13 +109,13 @@ const { chromium } = require('playwright');
       await page.setViewportSize({width:390,height:844});assert(await read(()=>document.documentElement.scrollWidth<=innerWidth));
       await page.click('#themeToggle');await page.screenshot({path:path.join(os.tmpdir(),'twisty-parity-banner.png'),fullPage:true});
       await page.click('#restartSolve');await page.click('#playMove');assert(await page.locator('#resumeParity').isVisible(),'Restart must request diagnosis again');
-      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');assert(await page.locator('#parityPanel').isHidden());
+      await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();assert(await page.locator('#parityPanel').isHidden());
       assert.deepEqual(errors,[]);assert.equal(external.length,0);
       console.log('browser: ok — contextual OLL/PLL and 5x5 edge diagnostics below heading, pre-turn pause/resume, no repeated pauses, actual calculated parity boundary, setup/non-parity exclusions, restart, dark/mobile/offline');return;
     }
     if(process.argv.includes('--interlocks')) {
       const disabled=()=>read(()=>['nextLesson','previousLesson','resetCamera'].map(id=>document.getElementById(id).disabled));
-      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+      await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();await page.click('#nextLesson');
       await page.selectOption('#playbackSpeed','normal');assert.deepEqual(await disabled(),[false,false,false]);
       assert.deepEqual(await read(()=>{toggleAutoPlay();return ['nextLesson','previousLesson','resetCamera'].map(id=>document.getElementById(id).disabled);}),[true,true,true],'Interlock must start before the first animation');
       await page.waitForFunction(()=>AppState.animating);assert.deepEqual(await disabled(),[true,true,true]);
@@ -138,7 +140,7 @@ const { chromium } = require('playwright');
         await page.mouse.move(box.x+box.width/2+90,box.y+box.height/2+30,{steps:5});await page.mouse.up();
       };
       for(const type of ['2x2','3x3','4x4','5x5']) {
-        await choose(type);await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+        await choose(type);await page.click('[data-mode="learn"]');await openGuided();
         if(type==='3x3') await page.click('#nextLesson');
         await page.selectOption('#playbackSpeed','normal');
         const initial=await read(()=>AppState.playbackState.join('|'));
@@ -155,7 +157,7 @@ const { chromium } = require('playwright');
         assert(await page.locator('#resetCamera').isEnabled());await drag();assert(await read(()=>AppState.cameraY!==-34));
         await page.click('#resetCamera');assert.deepEqual(await read(()=>[AppState.cameraX,AppState.cameraY]),[-24,-34]);
       }
-      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+      await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();await page.click('#nextLesson');
       const box=await page.locator('#visualFrame .cube-scene').boundingBox();
       await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
       await page.mouse.move(box.x+box.width/2+30,box.y+box.height/2);
@@ -182,7 +184,7 @@ const { chromium } = require('playwright');
     }
     if(process.argv.includes('--curriculum')) {
       const finish=()=>page.evaluate(()=>{while(executeNextPlaybackMove()) {}renderVisualFrame();renderUIStatusDisplay();});
-      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();
       await page.click('#continueLesson');
       assert.equal(await read(()=>activeMovesForStep(CurrentAlgorithm[0]).join(' ')),'U F2');
       for(const label of ['1. Hold:','2. Find:','3. Position:','4. Use:']) assert((await page.locator('#setupGuide').innerText()).includes(label));
@@ -256,7 +258,7 @@ const { chromium } = require('playwright');
       assert(await read(()=>isSolvedPuzzleState('3x3',AppState.playbackState)));
       await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);assert.equal(await read(()=>AppState.activeMoveIndex),1);
       await page.click('#brandHome');assert(!await read(()=>AppState.animating||AppState.autoTimer));
-      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#continueLesson');
+      await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();await page.click('#continueLesson');
       await page.selectOption('#playbackSpeed','normal');await page.click('#playMove');
       await page.waitForFunction(()=>AppState.completed&&!AppState.animating,{},{timeout:15000});
       assert.equal(await page.locator('#playMove').innerText(),'Replay');await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);
@@ -264,7 +266,7 @@ const { chromium } = require('playwright');
       console.log('browser: ok — independent Play/Pause and in-place moves on all five puzzles, moving cumulative masks, case navigation, reset, completion/replay, guided replay and navigation cancellation');return;
     }
     if(process.argv.includes('--motion')) {
-      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+      await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();await page.click('#nextLesson');
       // Start in the same task as rendering: CSS transitions used to skip this turn.
       await page.evaluate(()=>{beginPracticeAlgorithm(false);advancePlaybackState('NEXT');});
       const moving=page.locator('#cube3d .cubie[data-x="2"][data-y="0"][data-z="2"]');
@@ -335,7 +337,7 @@ const { chromium } = require('playwright');
       assert.deepEqual(errors,[]);console.log('browser: ok — all scanner palettes keep Down stickers accessible, completion cue does not mirror, validation text and stale notices fixed');return;
     }
     if(process.argv.includes('--lesson-player')) {
-      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+      await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();await page.click('#nextLesson');
       assert.equal(await read(()=>AppState.playbackSpeed),'slow');
       const prepared=await read(()=>AppState.playbackState.join('|'));
       assert((await page.locator('#setupGuide').innerText()).includes('white Up')===false);
@@ -363,10 +365,10 @@ const { chromium } = require('playwright');
       await page.click('#brandHome');assert(!await read(()=>AppState.animating||AppState.autoTimer));
       await choose('pyraminx');await page.click('[data-mode="learn"]');await openIndependent();
       for(let i=0;i<3;i++) await page.click('#nextMove');
-      await page.click('#watchStudyDemo');assert.equal(await read(()=>AppState.trainingProfile),'guided');assert.equal(await read(()=>AppState.activeStepIndex),3);
+      await page.locator('#watchStudyDemo').evaluate(button=>button.click());assert.equal(await read(()=>AppState.trainingProfile),'guided');assert.equal(await read(()=>AppState.activeStepIndex),3);
       assert.equal(await read(()=>activeMovesForStep(CurrentAlgorithm[3]).join(' ')),"R' L R L' U' L' U L");
       assert(await page.locator('#setupGuide').isVisible());
-      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');await page.click('#nextLesson');
+      await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();await page.click('#nextLesson');await page.click('#nextLesson');
       assert.equal(await read(()=>AppState.setupDetails.targetIndices.join(',')),'23,30');
       assert((await page.locator('#setupGuide').innerText()).includes('green / orange'));
       await page.click('#themeToggle');
@@ -375,7 +377,7 @@ const { chromium } = require('playwright');
       assert.equal(external.length,0);assert.deepEqual(errors,[]);console.log('browser: ok — setup before algorithm, actual slow/very-slow turns, piece/slot markers, pause/undo/cancellation, independent demo links');return;
     }
     if(process.argv.includes('--daisy')) {
-      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();
       assert((await page.locator('#stepName').innerText()).includes('white cross'));
       assert(await read(()=>[1,3,5,7].every(i=>AppState.playbackState[i]==='#ffffff')&&AppState.playbackState[4]==='#ffff00'));
       assert((await page.locator('#lessonTeaching [data-mental-note]').innerText()).includes('solved mentally'));
@@ -447,12 +449,12 @@ const { chromium } = require('playwright');
       await page.setViewportSize({width:390,height:844});
       assert(await read(()=>document.documentElement.scrollWidth<=innerWidth));
       await page.screenshot({path:path.join(os.tmpdir(),'twisty-home-3d-mobile.png'),fullPage:true,animations:'disabled'});
-      await page.setViewportSize({width:1280,height:900});await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#continueLesson');
+      await page.setViewportSize({width:1280,height:900});await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();await page.click('#continueLesson');
       const previewTransforms=await page.locator('#puzzleCards .cubie').evaluateAll(nodes=>nodes.map(n=>n.style.transform));
       await page.click('#nextMove');await settle();
       assert.deepEqual(await page.locator('#puzzleCards .cubie').evaluateAll(nodes=>nodes.map(n=>n.style.transform)),previewTransforms,'Playback must not turn homepage previews');
       assert.equal(await page.locator('#cube3d').count(),1);
-      await choose('pyraminx');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      await choose('pyraminx');await page.click('[data-mode="learn"]');await openGuided();
       const tipPreview=await page.locator('#puzzleCards .pyra-piece3d').evaluateAll(nodes=>nodes.map(n=>n.style.transform));
       await page.click('#nextMove');await settle();
       assert.deepEqual(await page.locator('#puzzleCards .pyra-piece3d').evaluateAll(nodes=>nodes.map(n=>n.style.transform)),tipPreview);
@@ -496,7 +498,7 @@ const { chromium } = require('playwright');
       const expectedTutorial={'2x2':'GANnG5a19kg','3x3':'PW2J8IblczM','4x4':'KWOZHbDdOeo','5x5':'d1I-jJlVwB4','pyraminx':'pHBj8hixTfE'}[type];
       assert((await page.locator('[data-tutorial-link]').first().getAttribute('href')).endsWith(expectedTutorial));
       if(type==='pyraminx') {assert.equal(await page.locator('[data-tutorial-link]').count(),2);assert((await page.locator('[data-tutorial-link]').nth(1).getAttribute('href')).endsWith('sCJcd6FKWAc'));}
-      await page.click('[data-learn="guided"]');
+      await openGuided();
       assert.equal(await read(()=>AppState.puzzleType),type);
       assert(await read(()=>!isSolvedPuzzleState(AppState.puzzleType,AppState.playbackState)));
       if(type==='2x2') await page.screenshot({path:path.join(os.tmpdir(),'twisty-2x2.png'),fullPage:true});
@@ -515,7 +517,7 @@ const { chromium } = require('playwright');
     }
     // Solid cubies use the exact solver geometry, with no duplicate or hidden stickers.
     for(const type of ['2x2','3x3','4x4','5x5']) {
-      await choose(type);await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      await choose(type);await page.click('[data-mode="learn"]');await openGuided();
       assert(await read(()=>{
         const geometry=cubeStickerGeometry(PUZZLES[AppState.puzzleType].size), stickers=Array.from(document.querySelectorAll('#cube3d [data-sticker-index]'));
         return stickers.length===geometry.length && new Set(stickers.map(s=>s.dataset.stickerIndex)).size===geometry.length && stickers.every(sticker=>{
@@ -524,7 +526,7 @@ const { chromium } = require('playwright');
         }) && Array.from(document.querySelectorAll('#cube3d .cubie')).every(c=>c.querySelectorAll('.cubie-body').length===6);
       }));
     }
-    await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+    await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();await page.click('#nextLesson');
     const orbitState=await read(()=>AppState.playbackState.join('|'));
     const modelBox=await page.locator('#visualFrame .cube-scene').boundingBox();
     await page.mouse.move(modelBox.x+modelBox.width/2,modelBox.y+modelBox.height/2);await page.mouse.down();await page.mouse.move(modelBox.x+modelBox.width/2+70,modelBox.y+modelBox.height/2+20,{steps:8});await page.mouse.up();
@@ -561,7 +563,7 @@ const { chromium } = require('playwright');
       await page.click('#backMove');assert(!await read(()=>AppState.completed));
     }
     // A stage teaches both related algorithms before introducing their applications.
-    await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+    await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();await page.click('#nextLesson');
     assert.equal(await read(()=>AppState.lessonPhase),'teach');
     assert((await page.locator('#lessonExplanation').textContent()).includes('righty and lefty'));
     assert(await page.locator('#continueLesson').isDisabled());
@@ -592,24 +594,24 @@ const { chromium } = require('playwright');
     await finishPractice();assert.equal(await page.locator('#continueLesson').innerText(),'Learning complete');
     await page.screenshot({path:path.join(os.tmpdir(),'twisty-stage-application.png'),fullPage:true});
     // Named videos, chapter links, inspection steps, and source rotation notation.
-    await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+    await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();
     assert((await page.locator('#sourceChapterLink').getAttribute('href')).endsWith('&t=53s'));
     for(let i=0;i<3;i++) await page.click('#nextLesson');
     assert(await page.locator('#playMove').isDisabled());
     assert(!await read(()=>isSolvedPuzzleState('3x3',AppState.playbackState)));
     assert((await page.locator('#sourceChapterLink').getAttribute('href')).endsWith('&t=413s'));
     await page.click('#nextLesson');assert(await page.locator('#playMove').isEnabled());
-    await choose('pyraminx');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+    await choose('pyraminx');await page.click('[data-mode="learn"]');await openGuided();await page.click('#nextLesson');
     assert((await page.locator('[data-source-link]').getAttribute('href')).endsWith('sCJcd6FKWAc'));
     assert((await page.locator('#sourceChapterLink').getAttribute('href')).endsWith('&t=13s'));
-    await choose('4x4');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+    await choose('4x4');await page.click('[data-mode="learn"]');await openGuided();
     for(let i=0;i<5;i++) await page.click('#nextLesson');
     for(let i=0;i<2;i++) {await page.click('#nextMove');await settle();}
     const beforeRotation=await read(()=>AppState.playbackState.join('|'));
     assert((await page.locator('#moveInstruction').innerText()).includes('whole cube'));
     await page.click('#nextMove');await settle();assert.notEqual(await read(()=>AppState.playbackState.join('|')),beforeRotation);
     await page.click('#backMove');assert.equal(await read(()=>AppState.playbackState.join('|')),beforeRotation);
-    await choose('5x5');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+    await choose('5x5');await page.click('[data-mode="learn"]');await openGuided();
     for(let i=0;i<3;i++) await page.click('#nextLesson');await page.click('[data-case-index="2"]');
     assert((await page.locator('#sourceChapterLink').getAttribute('href')).endsWith('&t=386s'));
     assert(await read(()=>activeMovesForStep(CurrentAlgorithm[AppState.activeStepIndex]).includes("3Rw'")));
@@ -642,9 +644,9 @@ const { chromium } = require('playwright');
     }
 
     // Autoplay stops at the end, typing in the coach doesn't trigger playback.
-    await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+    await choose('3x3');await page.click('[data-mode="learn"]');await openGuided();
     await page.click('#continueLesson');await page.click('#playMove');await page.waitForFunction(()=>AppState.completed&&!AppState.autoTimer);
-    await page.click('#backMove');await page.click('#chatToggle');
+    await page.click('#backMove');await page.evaluate(()=>toggleChat(true));
     const cursor=await read(()=>AppState.activeMoveIndex);
     await page.locator('#chatInput').fill('what does Rw mean?');await page.keyboard.press('ArrowRight');await page.keyboard.press('Space');
     assert.equal(await read(()=>AppState.activeMoveIndex),cursor);assert(!await read(()=>!!AppState.autoTimer));
