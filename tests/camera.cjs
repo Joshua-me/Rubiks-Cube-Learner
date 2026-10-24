@@ -36,7 +36,7 @@ const {pathToFileURL}=require('node:url');const {chromium}=require('playwright')
       };
       if(window.cameraMock.drawTimer) clearInterval(window.cameraMock.drawTimer);render();window.cameraMock.drawTimer=setInterval(render,80);
     },{size,colors,triangle,skew});
-    const start=async()=>{await page.click('#startCamera');await page.waitForFunction(()=>AppState.camera.running||(!AppState.camera.starting&&document.querySelector('#cameraStatus').textContent.includes('could not')),{},{timeout:40000});assert(await page.evaluate(()=>AppState.camera.running),await page.locator('#cameraStatus').innerText());};
+    const start=async()=>{await page.locator('#cameraScanner').evaluate(node=>node.open=true);await page.click('#startCamera');await page.waitForFunction(()=>AppState.camera.running||(!AppState.camera.starting&&document.querySelector('#cameraStatus').textContent.includes('could not')),{},{timeout:40000});assert(await page.evaluate(()=>AppState.camera.running),await page.locator('#cameraStatus').innerText());};
     const palette=['#ffffff','#ffaa00','#00ff00','#ff0000','#0000ff','#ffff00'];
     for(const size of process.argv.includes('--pyraminx')?[]:[2,3,4,5]) {
       console.log(`camera: checking ${size}x${size}`);
@@ -75,6 +75,8 @@ const {pathToFileURL}=require('node:url');const {chromium}=require('playwright')
     assert(await page.evaluate(()=>isSolvedPuzzleState('3x3',AppState.colorDataMap['3x3'])));
     await page.setViewportSize({width:390,height:844});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     await page.screenshot({path:path.join(os.tmpdir(),'twisty-camera-mobile.png'),fullPage:true});
+    await page.locator('#cameraScanner').evaluate(node=>node.open=false);await page.waitForFunction(()=>!AppState.camera.running);
+    assert(await page.evaluate(()=>window.cameraMock.streams.every(stream=>stream.getTracks().every(track=>track.readyState==='ended'))),'Closing the optional camera panel must stop all tracks');
     await page.click('#resetPaintBtn');assert(await page.evaluate(()=>!AppState.camera.running&&AppState.camera.history.length===0&&AppState.colorDataMap['3x3'].every(c=>c===COLORS.blank)));
     // Missing grids never overwrite a scan, and denial can be retried.
     await start();await page.waitForTimeout(1400);assert(await page.evaluate(()=>AppState.colorDataMap['3x3'].every(c=>c===COLORS.blank)));

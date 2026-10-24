@@ -15,7 +15,7 @@ const api = vm.runInContext(`({AppState, COLORS, PUZZLES, Cube, PuzzleValidators
   simulateAlgorithm, simulateMoveOnPuzzleState, inverseMove, cubeMovePermutation, pyraminxMovePermutation,
   buildCalculatedSolvePlan, reducedCubeState, buildPyraTables, bigCubeModel, cycleTable, threeCycleMoves, validateBigCubeState, permuteState, compactSolutionMoves, buildGuidedLearningPlan, buildIndependentStudyPlan,
   independentFocusIndices, independentCaseFocusIndices, regripStudyFocus, independentGoalState, practiceSetupDetails, PYRA_STICKERS, learningSolvedState, advancePlaybackState,
-  executeNextPlaybackMove, showSolvedResult, restartSolvePlayback, parityContext,
+  executeNextPlaybackMove, showSolvedResult, restartSolvePlayback, parityContext, diagnoseScan, nextEmptyScanIndex, scanPieceGroups,
   select: type => { AppState.puzzleType=type; },
   setupPlayback: (type,state,plan) => {
     AppState.puzzleType=type; AppState.trainingProfile=null; AppState.playbackState=state.slice();AppState.playbackInitialState=state.slice();
@@ -26,6 +26,38 @@ const api = vm.runInContext(`({AppState, COLORS, PUZZLES, Cube, PuzzleValidators
 function stateAfter(type, alg, state = api.createSolvedState(type)) {
   return api.simulateAlgorithm(type, state, api.parseAlgorithmMoves(alg));
 }
+// Scanner explanations must be accurate for real piece constraints and must
+// never flag legal scans (including legal big-cube parity or alternate frames).
+for(const type of Object.keys(api.PUZZLES)) {
+  const moves=type==='pyraminx'?"R U L' B r u'":"R U F2 L' D B R2";
+  const state=stateAfter(type,moves);
+  assert.equal(api.diagnoseScan(type,state).length,0,`${type}: legal scan falsely highlighted`);
+  const allowed=api.PUZZLES[type].colors;
+  const recolored=state.map(color=>allowed[(allowed.indexOf(color)+1)%allowed.length]);
+  assert.equal(api.diagnoseScan(type,recolored).length,0,`${type}: alternate legal frame falsely highlighted`);
+}
+const scannerBlank=api.createBlankState('3x3');
+assert.equal(api.nextEmptyScanIndex(scannerBlank),0);scannerBlank[0]='#ff0000';assert.equal(api.nextEmptyScanIndex(scannerBlank,0),1);
+const cursorWrap=api.createSolvedState('3x3');cursorWrap[0]=api.COLORS.blank;assert.equal(api.nextEmptyScanIndex(cursorWrap,53),0);cursorWrap[0]='#ffffff';assert.equal(api.nextEmptyScanIndex(cursorWrap),-1);
+const countScan=api.createSolvedState('3x3');countScan[0]='#ffff00';
+const countIssue=api.diagnoseScan('3x3',countScan).find(issue=>issue.kind==='count');
+assert.equal(countIssue.certainty,'review');assert.equal(countIssue.indices.length,10);assert(countIssue.indices.every(index=>countScan[index]==='#ffff00'));
+const sameEdge=api.createSolvedState('3x3');[sameEdge[5],sameEdge[46]]=[sameEdge[46],sameEdge[5]];[sameEdge[28],sameEdge[48]]=[sameEdge[48],sameEdge[28]];
+const repeated=api.diagnoseScan('3x3',sameEdge).find(issue=>issue.kind==='repeated-color');
+assert(repeated.message.includes('two yellow'));assert.deepEqual(Array.from(repeated.indices),[5,28]);assert.equal(repeated.certainty,'exact');
+const mirroredScan=api.createSolvedState('3x3');[mirroredScan[8],mirroredScan[27]]=[mirroredScan[27],mirroredScan[8]];
+assert.deepEqual(Array.from(api.diagnoseScan('3x3',mirroredScan).find(issue=>issue.kind==='mirrored').indices),[8,20,27]);
+const flipScan=api.createSolvedState('3x3');[flipScan[7],flipScan[19]]=[flipScan[19],flipScan[7]];
+const globalIssue=api.diagnoseScan('3x3',flipScan).find(issue=>issue.kind==='reachability');
+assert.equal(globalIssue.certainty,'review');assert.equal(globalIssue.indices.length,24);assert(globalIssue.message.includes('cannot identify a single wrong sticker'));
+const fixedCenterScan=api.createSolvedState('3x3');[fixedCenterScan[4],fixedCenterScan[10]]=[fixedCenterScan[10],fixedCenterScan[4]];
+assert.deepEqual(Array.from(api.diagnoseScan('3x3',fixedCenterScan).find(issue=>issue.kind==='centers').indices),[4,13]);
+const orbitScan=api.createSolvedState('5x5');[orbitScan[6],orbitScan[32]]=[orbitScan[32],orbitScan[6]];
+assert(api.diagnoseScan('5x5',orbitScan).some(issue=>issue.kind==='center-orbit'));
+assert.equal(api.diagnoseScan('4x4',stateAfter('4x4',"Rw2 B2 U2 Lw U2 Rw' U2 Rw U2 F2 Rw F2 Lw' B2 Rw2")).length,0,'Legal 4x4 OLL parity must not be highlighted as invalid');
+assert.equal(api.diagnoseScan('3x3',null)[0].kind,'length');
+const unknownScan=api.createSolvedState('3x3');unknownScan[0]='#123456';assert(api.diagnoseScan('3x3',unknownScan).some(issue=>issue.kind==='palette'&&issue.indices.includes(0)));
+
 function verifySolve(type, state) {
   const plan = api.buildCalculatedSolvePlan(type, state);
   assert(!plan[0].unsupported, `${type}: expected a computed solution`);
