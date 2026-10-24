@@ -4,7 +4,9 @@
   "scripts": {
     "test": "node verify.js",
     "test:browser": "node tests/browser.cjs",
-    "build:styles": "node scripts/build-styles.cjs"
+    "build:styles": "node scripts/build-styles.cjs",
+    "test:camera": "node tests/camera.cjs",
+    "build:camera": "node scripts/embed-opencv.cjs"
   },
   "devDependencies": {
     "playwright": "1.63.0",

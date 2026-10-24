@@ -90,6 +90,7 @@
     .cubie-body .sticker3d { transform:none; border:0; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12); }
     .cube-scene { width:100%; height:350px; max-width:none; max-height:none; cursor:grab; touch-action:none; }
     .cube-scene:active { cursor:grabbing; }
+    #visualFrame.view-locked .cube-scene { cursor:default; }
     .cube3d { transition:none; }
     .model-toolbar { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; }
     .model-help { font-size:12px; color:#64748b; margin:5px 0; }
@@ -615,26 +616,33 @@ function polygonPoints(poly) {
   return points.slice(start).concat(points.slice(0,start));
 }
 function faceCellCenters(size,triangle) {
-  if(triangle) return [[.5,2/9],[1/3,5/9],[.5,4/9],[2/3,5/9],[1/6,8/9],[1/3,7/9],[.5,8/9],[2/3,7/9],[5/6,8/9]].map(([x,y])=>[x*240,y*208]);
+  if(triangle) return [[.5,2/9],[1/3,5/9],[.5,4/9],[2/3,5/9],[1/6,8/9],[1/3,7/9],[.5,8/9],[2/3,7/9],[5/6,8/9]].map(([x,y])=>[x*240+12,y*208+12]);
   return Array.from({length:size*size},(_,i)=>[(i%size+.5)*240/size,(Math.floor(i/size)+.5)*240/size]);
+}
+function faceBrightness(source,gray) {
+  cv.cvtColor(source,gray,cv.COLOR_RGBA2GRAY);
+  // A saturated blue sticker is dark in luminance but bright in HSV value.
+  // Detect plastic seams in value so blue/red cells are not lost from a grid.
+  for(let i=0;i<gray.data.length;i++) gray.data[i]=Math.max(source.data[i*4],source.data[i*4+1],source.data[i*4+2]);
 }
 function contourCentersMatch(warped,size,triangle,centers) {
   return withMats(own=>{
     const gray=own(new cv.Mat()),edges=own(new cv.Mat()),contours=own(new cv.MatVector()),hierarchy=own(new cv.Mat());
-    cv.cvtColor(warped,gray,cv.COLOR_RGBA2GRAY);cv.Canny(gray,edges,25,75);cv.findContours(edges,contours,hierarchy,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
-    const found=new Set(),cellArea=(triangle?240*208/2/9:240*240/(size*size)),distance=triangle?17:240/size*.24;
+    faceBrightness(warped,gray);cv.threshold(gray,edges,60,255,cv.THRESH_BINARY);cv.findContours(edges,contours,hierarchy,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
+    const found=new Set(),cellArea=(triangle?240*208/2/9:240*240/(size*size)),distance=triangle?17:240/size*.20;
     for(let i=0;i<contours.size();i++) {
       const contour=contours.get(i),poly=new cv.Mat();
       try {
-        const area=cv.contourArea(contour);if(area<cellArea*.3||area>cellArea*1.25) continue;
+        const area=cv.contourArea(contour);
+        if(area<cellArea*.45||area>cellArea*1.25) continue;
         cv.approxPolyDP(contour,poly,cv.arcLength(contour,true)*.045,true);
-        if(poly.rows!==(triangle?3:4)||!cv.isContourConvex(poly)) continue;
+        if((triangle?(poly.rows<3||poly.rows>5):poly.rows!==4)||!cv.isContourConvex(poly)) continue;
         const m=cv.moments(contour);if(!m.m00) continue;
         const x=m.m10/m.m00,y=m.m01/m.m00,index=centers.findIndex(p=>Math.hypot(p[0]-x,p[1]-y)<distance);
         if(index>=0) found.add(index);
       } finally {poly.delete();contour.delete();}
     }
-    return found.size===centers.length;
+    return [...found];
   });
 }
 function dominantColor(warped,center,radius,palette) {
@@ -662,7 +670,7 @@ function dominantColor(warped,center,radius,palette) {
 function detectFace(image,size,triangle,palette) {
   return withMats(own=>{
     const source=own(cv.matFromImageData(image)),gray=own(new cv.Mat()),blur=own(new cv.Mat()),edges=own(new cv.Mat()),contours=own(new cv.MatVector()),hierarchy=own(new cv.Mat());
-    cv.cvtColor(source,gray,cv.COLOR_RGBA2GRAY);cv.GaussianBlur(gray,blur,new cv.Size(3,3),0);cv.Canny(blur,edges,25,75);
+    faceBrightness(source,gray);cv.GaussianBlur(gray,blur,new cv.Size(3,3),0);cv.Canny(blur,edges,25,75);
     cv.findContours(edges,contours,hierarchy,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
     const candidates=[];
     for(let i=0;i<contours.size();i++) {
@@ -677,20 +685,24 @@ function detectFace(image,size,triangle,palette) {
       } finally {poly.delete();contour.delete();}
     }
     candidates.sort((a,b)=>b.area-a.area);
+    let matchedCells=[];
     for(const candidate of candidates.slice(0,12)) {
       const result=withMats(own=>{
-        const points=candidate.points,from=own(cv.matFromArray(points.length,1,cv.CV_32FC2,points.flat())),to=own(cv.matFromArray(points.length,1,cv.CV_32FC2,triangle?[120,0,0,208,240,208]:[0,0,240,0,240,240,0,240]));
+        // Keep a margin around a triangular face: approximating its outer border
+        // can otherwise clip the middle bottom sticker and open its contour.
+        const points=candidate.points,from=own(cv.matFromArray(points.length,1,cv.CV_32FC2,points.flat())),to=own(cv.matFromArray(points.length,1,cv.CV_32FC2,triangle?[132,12,12,220,252,220]:[0,0,240,0,240,240,0,240]));
         const transform=own(triangle?cv.getAffineTransform(from,to):cv.getPerspectiveTransform(from,to)),warped=own(new cv.Mat());
-        if(triangle) cv.warpAffine(source,warped,transform,new cv.Size(240,208));else cv.warpPerspective(source,warped,transform,new cv.Size(240,240));
+        if(triangle) cv.warpAffine(source,warped,transform,new cv.Size(264,232));else cv.warpPerspective(source,warped,transform,new cv.Size(240,240));
         const centers=faceCellCenters(size,triangle);
-        if(!contourCentersMatch(warped,size,triangle,centers)) return null;
+        const matches=contourCentersMatch(warped,size,triangle,centers);if(matches.length>matchedCells.length) matchedCells=matches;
+        if(matches.length!==centers.length) return null;
         const samples=centers.map(center=>dominantColor(warped,center,triangle?7:Math.max(5,240/size*.19),palette));
         if(samples.some(s=>!s||s.confidence<.78)) return null;
         return {found:true,points,colors:samples.map(s=>s.color),samples,confidence:Math.min(...samples.map(s=>s.confidence))};
       });
       if(result) return result;
     }
-    return {found:false};
+    return {found:false,matchedCells,candidateShapes:candidates.length};
   });
 }
 
@@ -3770,9 +3782,11 @@ THE SOFTWARE.
       return new Promise((resolve,reject)=>{
         const url=URL.createObjectURL(new Blob([$('#cameraVision').textContent],{type:'text/javascript'}));
         try {cameraWorker=new Worker(url);} finally {URL.revokeObjectURL(url);}
+        const worker=cameraWorker;
         cameraReady={reject,timeout:setTimeout(()=>{cameraReady=null;reject(new Error('Camera detection took too long to load. Please try again.'));},30000)};
-        cameraWorker.onerror=()=>{if(cameraReady) {clearTimeout(cameraReady.timeout);cameraReady=null;reject(new Error('The camera detection engine could not start.'));}else cameraFailure('The camera detection engine stopped. Start the camera to retry.');};
+        cameraWorker.onerror=()=>{if(cameraWorker!==worker) return;if(cameraReady) {clearTimeout(cameraReady.timeout);cameraReady=null;reject(new Error('The camera detection engine could not start.'));}else cameraFailure('The camera detection engine stopped. Start the camera to retry.');};
         cameraWorker.onmessage=({data})=>{
+          if(cameraWorker!==worker) return;
           if(data.kind==='ready') {if(cameraReady) {clearTimeout(cameraReady.timeout);cameraReady=null;resolve();}return;}
           if(data.kind==='error') {
             if(cameraReady) {clearTimeout(cameraReady.timeout);cameraReady=null;reject(new Error(data.message));}
@@ -3788,6 +3802,7 @@ THE SOFTWARE.
     async function startScannerCamera() {
       stopScannerCamera();const token=CameraScan.token;
       if(!isSecureContext||!navigator.mediaDevices?.getUserMedia) {cameraMessage('Camera access needs HTTPS or localhost in a supported browser. You can still enter colors manually.');return;}
+      if(typeof DecompressionStream==='undefined'||typeof WebAssembly==='undefined') {cameraMessage('Camera scanning needs a current browser with WebAssembly support. Manual color entry is still available.');return;}
       CameraScan.starting=true;CameraScan.waiting=false;updateCameraControls();cameraMessage('Allow camera access to scan your puzzle.');
       try {
         const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
@@ -3825,7 +3840,7 @@ THE SOFTWARE.
     function receiveCameraDetection(result) {
       if(!CameraScan.running||result.id!==CameraScan.frameId||CameraScan.waiting) return;
       clearTimeout(CameraScan.timer);CameraScan.timer=null;CameraScan.busy=false;
-      if(!result.found) {CameraScan.stable=0;CameraScan.candidate=null;CameraScan.previousPoints=null;cameraMessage('No clear grid yet. Show the whole face straight on, with visible gaps and even lighting.');}
+      if(!result.found) {CameraScan.stable=0;CameraScan.candidate=null;CameraScan.previousPoints=null;cameraMessage(result.matchedCells?.length===faceletCountFor()?'Grid found, but colors are uncertain. Use even lighting, avoid glare, and check that the puzzle uses the palette colors.':'No clear grid yet. Show the whole face straight on, with visible gaps and even lighting.');}
       else {
         const same=CameraScan.candidate?.colors.join()===result.colors.join()&&CameraScan.previousPoints?.every((p,i)=>Math.hypot(p[0]-result.points[i][0],p[1]-result.points[i][1])<12);
         if(!same) {CameraScan.stable=0;CameraScan.stableSince=Date.now();}
@@ -3905,7 +3920,7 @@ THE SOFTWARE.
     }
 
     function paintIndex(index) {
-      if(CameraScan.running||CameraScan.starting) stopScannerCamera();
+      if(CameraScan.running||CameraScan.starting) {stopScannerCamera();cameraMessage('Camera stopped for manual correction. Captured colors are kept.');}
       if(AppState.solving) cancelSolve();
       const perFace = faceletCountFor();
       const paintedFace = Math.floor(index / perFace);
@@ -3913,7 +3928,7 @@ THE SOFTWARE.
       AppState.colorDataMap[AppState.puzzleType][index] = AppState.selectedPaintBrush;
       renderScanner();
       if (!wasComplete && faceComplete(paintedFace, perFace)) animateFaceRotation(paintedFace + 1);
-      validateAndUpdate();
+      validateAndUpdate();updateCameraControls();
     }
 
     function faceComplete(faceIndex, perFace) {
@@ -3966,6 +3981,7 @@ THE SOFTWARE.
 
     function autoFillSolved() {
       stopScannerCamera();CameraScan.history=[];CameraScan.faces=[];updateCameraControls();
+      cameraMessage('Solved layout filled. Start the camera to replace a face with your puzzle’s colors.');
       if(AppState.solving) cancelSolve();
       AppState.colorDataMap[AppState.puzzleType] = createSolvedState();
       renderScanner(); validateAndUpdate(); showToast('Solved color layout filled. You can edit any segment before playback.', 'success');
@@ -3973,6 +3989,7 @@ THE SOFTWARE.
 
     function resetPaint() {
       stopScannerCamera();CameraScan.history=[];CameraScan.faces=[];updateCameraControls();
+      cameraMessage('Scan cleared. Start the camera to capture your puzzle again.');
       if(AppState.solving) cancelSolve();
       AppState.colorDataMap[AppState.puzzleType] = createBlankState();
       renderScanner(); validateAndUpdate();
@@ -4061,30 +4078,47 @@ THE SOFTWARE.
     }
     function updateModelHelp() {
       const cube=PUZZLES[AppState.puzzleType].kind==='cube';
+      const locked=workspaceCameraLocked();
       $('#toggleStudyMask').classList.toggle('hidden',AppState.trainingProfile!=='independent');
       $('#toggleStudyMask').textContent=AppState.studyMaskEnabled?'Show all pieces':'Focus pieces only';
       $('#toggleStudyMask').setAttribute('aria-pressed',String(!AppState.studyMaskEnabled));
-      $('#resetCamera').disabled=!cube||AppState.showNet;
-      $('.model-help').textContent=AppState.showNet?'Each face is viewed directly from outside. Follow the labeled orientation.':cube?'Drag to look around. The view does not change your puzzle.':'Follow the labeled vertices: U top, L left, R right, B back.';
-      $('#visibleFaces').textContent=cube?(AppState.cameraX>0?'D = bottom · F = front · R = right':'U = top · F = front · R = right'):'Lowercase moves turn a small tip; uppercase moves turn the vertex layer.';
+      $('#resetCamera').disabled=!cube||AppState.showNet||locked;
+      $('#visualFrame').classList.toggle('view-locked',locked);
+      $('#visualFrame').dataset.cameraLocked=String(locked);
+      $('.model-help').textContent=AppState.showNet?'Each face is viewed directly from outside. Follow the labeled orientation.':cube?locked?(AppState.autoTimer?'View locked during playback. Pause to inspect after the current turn.':'View locked until this turn finishes.'):'Drag to inspect. Playback restores the front-right teaching view.':'Follow the labeled vertices: U top, L left, R right, B back.';
+      const rotated=AppState.cameraY!==-34||![24,-24].includes(AppState.cameraX);
+      $('#visibleFaces').textContent=cube?rotated?'Inspection view rotated · Play restores U top, F front, R right.':AppState.cameraX>0?'D = bottom · F = front · R = right':'U = top · F = front · R = right':'Lowercase moves turn a small tip; uppercase moves turn the vertex layer.';
+    }
+    function workspaceCameraLocked() {return AppState.animating||!!AppState.autoTimer;}
+    let modelOrbitRevision=0;
+    function restorePlaybackGrip() {
+      modelOrbitRevision++;
+      AppState.cameraX=-24;AppState.cameraY=-34;
+      if(typeof document!=='undefined') updateCamera();
+    }
+    function resetWorkspaceCamera() {
+      if(workspaceCameraLocked()) return;
+      modelOrbitRevision++;AppState.cameraX=defaultCameraTilt();AppState.cameraY=-34;updateCamera();
     }
     function updateCamera() {
       const cube=$('#cube3d');
       if(cube) {cube.style.setProperty('--view-x',AppState.cameraX+'deg');cube.style.setProperty('--view-y',AppState.cameraY+'deg');}
-      $('#visibleFaces').textContent=`${AppState.cameraX>0?'D = bottom':'U = top'} · F = front · R = right${AppState.cameraX!==defaultCameraTilt()||AppState.cameraY!==-34?' · View rotated; Reset view restores the teaching grip.':''}`;
+      updateModelHelp();
     }
     function wireModelOrbit() {
       const frame=$('#visualFrame');let drag=null;
+      const end=()=>{const previous=drag;drag=null;if(previous&&frame.hasPointerCapture(previous.pointerId)) frame.releasePointerCapture(previous.pointerId);};
       frame.addEventListener('pointerdown',event=>{
-        if(!event.target.closest('.cube-scene')||AppState.animating||event.button!==0) return;
-        drag={x:event.clientX,y:event.clientY,rx:AppState.cameraX,ry:AppState.cameraY};frame.setPointerCapture(event.pointerId);
+        if(!event.target.closest('.cube-scene')||workspaceCameraLocked()||event.button!==0||drag) return;
+        drag={x:event.clientX,y:event.clientY,rx:AppState.cameraX,ry:AppState.cameraY,pointerId:event.pointerId,revision:modelOrbitRevision};frame.setPointerCapture(event.pointerId);
       });
       frame.addEventListener('pointermove',event=>{
         if(!drag) return;
+        if(workspaceCameraLocked()||drag.revision!==modelOrbitRevision) {end();return;}
         AppState.cameraX=Math.max(-80,Math.min(80,drag.rx-(event.clientY-drag.y)*.4));
         AppState.cameraY=drag.ry+(event.clientX-drag.x)*.4;updateCamera();
       });
-      const end=()=>{drag=null;};frame.addEventListener('pointerup',end);frame.addEventListener('pointercancel',end);
+      frame.addEventListener('pointerup',end);frame.addEventListener('pointercancel',end);frame.addEventListener('lostpointercapture',end);
     }
 
     function renderCube3D(size, state, preview=false) {
@@ -4677,6 +4711,7 @@ THE SOFTWARE.
       if(AppState.completed) { stopAutoPlay();return; }
       const step=CurrentAlgorithm[AppState.activeStepIndex], moves=activeMovesForStep(step), move=moves[AppState.activeMoveIndex];
       if(!move) { AppState.completed=true;stopAutoPlay();renderUIStatusDisplay();return; }
+      restorePlaybackGrip();
       executeNextPlaybackMove();
       triggerVisualPuzzleTurnAnimation(move);
       if(AppState.completed) {
@@ -4749,7 +4784,7 @@ THE SOFTWARE.
     }
 
     function selectLessonStep(direction) {
-      if(!AppState.trainingProfile) return;
+      if(!AppState.trainingProfile||workspaceCameraLocked()) return;
       const next=AppState.activeStepIndex+direction;
       if(next<0||next>=CurrentAlgorithm.length) return;
       AppState.lessonPhase='teach'; AppState.activeStepIndex=next; AppState.activeCaseIndex=0; resetPracticeCase(); renderVisualFrame();renderUIStatusDisplay();
@@ -4795,6 +4830,7 @@ THE SOFTWARE.
     function renderUIStatusDisplay() {
       const step = CurrentAlgorithm[AppState.activeStepIndex];
       if (!step) return;
+      updateModelHelp();
       const independent=AppState.trainingProfile==='independent', showingStudyTask=independent&&(!AppState.studyDemonstration||AppState.studyPreviewGoal);
       const moves = activeMovesForStep(step);
       const displayIndex=AppState.animating?Math.max(0,AppState.activeMoveIndex-1):AppState.activeMoveIndex;
@@ -4816,8 +4852,8 @@ THE SOFTWARE.
       $('#backMove').textContent=AppState.trainingProfile==='independent'?'Previous Case':'Back One Move';
       $('#playbackTitle').textContent=PUZZLES[AppState.puzzleType].label+(AppState.trainingProfile==='guided'?' · Learn to solve':AppState.trainingProfile==='independent'?' · Focus practice':' · Your solution');
       $('#lessonNavigation').classList.toggle('hidden',!AppState.trainingProfile || AppState.trainingProfile==='independent');
-      $('#previousLesson').disabled=AppState.activeStepIndex===0;
-      $('#nextLesson').disabled=AppState.activeStepIndex===CurrentAlgorithm.length-1;
+      $('#previousLesson').disabled=workspaceCameraLocked()||AppState.activeStepIndex===0;
+      $('#nextLesson').disabled=workspaceCameraLocked()||AppState.activeStepIndex===CurrentAlgorithm.length-1;
       $('#lessonProgress').textContent=`Lesson ${AppState.activeStepIndex+1} of ${CurrentAlgorithm.length}`;
       $('#solutionNavigation').classList.toggle('hidden',!!AppState.trainingProfile);
       $('#sourceDetails').classList.toggle('hidden',AppState.trainingProfile!=='guided');
@@ -4996,6 +5032,7 @@ THE SOFTWARE.
         AppState.studyDemonstration=true;AppState.studyPreviewGoal=false;
         renderVisualFrame();
       }
+      restorePlaybackGrip();
       const tick=()=> {
         if(!AppState.autoTimer||AppState.activeScreen!=='playback') {stopAutoPlay();return;}
         advancePlaybackState('NEXT',AppState.trainingProfile==='independent');
@@ -5060,7 +5097,7 @@ THE SOFTWARE.
       $('#captureCameraFace').addEventListener('click',commitCameraFace);
       $('#nextCameraFace').addEventListener('click',armCameraFace);
       $('#undoCameraFace').addEventListener('click',undoCameraCapture);
-      $('#cameraFace').addEventListener('change',event=>{AppState.activeFace=Number(event.target.value);CameraScan.frameId++;CameraScan.busy=false;CameraScan.waiting=true;CameraScan.stable=0;CameraScan.candidate=null;clearTimeout(CameraScan.timer);CameraScan.timer=null;updateCameraControls();cameraMessage('Position this face as shown, then choose Scan selected face.');});
+      $('#cameraFace').addEventListener('change',event=>{AppState.activeFace=Number(event.target.value);CameraScan.frameId++;CameraScan.busy=false;CameraScan.waiting=true;CameraScan.stable=0;CameraScan.candidate=null;clearTimeout(CameraScan.timer);CameraScan.timer=null;updateCameraControls();cameraMessage(CameraScan.running?'Position this face as shown, then choose Scan selected face.':'Start the camera to scan the selected face.');});
       document.addEventListener('visibilitychange',()=>{if(document.hidden&&(CameraScan.running||CameraScan.starting)) {stopScannerCamera();cameraMessage('Camera paused because the page was hidden. Start it again to continue.');}});
       window.addEventListener('pagehide',stopScannerCamera);
 
@@ -5068,7 +5105,7 @@ THE SOFTWARE.
       $('#themeToggle').addEventListener('click', toggleTheme);
       $('#playbackSpeed').addEventListener('change',event=>{stopAutoPlay();cancelAnimation();AppState.playbackSpeed=event.target.value;renderVisualFrame();renderUIStatusDisplay();});
       $('#toggleStudyMask').addEventListener('click',()=>{AppState.studyMaskEnabled=!AppState.studyMaskEnabled;renderVisualFrame();});
-      $('#resetCamera').addEventListener('click',()=>{AppState.cameraX=defaultCameraTilt();AppState.cameraY=-34;updateCamera();});
+      $('#resetCamera').addEventListener('click',resetWorkspaceCamera);
       wireModelOrbit();
       $('#chatToggle').addEventListener('click', () => toggleChat(true));
       $('#chatClose').addEventListener('click', () => toggleChat(false));

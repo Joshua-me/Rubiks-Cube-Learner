@@ -31,26 +31,33 @@ function polygonPoints(poly) {
   return points.slice(start).concat(points.slice(0,start));
 }
 function faceCellCenters(size,triangle) {
-  if(triangle) return [[.5,2/9],[1/3,5/9],[.5,4/9],[2/3,5/9],[1/6,8/9],[1/3,7/9],[.5,8/9],[2/3,7/9],[5/6,8/9]].map(([x,y])=>[x*240,y*208]);
+  if(triangle) return [[.5,2/9],[1/3,5/9],[.5,4/9],[2/3,5/9],[1/6,8/9],[1/3,7/9],[.5,8/9],[2/3,7/9],[5/6,8/9]].map(([x,y])=>[x*240+12,y*208+12]);
   return Array.from({length:size*size},(_,i)=>[(i%size+.5)*240/size,(Math.floor(i/size)+.5)*240/size]);
+}
+function faceBrightness(source,gray) {
+  cv.cvtColor(source,gray,cv.COLOR_RGBA2GRAY);
+  // A saturated blue sticker is dark in luminance but bright in HSV value.
+  // Detect plastic seams in value so blue/red cells are not lost from a grid.
+  for(let i=0;i<gray.data.length;i++) gray.data[i]=Math.max(source.data[i*4],source.data[i*4+1],source.data[i*4+2]);
 }
 function contourCentersMatch(warped,size,triangle,centers) {
   return withMats(own=>{
     const gray=own(new cv.Mat()),edges=own(new cv.Mat()),contours=own(new cv.MatVector()),hierarchy=own(new cv.Mat());
-    cv.cvtColor(warped,gray,cv.COLOR_RGBA2GRAY);cv.Canny(gray,edges,25,75);cv.findContours(edges,contours,hierarchy,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
-    const found=new Set(),cellArea=(triangle?240*208/2/9:240*240/(size*size)),distance=triangle?17:240/size*.24;
+    faceBrightness(warped,gray);cv.threshold(gray,edges,60,255,cv.THRESH_BINARY);cv.findContours(edges,contours,hierarchy,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
+    const found=new Set(),cellArea=(triangle?240*208/2/9:240*240/(size*size)),distance=triangle?17:240/size*.20;
     for(let i=0;i<contours.size();i++) {
       const contour=contours.get(i),poly=new cv.Mat();
       try {
-        const area=cv.contourArea(contour);if(area<cellArea*.3||area>cellArea*1.25) continue;
+        const area=cv.contourArea(contour);
+        if(area<cellArea*.45||area>cellArea*1.25) continue;
         cv.approxPolyDP(contour,poly,cv.arcLength(contour,true)*.045,true);
-        if(poly.rows!==(triangle?3:4)||!cv.isContourConvex(poly)) continue;
+        if((triangle?(poly.rows<3||poly.rows>5):poly.rows!==4)||!cv.isContourConvex(poly)) continue;
         const m=cv.moments(contour);if(!m.m00) continue;
         const x=m.m10/m.m00,y=m.m01/m.m00,index=centers.findIndex(p=>Math.hypot(p[0]-x,p[1]-y)<distance);
         if(index>=0) found.add(index);
       } finally {poly.delete();contour.delete();}
     }
-    return found.size===centers.length;
+    return [...found];
   });
 }
 function dominantColor(warped,center,radius,palette) {
@@ -78,7 +85,7 @@ function dominantColor(warped,center,radius,palette) {
 function detectFace(image,size,triangle,palette) {
   return withMats(own=>{
     const source=own(cv.matFromImageData(image)),gray=own(new cv.Mat()),blur=own(new cv.Mat()),edges=own(new cv.Mat()),contours=own(new cv.MatVector()),hierarchy=own(new cv.Mat());
-    cv.cvtColor(source,gray,cv.COLOR_RGBA2GRAY);cv.GaussianBlur(gray,blur,new cv.Size(3,3),0);cv.Canny(blur,edges,25,75);
+    faceBrightness(source,gray);cv.GaussianBlur(gray,blur,new cv.Size(3,3),0);cv.Canny(blur,edges,25,75);
     cv.findContours(edges,contours,hierarchy,cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE);
     const candidates=[];
     for(let i=0;i<contours.size();i++) {
@@ -93,19 +100,23 @@ function detectFace(image,size,triangle,palette) {
       } finally {poly.delete();contour.delete();}
     }
     candidates.sort((a,b)=>b.area-a.area);
+    let matchedCells=[];
     for(const candidate of candidates.slice(0,12)) {
       const result=withMats(own=>{
-        const points=candidate.points,from=own(cv.matFromArray(points.length,1,cv.CV_32FC2,points.flat())),to=own(cv.matFromArray(points.length,1,cv.CV_32FC2,triangle?[120,0,0,208,240,208]:[0,0,240,0,240,240,0,240]));
+        // Keep a margin around a triangular face: approximating its outer border
+        // can otherwise clip the middle bottom sticker and open its contour.
+        const points=candidate.points,from=own(cv.matFromArray(points.length,1,cv.CV_32FC2,points.flat())),to=own(cv.matFromArray(points.length,1,cv.CV_32FC2,triangle?[132,12,12,220,252,220]:[0,0,240,0,240,240,0,240]));
         const transform=own(triangle?cv.getAffineTransform(from,to):cv.getPerspectiveTransform(from,to)),warped=own(new cv.Mat());
-        if(triangle) cv.warpAffine(source,warped,transform,new cv.Size(240,208));else cv.warpPerspective(source,warped,transform,new cv.Size(240,240));
+        if(triangle) cv.warpAffine(source,warped,transform,new cv.Size(264,232));else cv.warpPerspective(source,warped,transform,new cv.Size(240,240));
         const centers=faceCellCenters(size,triangle);
-        if(!contourCentersMatch(warped,size,triangle,centers)) return null;
+        const matches=contourCentersMatch(warped,size,triangle,centers);if(matches.length>matchedCells.length) matchedCells=matches;
+        if(matches.length!==centers.length) return null;
         const samples=centers.map(center=>dominantColor(warped,center,triangle?7:Math.max(5,240/size*.19),palette));
         if(samples.some(s=>!s||s.confidence<.78)) return null;
         return {found:true,points,colors:samples.map(s=>s.color),samples,confidence:Math.min(...samples.map(s=>s.confidence))};
       });
       if(result) return result;
     }
-    return {found:false};
+    return {found:false,matchedCells,candidateShapes:candidates.length};
   });
 }

@@ -21,6 +21,75 @@ const { chromium } = require('playwright');
     assert.equal(await page.locator('#puzzleCards [data-preview-model="pyraminx"]').count(),1);
     assert.equal(await page.locator('#puzzleCards svg').count(),0);
     assert.equal(await page.locator('#cube3d, #pyra3d').count(),0,'Homepage previews must not reuse playback IDs');
+    if(process.argv.includes('--interlocks')) {
+      const disabled=()=>read(()=>['nextLesson','previousLesson','resetCamera'].map(id=>document.getElementById(id).disabled));
+      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+      await page.selectOption('#playbackSpeed','normal');assert.deepEqual(await disabled(),[false,false,false]);
+      assert.deepEqual(await read(()=>{toggleAutoPlay();return ['nextLesson','previousLesson','resetCamera'].map(id=>document.getElementById(id).disabled);}),[true,true,true],'Interlock must start before the first animation');
+      await page.waitForFunction(()=>AppState.animating);assert.deepEqual(await disabled(),[true,true,true]);
+      assert.equal(await read(()=>{selectLessonStep(1);selectLessonStep(-1);return AppState.activeStepIndex;}),1,'Programmatic navigation must honor the interlock');
+      await page.waitForFunction(()=>!!AppState.autoTimer&&!AppState.animating&&AppState.activeMoveIndex===1);
+      assert.deepEqual(await disabled(),[true,true,true],'Keep all controls disabled between moves');
+      await page.evaluate(()=>{document.getElementById('nextLesson').click();document.getElementById('previousLesson').click();});assert.equal(await read(()=>AppState.activeStepIndex),1);
+      await page.click('#playMove');await settle();assert.deepEqual(await disabled(),[false,false,false],'Paused playback must restore available controls');
+      await page.click('#nextLesson');assert.equal(await read(()=>AppState.activeStepIndex),2);await page.click('#previousLesson');assert.equal(await read(()=>AppState.activeStepIndex),1);
+      await page.selectOption('#playbackSpeed','normal');await page.click('#nextMove');assert.deepEqual(await disabled(),[true,true,true]);await settle();assert.deepEqual(await disabled(),[false,false,false]);
+      await page.click('#playMove');await page.waitForFunction(()=>AppState.completed&&!AppState.animating&&!AppState.autoTimer);
+      assert.deepEqual(await disabled(),[false,false,false],'Completion must release the interlock');
+      await page.click('#previousLesson');assert.deepEqual(await disabled(),[false,true,false],'Keep first-lesson boundary restrictions');
+      await page.evaluate(()=>selectLessonStep(CurrentAlgorithm.length-1));assert.deepEqual(await disabled(),[true,false,false],'Keep last-lesson boundary restrictions');
+      assert.deepEqual(errors,[]);assert.equal(external.length,0);
+      console.log('browser: ok — lesson/view control interlocks before and during turns, autoplay gaps, programmatic guards, pause/completion release and lesson boundaries');return;
+    }
+    if(process.argv.includes('--view-lock')) {
+      const drag=async()=>{
+        const box=await page.locator('#visualFrame .cube-scene').boundingBox();
+        await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+        await page.mouse.move(box.x+box.width/2+90,box.y+box.height/2+30,{steps:5});await page.mouse.up();
+      };
+      for(const type of ['2x2','3x3','4x4','5x5']) {
+        await choose(type);await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+        if(type==='3x3') await page.click('#nextLesson');
+        await page.selectOption('#playbackSpeed','normal');
+        const initial=await read(()=>AppState.playbackState.join('|'));
+        const expected=await read(()=>simulateMoveOnPuzzleState(AppState.puzzleType,AppState.playbackState,activeMovesForStep(CurrentAlgorithm[AppState.activeStepIndex])[0]).join('|'));
+        await drag();assert(await read(()=>AppState.cameraY!==-34));
+        assert((await page.locator('#visibleFaces').innerText()).startsWith('Inspection view rotated'));
+        assert.equal(await read(()=>AppState.playbackState.join('|')),initial,'Inspection must never remap notation or colors');
+        await page.click('#nextMove');
+        assert.deepEqual(await read(()=>[AppState.cameraX,AppState.cameraY]),[-24,-34]);
+        assert(await page.locator('#resetCamera').isDisabled());
+        await drag();assert.deepEqual(await read(()=>[AppState.cameraX,AppState.cameraY]),[-24,-34]);
+        await settle();assert.equal(await read(()=>AppState.playbackState.join('|')),expected);
+        assert.equal(await page.locator('#visualFrame').getAttribute('data-camera-locked'),'false');
+        assert(await page.locator('#resetCamera').isEnabled());await drag();assert(await read(()=>AppState.cameraY!==-34));
+        await page.click('#resetCamera');assert.deepEqual(await read(()=>[AppState.cameraX,AppState.cameraY]),[-24,-34]);
+      }
+      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');
+      const box=await page.locator('#visualFrame .cube-scene').boundingBox();
+      await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+      await page.mouse.move(box.x+box.width/2+30,box.y+box.height/2);
+      const gripOnly=await read(()=>{const before=AppState.playbackState.join('|');toggleAutoPlay();return before===AppState.playbackState.join('|');});
+      assert(gripOnly,'Restoring the playback grip must not apply a puzzle rotation');
+      await page.mouse.move(box.x+box.width/2+95,box.y+box.height/2+35);await page.mouse.up();
+      assert.deepEqual(await read(()=>[AppState.cameraX,AppState.cameraY]),[-24,-34],'A drag begun before Play must be canceled');
+      await page.waitForFunction(()=>AppState.autoTimer&&!AppState.animating&&AppState.activeMoveIndex===1);
+      assert.equal(await page.locator('#visualFrame').getAttribute('data-camera-locked'),'true');
+      await drag();assert.deepEqual(await read(()=>[AppState.cameraX,AppState.cameraY]),[-24,-34],'Lock must cover gaps between turns');
+      await page.evaluate(()=>resetWorkspaceCamera());assert(await page.locator('#resetCamera').isDisabled());
+      await page.click('#playMove');assert(!await read(()=>workspaceCameraLocked()));await drag();assert(await read(()=>AppState.cameraY!==-34));
+      await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);await page.click('#playMove');
+      assert(await read(()=>workspaceCameraLocked()),'Pause must keep the view locked until the current turn finishes');
+      await settle();assert(!await read(()=>workspaceCameraLocked()));
+      await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);await page.click('#restartCase');
+      assert(!await read(()=>workspaceCameraLocked()));assert.equal(await read(()=>AppState.activeMoveIndex),0);
+      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="independent"]');await page.click('#nextMove');
+      await drag();await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);
+      assert.deepEqual(await read(()=>[AppState.cameraX,AppState.cameraY]),[-24,-34]);assert(await page.locator('#resetCamera').isDisabled());
+      await page.click('#brandHome');assert(!await read(()=>workspaceCameraLocked()));
+      assert.deepEqual(errors,[]);assert.equal(external.length,0);
+      console.log('browser: ok — fixed-notation playback grip on all cube sizes, drag/reset lock during turns and autoplay gaps, in-flight drag cancellation, pause/resume/reset, independent demos and navigation');return;
+    }
     if(process.argv.includes('--curriculum')) {
       const finish=()=>page.evaluate(()=>{while(executeNextPlaybackMove()) {}renderVisualFrame();renderUIStatusDisplay();});
       await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
