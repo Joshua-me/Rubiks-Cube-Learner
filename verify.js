@@ -15,7 +15,7 @@ const api = vm.runInContext(`({AppState, COLORS, PUZZLES, Cube, PuzzleValidators
   simulateAlgorithm, simulateMoveOnPuzzleState, inverseMove, cubeMovePermutation, pyraminxMovePermutation,
   buildCalculatedSolvePlan, reducedCubeState, buildPyraTables, bigCubeModel, cycleTable, threeCycleMoves, validateBigCubeState, permuteState, compactSolutionMoves, buildGuidedLearningPlan, buildIndependentStudyPlan,
   independentFocusIndices, independentCaseFocusIndices, regripStudyFocus, independentGoalState, practiceSetupDetails, PYRA_STICKERS, learningSolvedState, advancePlaybackState,
-  executeNextPlaybackMove, showSolvedResult, restartSolvePlayback,
+  executeNextPlaybackMove, showSolvedResult, restartSolvePlayback, parityContext,
   select: type => { AppState.puzzleType=type; },
   setupPlayback: (type,state,plan) => {
     AppState.puzzleType=type; AppState.trainingProfile=null; AppState.playbackState=state.slice();AppState.playbackInitialState=state.slice();
@@ -340,6 +340,11 @@ assert(api.AppState.completed && api.isSolvedPuzzleState('5x5',api.AppState.play
 assert.equal(api.AppState.playbackHistory.length,bigPlan[0].moves.length);
 api.advancePlaybackState('BACK');assert(!api.AppState.completed);
 api.restartSolvePlayback();assert.equal(api.AppState.playbackState.join('|'),bigStart.join('|'));assert.equal(api.AppState.playbackHistory.length,0);
+for(const [type,name,kind] of [['4x4','Correct 4x4 OLL parity','oll'],['4x4','Correct 4x4 PLL parity','pll'],['5x5','Correct wing permutation parity','wing'],['5x5','Correct PLL parity',null]]) {
+  api.setupPlayback(type,api.createSolvedState(type),[{moves:['U'],phases:[{name,start:0,end:1}]}]);
+  assert.equal(api.parityContext()?.kind||null,kind);
+  api.AppState.activeMoveIndex=1;assert.equal(api.parityContext(),null,'Finished phases must not retain a diagnostic');
+}
 assert(!/<(?:script|link)[^>]*(?:src|href)="https?:/i.test(html), 'App must run without external runtime resources');
 const cameraPayload=html.match(/<script id="opencvBundle"[^>]*>\s*([\s\S]*?)\s*<\/script>/);
 assert(cameraPayload,'Camera scanning needs its offline OpenCV payload');

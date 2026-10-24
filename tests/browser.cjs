@@ -21,6 +21,57 @@ const { chromium } = require('playwright');
     assert.equal(await page.locator('#puzzleCards [data-preview-model="pyraminx"]').count(),1);
     assert.equal(await page.locator('#puzzleCards svg').count(),0);
     assert.equal(await page.locator('#cube3d, #pyra3d').count(),0,'Homepage previews must not reuse playback IDs');
+    if(process.argv.includes('--parity-banner')) {
+      await choose('4x4');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      for(let i=0;i<5;i++) await page.click('#nextLesson');
+      assert.equal(await page.locator('#parityPanel').evaluate(n=>n.previousElementSibling.textContent.trim()),'Your next step');
+      assert((await page.locator('#parityPanel').innerText()).includes('4×4 OLL parity'));
+      for(const text of ['Why it happens:','How to spot it:','prepared tutorial']) assert((await page.locator('#parityPanel').innerText()).includes(text));
+      const initial=await read(()=>AppState.playbackState.join('|'));
+      await page.click('#playMove');assert.equal(await read(()=>AppState.activeMoveIndex),0);assert(!await read(()=>AppState.autoTimer||AppState.animating));
+      assert.equal(await read(()=>AppState.playbackState.join('|')),initial);
+      assert(await page.locator('#resumeParity').isVisible());assert(await page.locator('#resetCamera').isEnabled());
+      await page.click('#resumeParity');await page.waitForFunction(()=>AppState.animating);await page.click('#playMove');await settle();
+      assert.equal(await read(()=>AppState.activeMoveIndex),1);
+      await page.click('#playMove');await page.waitForFunction(()=>AppState.activeMoveIndex===2);await page.click('#playMove');await settle();
+      assert.equal(await read(()=>AppState.parityPending),null,'Acknowledged parity must not pause on every move');
+      await page.click('#restartCase');await page.click('#playMove');assert(await page.locator('#resumeParity').isVisible());
+      await page.click('[data-case-index="1"]');assert((await page.locator('#parityPanel').innerText()).includes('4×4 PLL parity'));
+      await page.click('[data-case-index="2"]');assert(await page.locator('#parityPanel').isHidden(),'A stage mentioning parity must not label ordinary cases as parity');
+      await choose('5x5');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');
+      for(let i=0;i<3;i++) await page.click('#nextLesson');await page.click('[data-case-index="2"]');
+      assert((await page.locator('#parityPanel').innerText()).includes('5×5 last-edge parity'));
+      assert((await page.locator('#parityPanel').innerText()).includes('does not have 4×4 PLL parity'));
+      await page.click('#playMove');assert(await page.locator('#resumeParity').isVisible());
+      await page.click('#nextMove');await settle();assert.equal(await read(()=>AppState.activeMoveIndex),1);assert.equal(await read(()=>AppState.parityPending),null);
+      await page.click('#restartCase');await page.click('#watchPracticeSetup');await page.waitForFunction(()=>AppState.animating);
+      assert(await page.locator('#parityPanel').isHidden(),'Reverse setup playback is not a parity correction');
+      await choose('4x4');await page.click('[data-mode="solve"]');
+      await page.evaluate(()=>{
+        const alg="Rw2 B2 U2 Lw U2 Rw' U2 Rw U2 F2 Rw F2 Lw' B2 Rw2 2R2 U2 2R2 Uw2 2R2 Uw2 R U F2 D'";
+        AppState.colorDataMap['4x4']=simulateAlgorithm('4x4',createSolvedState('4x4'),parseAlgorithmMoves(alg));renderScanner();validateAndUpdate();
+      });
+      await page.click('#solveBtn');await page.waitForFunction(()=>AppState.activeScreen==='playback',{},{timeout:60000});
+      assert(await read(()=>CurrentAlgorithm[0].phases.some(p=>/OLL parity/.test(p.name))&&CurrentAlgorithm[0].phases.some(p=>/PLL parity/.test(p.name))));
+      await page.click('#playMove');assert(await page.locator('#resumeParity').isVisible());
+      await page.click('#resumeParity');await page.waitForFunction(()=>AppState.animating);await page.click('#playMove');await settle();
+      const beforePLL=await read(()=>{
+        const pll=CurrentAlgorithm[0].phases.find(p=>/PLL parity/.test(p.name));
+        while(AppState.activeMoveIndex<pll.start-1) executeNextPlaybackMove();renderVisualFrame();renderUIStatusDisplay();
+        return simulateAlgorithm('4x4',AppState.playbackInitialState,CurrentAlgorithm[0].moves.slice(0,pll.start)).join('|');
+      });
+      await page.click('#playMove');await page.waitForFunction(()=>AppState.animating);
+      assert((await page.locator('#parityPanel').innerText()).includes('4×4 OLL parity'),'Explain the in-progress turn, not the upcoming phase');
+      await page.waitForFunction(()=>AppState.parityPending&&parityContext()?.kind==='pll'&&!AppState.animating&&!AppState.autoTimer);
+      assert.equal(await read(()=>AppState.playbackState.join('|')),beforePLL,'Pause exactly before the first PLL move');
+      assert((await page.locator('#parityPanel').innerText()).includes('4×4 PLL parity'));
+      await page.setViewportSize({width:390,height:844});assert(await read(()=>document.documentElement.scrollWidth<=innerWidth));
+      await page.click('#themeToggle');await page.screenshot({path:path.join(os.tmpdir(),'twisty-parity-banner.png'),fullPage:true});
+      await page.click('#restartSolve');await page.click('#playMove');assert(await page.locator('#resumeParity').isVisible(),'Restart must request diagnosis again');
+      await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');assert(await page.locator('#parityPanel').isHidden());
+      assert.deepEqual(errors,[]);assert.equal(external.length,0);
+      console.log('browser: ok — contextual OLL/PLL and 5x5 edge diagnostics below heading, pre-turn pause/resume, no repeated pauses, actual calculated parity boundary, setup/non-parity exclusions, restart, dark/mobile/offline');return;
+    }
     if(process.argv.includes('--interlocks')) {
       const disabled=()=>read(()=>['nextLesson','previousLesson','resetCamera'].map(id=>document.getElementById(id).disabled));
       await choose('3x3');await page.click('[data-mode="learn"]');await page.click('[data-learn="guided"]');await page.click('#nextLesson');

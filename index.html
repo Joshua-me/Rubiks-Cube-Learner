@@ -19,6 +19,7 @@
     html.dark .bg-slate-50, html.dark .bg-slate-100 { background-color: #0f172a !important; }
     html.dark .text-slate-900 { color: #f8fafc !important; } html.dark .text-slate-800, html.dark .text-slate-700, html.dark .text-slate-600 { color: #cbd5e1 !important; } html.dark .text-slate-500 { color: #94a3b8 !important; }
     .hidden { display: none !important; }
+    html.dark #parityPanel { background:#422006; color:#fef3c7; border-color:#92400e; }
     .camera-actions { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
     #cameraPreview { display:block; width:100%; max-width:640px; height:auto; margin:12px auto 0; border-radius:16px; background:#0f172a; }
     #cameraFace { max-width:100%; }
@@ -322,6 +323,7 @@
         </div>
         <div id="lessonPanel" class="glass-card rounded-[2rem] p-5">
           <p class="text-xs font-bold uppercase tracking-[0.28em] text-indigo-600">Your next step</p>
+          <div id="parityPanel" class="mt-3 hidden rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950" role="region" aria-label="Parity diagnosis" aria-live="polite"></div>
           <h3 id="stepName" class="mt-2 text-3xl font-black tracking-tight text-slate-900"></h3>
           <p id="stepInstructions" class="mt-3 text-base leading-7 text-slate-600"></p>
           <div id="setupGuide" class="hidden mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4"></div>
@@ -349,7 +351,6 @@
             <button id="restartCase" class="tap-target rounded-xl bg-indigo-50 px-3 py-2 font-bold text-indigo-700">Restart Case</button>
           </div>
           <div id="caseLibrary" class="mt-5 grid gap-3"></div>
-          <div id="parityPanel" class="mt-5 hidden rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"></div>
 
         </div>
       </div>
@@ -3161,6 +3162,7 @@ THE SOFTWARE.
         },
         {
           "name": "Last-edge correction — video algorithm",
+          "parityKind": "edge",
           "clue": "Includes x and a three-layer wide turn.",
           "moves": ["Rw", "U2", "x", "Rw", "U2", "Rw", "U2", "3Rw'", "U2", "Lw", "U2", "Rw'", "U2", "Rw", "U2", "Rw'", "U2", "Rw'"],
           "videoSeconds": 386
@@ -3273,6 +3275,7 @@ THE SOFTWARE.
       '5x5': { label: '5x5 Professor', kind: 'cube', size: 5, faces: 6, colors: COLORS.cube, subtitle: 'Centers, edges, parity', methodName: 'Learn: J Perm reduction' }
     };
     const AppState = {
+      parityAcknowledged: [], parityPending: null,
       camera: {running:false,starting:false,token:0,frameId:0,busy:false,waiting:false,stable:0,stableSince:0,candidate:null,previousPoints:null,history:[],faces:[],stream:null,timer:null},
       activeScreen: 'dashboard', puzzleType: '3x3', trainingProfile: null, activeStepIndex: 0, activeMoveIndex: 0,
       selectedPaintBrush: '#ffffff', activeFace: 0, autoTimer: null, activeCaseIndex: 0, independentCaseIndex: 0, practicePhase: 'algorithm', practiceSetupMoves: [], practiceCaseState: [], setupDetails: null, playbackSpeed: 'slow', studyFocusIndices: [], studyMaskEnabled: true, studyPreviewGoal: false, studyDemonstration: false, lessonPhase: 'teach', cameraX: -24, cameraY: -34,
@@ -3563,6 +3566,7 @@ THE SOFTWARE.
     }
     function resetPracticeCase() {
       stopAutoPlay(); cancelAnimation();
+      AppState.parityAcknowledged=[];AppState.parityPending=null;
       AppState.activeMoveIndex=0; AppState.playbackHistory=[]; AppState.completed=false; AppState.studyPreviewGoal=false;AppState.studyDemonstration=false;AppState.practicePhase='algorithm';
       const step=CurrentAlgorithm[AppState.activeStepIndex];
       const moves=AppState.trainingProfile==='independent'?step.studyMoves:activeMovesForStep(step);
@@ -4003,6 +4007,7 @@ THE SOFTWARE.
 
     async function startPlayback(profile = AppState.trainingProfile) {
       stopAutoPlay(); cancelAnimation();
+      AppState.parityAcknowledged=[];AppState.parityPending=null;
       if(!profile && !validateAndUpdate()) { showToast(buildValidationHint(AppState.colorDataMap[AppState.puzzleType]),'error',5200); return; }
       AppState.trainingProfile=profile;AppState.playbackSpeed=profile?'slow':'normal';
       AppState.studyMaskEnabled=true;AppState.cameraX=-24;AppState.cameraY=-34;AppState.showNet=false;$('#toggleNet').textContent='Show All Faces';AppState.lessonPhase='teach'; AppState.activeStepIndex=0; AppState.activeMoveIndex=0; AppState.activeCaseIndex=0; AppState.independentCaseIndex=0;
@@ -4695,7 +4700,55 @@ THE SOFTWARE.
       return moves.reduce((next,move)=>simulateMoveOnPuzzleState(type,next,move),state.slice());
     }
 
-    function advancePlaybackState(direction,studyTurn=false) {
+    function parityContext(cursor=AppState.activeMoveIndex) {
+      const type=AppState.puzzleType,step=CurrentAlgorithm[AppState.activeStepIndex];
+      if(!['4x4','5x5'].includes(type)||!step||(AppState.trainingProfile&&AppState.practicePhase==='setup')) return null;
+      let name,kind,start=0,end=activeMovesForStep(step).length;
+      if(!AppState.trainingProfile) {
+        const phase=(step.phases||[]).find(phase=>cursor>=phase.start&&cursor<phase.end);
+        if(!phase) return null;
+        ({name,start,end}=phase);kind=phase.parityKind;
+      } else {
+        const example=activeCaseForStep(step);name=example?.name||'';kind=example?.parityKind;
+      }
+      if(cursor>=end) return null;
+      if(!kind) kind=/wing permutation parity/i.test(name)?'wing':/OLL parity/i.test(name)?'oll':/PLL parity/i.test(name)?'pll':type==='5x5'&&/parity/i.test(name)?'edge':null;
+      if(type==='5x5'&&kind==='pll') return null;
+      if(type==='5x5'&&kind==='oll') kind='edge';
+      if(!['oll','pll','edge','wing'].includes(kind)) return null;
+      return {kind,name,start,end,key:[type,AppState.trainingProfile||'solve',AppState.activeStepIndex,AppState.lessonPhase,AppState.activeCaseIndex,start,end,kind].join(':')};
+    }
+    function pauseBeforeParity() {
+      const parity=parityContext();
+      if(!parity||AppState.parityAcknowledged.includes(parity.key)) return false;
+      stopAutoPlay();AppState.parityPending=parity.key;renderUIStatusDisplay();
+      if(typeof document!=='undefined') $('#parityPanel').scrollIntoView({block:'nearest',behavior:'auto'});
+      return true;
+    }
+    function acknowledgeParity() {
+      const parity=parityContext();
+      if(parity&&!AppState.parityAcknowledged.includes(parity.key)) AppState.parityAcknowledged.push(parity.key);
+      AppState.parityPending=null;
+    }
+    function renderParityDiagnostic() {
+      const panel=$('#parityPanel'),parity=parityContext(AppState.animating?Math.max(0,AppState.activeMoveIndex-1):AppState.activeMoveIndex);
+      panel.classList.toggle('hidden',!parity);
+      if(!parity) {panel.replaceChildren();delete panel.dataset.parityKey;return;}
+      const pending=AppState.parityPending===parity.key,reviewed=AppState.parityAcknowledged.includes(parity.key),renderKey=`${parity.key}:${pending}:${reviewed}`;
+      if(panel.dataset.parityKey===renderKey) return;
+      panel.dataset.parityKey=renderKey;
+      const descriptions={
+        oll:['4×4 OLL parity','Inner-slice turns can leave the wing pieces in an arrangement that pairing hides. Treating each pair as one edge can then produce an odd number of flipped edges, which outer 3×3 moves cannot fix. This is a legal 4×4 state.','Near the end, one paired edge can look flipped while the other edges are oriented. Earlier in a solve, more edges may still look scrambled; inspect the orientation of the paired edges rather than the corner stickers.'],
+        pll:['4×4 PLL parity','After pairing, the reduced edge permutation can have different parity from the corners. That relative mismatch is legal on a 4×4 but cannot be resolved using only 3×3 outer turns.','Near completion, two paired edges—or two corners—appear exchanged with everything else placed correctly. During an earlier correction phase the pattern may be obscured by other unsolved pieces. The correction makes ordinary 3×3 finishing possible; it need not solve the whole last layer.'],
+        edge:['5×5 last-edge parity','A three-piece edge has two wings and a middle edge. The last wings can need a correction relative to that middle edge after the other groups are paired. Repair the group before solving with outer turns.','Look for an unfinished three-sticker edge bar: its outer wings do not match the middle edge’s side colors. In the tutorial drill, hold that group at front-top. A fully reduced 5×5 does not have 4×4 PLL parity.'],
+        wing:['Wing permutation parity adjustment','The reduction engine found an odd permutation in a wing orbit. An inner-slice adjustment makes it possible to finish pairing using three-piece cycles.','Centers and edge wings can still be scattered at this stage. There may be no isolated flipped or swapped finished edge to spot yet. This is an internal reduction adjustment, not a claim that the last layer already shows OLL or PLL parity.']
+      };
+      const [title,cause,recognition]=descriptions[parity.kind];
+      panel.innerHTML=`<strong>${escapeHtml(title)}</strong><p class="mt-2"><strong>Why it happens:</strong> ${escapeHtml(cause)}</p><p class="mt-2"><strong>How to spot it:</strong> ${escapeHtml(recognition)}</p>${AppState.trainingProfile?'<p class="mt-2">This is a prepared tutorial example. Follow its grip instructions below.</p>':''}<p class="mt-2">${pending?'Playback paused before the correction. Inspect the pieces, then continue or use Next Move to step through it.':reviewed?'Correction reviewed. Keep the shown grip and follow the current-turn instruction.':'Autoplay pauses before this correction for review. Next Move applies one turn at a time.'}</p>${pending?'<button id="resumeParity" class="tap-target mt-3 rounded-xl bg-indigo-600 px-3 py-2 font-bold text-white">Continue parity algorithm</button>':''}`;
+      $('#resumeParity')?.addEventListener('click',()=>{acknowledgeParity();toggleAutoPlay();});
+    }
+
+    function advancePlaybackState(direction,studyTurn=false,fromAuto=false) {
       if(!CurrentAlgorithm.length || AppState.animating) return;
       if(AppState.trainingProfile==='independent'&&!studyTurn) {
         stopAutoPlay();
@@ -4711,6 +4764,8 @@ THE SOFTWARE.
       if(AppState.completed) { stopAutoPlay();return; }
       const step=CurrentAlgorithm[AppState.activeStepIndex], moves=activeMovesForStep(step), move=moves[AppState.activeMoveIndex];
       if(!move) { AppState.completed=true;stopAutoPlay();renderUIStatusDisplay();return; }
+      if(fromAuto&&pauseBeforeParity()) return;
+      acknowledgeParity();
       restorePlaybackGrip();
       executeNextPlaybackMove();
       triggerVisualPuzzleTurnAnimation(move);
@@ -4741,6 +4796,7 @@ THE SOFTWARE.
     function restartSolvePlayback() {
       if(AppState.trainingProfile) return;
       stopAutoPlay();cancelAnimation();
+      AppState.parityAcknowledged=[];AppState.parityPending=null;
       AppState.playbackState=AppState.playbackInitialState.slice();AppState.playbackHistory=[];
       AppState.activeStepIndex=0;AppState.activeCaseIndex=0;AppState.activeMoveIndex=0;
       AppState.completed=!CurrentAlgorithm[0].moves.length;
@@ -4831,6 +4887,7 @@ THE SOFTWARE.
       const step = CurrentAlgorithm[AppState.activeStepIndex];
       if (!step) return;
       updateModelHelp();
+      renderParityDiagnostic();
       const independent=AppState.trainingProfile==='independent', showingStudyTask=independent&&(!AppState.studyDemonstration||AppState.studyPreviewGoal);
       const moves = activeMovesForStep(step);
       const displayIndex=AppState.animating?Math.max(0,AppState.activeMoveIndex-1):AppState.activeMoveIndex;
@@ -4875,8 +4932,6 @@ THE SOFTWARE.
         $('#sourceBox').classList.add('hidden');
         $('#sourceBox').innerHTML = '';
         $('#caseLibrary').innerHTML = '';
-        $('#parityPanel').classList.add('hidden');
-        $('#parityPanel').innerHTML = '';
         return;
       }
       $('#stepName').textContent = step.stepName;
@@ -4887,9 +4942,6 @@ THE SOFTWARE.
       if (AppState.trainingProfile === 'guided') {
         $('#hintBox').innerHTML = `<strong>Clue Box:</strong> ${escapeHtml(guidedHint(step, moves[AppState.activeMoveIndex]))}`;
       }
-      const parityStep = /parity/i.test(step.stepName) || /parity/i.test(activeCaseForStep(step)?.name||'');
-      $('#parityPanel').classList.toggle('hidden', !parityStep);
-      $('#parityPanel').innerHTML = parityStep ? `<strong>Parity handler active:</strong> Use slow, deliberate wide turns. Current move is <span class="font-mono font-black">${escapeHtml(moves[AppState.activeMoveIndex]||'complete')}</span>.` : '';
     }
 
     function setLessonPhase(phase) {
@@ -5032,10 +5084,12 @@ THE SOFTWARE.
         AppState.studyDemonstration=true;AppState.studyPreviewGoal=false;
         renderVisualFrame();
       }
+      if(AppState.parityPending===parityContext()?.key) acknowledgeParity();
+      if(pauseBeforeParity()) return;
       restorePlaybackGrip();
       const tick=()=> {
         if(!AppState.autoTimer||AppState.activeScreen!=='playback') {stopAutoPlay();return;}
-        advancePlaybackState('NEXT',AppState.trainingProfile==='independent');
+        advancePlaybackState('NEXT',AppState.trainingProfile==='independent',true);
         if(AppState.autoTimer&&!AppState.completed) AppState.autoTimer=setTimeout(tick,playbackTiming().turn+playbackTiming().pause);
       };
       AppState.autoTimer=setTimeout(tick,150);renderUIStatusDisplay();
