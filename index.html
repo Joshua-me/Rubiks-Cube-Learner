@@ -3458,7 +3458,7 @@ THE SOFTWARE.
           studyTask:example.clue, studyCaseName:example.name, studyStageCount:stages.length, studyCaseCount:examples.length, studyCaseIndex:examples.indexOf(example),
           studySetupMoves:example.setupMoves||null,
           studyGoalSetupMoves:example.goalSetupMoves||[],
-          studyMoves:example.moves,moveNotes:example.moveNotes||[], focusIndices:independentFocusIndices(type,index)}));
+          studyMoves:example.moves,moveNotes:example.moveNotes||[], focusIndices:type==='3x3'&&stage===0&&example.mentalStep?[4,46,48,50,52]:independentFocusIndices(type,index)}));
       });
       // Carry earlier piece identities into each case's grip, including the final
       // yellow-down grip. Never replace sticker colors to achieve the mask.
