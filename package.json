@@ -6,7 +6,9 @@
     "test:browser": "node tests/browser.cjs",
     "build:styles": "node scripts/build-styles.cjs",
     "test:camera": "node tests/camera.cjs",
-    "build:camera": "node scripts/embed-opencv.cjs"
+    "build:camera": "node scripts/embed-opencv.cjs",
+    "test:smoke": "node --test tests/state-smoke.cjs",
+    "test:focus": "node tests/focus-console.cjs"
   },
   "devDependencies": {
     "playwright": "1.63.0",
